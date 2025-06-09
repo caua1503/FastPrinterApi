@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-import asyncio
 from routers import api_router
 
 app = FastAPI()
