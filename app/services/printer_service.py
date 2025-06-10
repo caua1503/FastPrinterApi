@@ -1,5 +1,5 @@
-from typing import List, Dict, Any
-from models import FullPrinterSchemaDB, FullPrinterSchema, PrinterSchemaDB
+from typing import List, Dict, Any, Optional
+from models.printer import FullPrinterSchemaDB, FullPrinterSchema, PrinterSchemaDB
 
 
 database = []
@@ -19,7 +19,7 @@ async def update_printer(id: int, printer: FullPrinterSchema):
 async def get_printer(id: int ) -> List[FullPrinterSchema]:
     ...
     
-async def get_printers(filters: Dict[str, Any] = None) -> List[Dict[str, FullPrinterSchema]]:
+async def get_printers(filters: Optional[Dict[str, Any]] = None) -> List[FullPrinterSchema]:
     if filters:
         ...
     

@@ -20,13 +20,23 @@ class Status:
     ultima_atualizacao: Mapped[datetime]
 
 @table_registry.mapped_as_dataclass
-class Historico:
+class Historico_Manutencao:
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    impressora_id: Mapped[int]
+    data: Mapped[str]
+    tipo_evento: Mapped[str] #preventiva, limpeza, troca de peca, concerto, Troca insumo
+    descricao: Mapped[str]
+    ...
+
+@table_registry.mapped_as_dataclass
+class Historico_Recarga:
     __tablename__ = "historico"
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     impressora_id: Mapped[int]
     data: Mapped[str]
-    tipo_evento: Mapped[str]
+    tipo_evento: Mapped[str] #Reabastecimento, Troca Insumo
     id_insumo: Mapped[Insumo] = mapped_column(ForeignKey("insumo.id"))
+    descricao: Mapped[str]
 
 @table_registry.mapped_as_dataclass
 class Impressora:
