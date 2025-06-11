@@ -60,4 +60,4 @@ async def get_printers(filters: Optional[Dict[str, Any]] = None) -> List[FullPri
     if filters:
         ...
     
-    return database
+    return #database
