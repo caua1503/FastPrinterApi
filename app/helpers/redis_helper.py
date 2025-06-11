@@ -1,4 +1,3 @@
-import os
 import json
 from typing import Union, Any
 import redis.asyncio as redis

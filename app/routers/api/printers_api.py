@@ -1,9 +1,7 @@
 from http import HTTPStatus
 from fastapi import APIRouter
-from typing import List, Dict, Any
-from models.printer import PrinterSchema, FullPrinterSchema, PrinterSchemaDB
-from services.printer_service import (get_printers, create_printer, 
-                                      delete_printer, update_printer, get_printer)
+from models.printer_model import FullPrinterSchema, PrinterSchemaDB
+from services.printer_service import (get_printers, create_printer)
 
 printer_router = APIRouter(prefix="/printers", tags=["printers"])
 

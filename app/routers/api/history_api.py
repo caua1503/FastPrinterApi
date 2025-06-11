@@ -1,11 +1,8 @@
 from typing import List
 from http import HTTPStatus
 from fastapi import APIRouter
-from models.history import  HistoryRecargaSchema ,HistoryRecargaSchemaDB, HistoryManutencaoSchema, HistoryManutencaoSchemaDB
-from services.history_service import (get_history_recharge, create_history_recharge, 
-                                      delete_history_recharge, update_history_recharge,
-                                      get_history_maintenance, create_history_maintenance,
-                                      delete_history_maintenance, update_history_maintenance)
+from models.history_model import  (HistoryRecargaSchema ,HistoryRecargaSchemaDB, 
+                             HistoryManutencaoSchema, HistoryManutencaoSchemaDB)
 
 history_router = APIRouter(prefix="/historys", tags=["historys"])
 

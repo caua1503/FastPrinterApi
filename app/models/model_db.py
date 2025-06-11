@@ -1,6 +1,7 @@
 from sqlalchemy.orm import registry, Mapped, mapped_column
 from sqlalchemy import func, ForeignKey
-from datetime import datetime
+from datetime import datetime, date
+from typing import Optional
 
 table_registry = registry()
 
@@ -11,19 +12,30 @@ class Insumo:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     tipo_insumo: Mapped[str]
     marca: Mapped[str]
+    descricao: Mapped[str]
 
 @table_registry.mapped_as_dataclass
 class Status:
     __tablename__ = "status"
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     status: Mapped[str]
-    ultima_atualizacao: Mapped[datetime]
+    descricao: Mapped[str]
+
+@table_registry.mapped_as_dataclass
+class Historico_Status:
+    __tablename__ = "historico_status"
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    impressora_id: Mapped[int] = mapped_column(ForeignKey("impressora.id"))
+    status_id: Mapped[int] = mapped_column(ForeignKey("status.id"))
+    data: Mapped[date]
+    descricao: Mapped[str]
 
 @table_registry.mapped_as_dataclass
 class Historico_Manutencao:
+    __tablename__ = "historico_manutencao"
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     impressora_id: Mapped[int]
-    data: Mapped[str]
+    data: Mapped[date]
     tipo_evento: Mapped[str] #preventiva, limpeza, troca de peca, concerto, Troca insumo
     descricao: Mapped[str]
     ...
@@ -33,7 +45,7 @@ class Historico_Recarga:
     __tablename__ = "historico"
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     impressora_id: Mapped[int]
-    data: Mapped[str]
+    data: Mapped[date]
     tipo_evento: Mapped[str] #Reabastecimento, Troca Insumo
     id_insumo: Mapped[Insumo] = mapped_column(ForeignKey("insumo.id"))
     descricao: Mapped[str]
@@ -42,19 +54,17 @@ class Historico_Recarga:
 class Impressora:
     __tablename__ = "impressora"
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
-    # id_status: Mapped[Status] = mapped_column(ForeignKey("status.id"))
-    # id_insumo: Mapped[Insumo] = mapped_column(ForeignKey("insumo.id"))
-    id_status: Mapped[str] 
-    id_insumo: Mapped[str]
+    id_status: Mapped[int] = mapped_column(ForeignKey("status.id"))
+    id_insumo: Mapped[int] = mapped_column(ForeignKey("insumo.id"))
     name: Mapped[str]
     marca: Mapped[str]
     model: Mapped[str]
     ip: Mapped[str] = mapped_column(unique=True)
     setor: Mapped[str] 
-    descricao: Mapped[str]
-    previsao: Mapped[str] 
-    ultima_recarga: Mapped[str]
-    ultima_manutencao: Mapped[str]
-    ultima_verificacao: Mapped[str]
+    descricao: Mapped[Optional[str]]
+    previsao: Mapped[Optional[date]] 
+    ultima_recarga: Mapped[Optional[date]]
+    ultima_manutencao: Mapped[Optional[date]]
+    ultima_verificacao: Mapped[Optional[date]]
     created_at: Mapped[datetime] = mapped_column(init=False,
                                                  server_default=func.now())

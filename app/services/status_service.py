@@ -1,0 +1,13 @@
+from models.status_model import StatusSchema, StatusSchemaDB
+
+async def create_status(status: StatusSchema) -> StatusSchema:
+    ...
+
+async def get_status(id: int) -> StatusSchemaDB:
+    ...
+
+async def update_status(id: int, status: StatusSchema) -> StatusSchema:
+    ...
+
+async def delete_status(id: int):
+    ...

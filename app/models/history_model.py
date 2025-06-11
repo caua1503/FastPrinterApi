@@ -1,18 +1,20 @@
 from pydantic import BaseModel
+from datetime import date
 
 class HistoryRecargaSchema(BaseModel):
-    impressora_id:int
-    data:str
-    tipo_evento:str
+    impressora_id: int
+    data: date
+    tipo_evento: str
     id_insumo: int
+
 class HistoryManutencaoSchema(BaseModel):
-    impressora_id:int
-    data:str
-    tipo_evento:str
-    descricao:str
+    impressora_id: int
+    data: date
+    tipo_evento: str
+    descricao: str
 
 class HistoryRecargaSchemaDB(HistoryRecargaSchema):
-    id:int
+    id: int
 
 class HistoryManutencaoSchemaDB(HistoryManutencaoSchema):
-    id:int
+    id: int

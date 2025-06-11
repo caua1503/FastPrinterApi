@@ -1,0 +1,13 @@
+from models.input_model import InputSchema, InputSchemaDB
+
+async def create_input(input: InputSchema) -> InputSchema:
+    ...
+
+async def get_input(id: int) -> InputSchemaDB:
+    ...
+
+async def update_input(id: int, input: InputSchema) -> InputSchema:
+    ...
+
+async def delete_input(id: int):
+    ...
