@@ -1,7 +1,11 @@
 from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 from config import DATABASE_URL
 
-#Criar uma engine async depois
-async def get_engine(database_url:str = DATABASE_URL):
-    print(database_url)
-    return create_engine(database_url)
+def get_session():
+    engine = create_engine(DATABASE_URL)
+    with Session(engine) as session:
+        try:
+            yield session
+        finally:
+            session.close()
