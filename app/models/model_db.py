@@ -5,21 +5,27 @@ from typing import Optional
 
 table_registry = registry()
 
+@table_registry.mapped_as_dataclass
+class Tipo_Insumo:
+    __tablename__ = "tipo_insumo"
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    nome: Mapped[str]
 
 @table_registry.mapped_as_dataclass
 class Insumo:
     __tablename__ = "insumo"
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
-    tipo_insumo: Mapped[str]
+    nome: Mapped[str]
+    tipo_insumo: Mapped[int] = mapped_column(ForeignKey("tipo_insumo.id"))
     marca: Mapped[str]
-    descricao: Mapped[str]
+    descricao: Mapped[Optional[str]]
 
 @table_registry.mapped_as_dataclass
 class Status:
     __tablename__ = "status"
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     status: Mapped[str]
-    descricao: Mapped[str]
+    descricao: Mapped[Optional[str]]
 
 @table_registry.mapped_as_dataclass
 class Historico_Status:
@@ -28,7 +34,7 @@ class Historico_Status:
     impressora_id: Mapped[int] = mapped_column(ForeignKey("impressora.id"))
     status_id: Mapped[int] = mapped_column(ForeignKey("status.id"))
     data: Mapped[date]
-    descricao: Mapped[str]
+    descricao: Mapped[Optional[str]]
 
 @table_registry.mapped_as_dataclass
 class Historico_Manutencao:
@@ -37,7 +43,7 @@ class Historico_Manutencao:
     impressora_id: Mapped[int]
     data: Mapped[date]
     tipo_evento: Mapped[str] #preventiva, limpeza, troca de peca, concerto, Troca insumo
-    descricao: Mapped[str]
+    descricao: Mapped[Optional[str]]
     ...
 
 @table_registry.mapped_as_dataclass
@@ -48,7 +54,7 @@ class Historico_Recarga:
     data: Mapped[date]
     tipo_evento: Mapped[str] #Reabastecimento, Troca Insumo
     id_insumo: Mapped[Insumo] = mapped_column(ForeignKey("insumo.id"))
-    descricao: Mapped[str]
+    descricao: Mapped[Optional[str]]
 
 @table_registry.mapped_as_dataclass
 class Impressora:
