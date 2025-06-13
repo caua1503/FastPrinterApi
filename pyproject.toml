@@ -4,4 +4,28 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi>=0.115.12",
+    "sqlalchemy>=2.0.41",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.13",
+]
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ['config', 'static']
+
+[tool.ruff.lint]
+preview=true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+ignore = ["D100", "D104", "E402"]
+
+[tool.ruff.format]
+preview=true
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
