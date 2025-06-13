@@ -1,5 +1,7 @@
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+
 caminho = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(caminho, ".env"))
 

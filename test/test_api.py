@@ -1,17 +1,18 @@
 from http import HTTPStatus
-from datetime import date
-from sqlalchemy import select
+
 
 def test_apirouter(client):
     response = client.get("/api/")
 
-    assert response.status_code  == HTTPStatus.OK
+    assert response.status_code == HTTPStatus.OK
+
 
 def test_list_printers(client):
     response = client.get("/api/printers/")
 
     assert response.status_code == HTTPStatus.OK
-    
+
+
 def test_create_printer(client):
     dados_json = {
         "id_insumo": 1,
@@ -25,7 +26,7 @@ def test_create_printer(client):
         "previsao": None,
         "ultima_recarga": None,
         "ultima_manutencao": None,
-        "ultima_verificacao": None
+        "ultima_verificacao": None,
     }
     response = client.post("/api/printers/", json=dados_json)
 
@@ -35,4 +36,3 @@ def test_create_printer(client):
     assert response.json()["model"] == "string"
     assert response.json()["ip"] == "192.168.1.100"
     assert response.json()["marca"] == "string"
-

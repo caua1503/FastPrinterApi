@@ -15,12 +15,17 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 79
+line-length = 120
+extend-exclude = ['config', 'static']
 
 [tool.ruff.lint]
 preview=true
 select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+ignore = ["D100", "D104", "E402"]
 
 [tool.ruff.format]
 preview=true
 
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
