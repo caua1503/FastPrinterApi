@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115.12",
+    "pwdlib[argon2]>=0.2.1",
+    "pydantic-settings>=2.9.1",
+    "pyjwt>=2.10.1",
     "sqlalchemy>=2.0.41",
 ]
 
@@ -20,7 +23,7 @@ extend-exclude = ['config', 'static']
 
 [tool.ruff.lint]
 preview=true
-select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+select = ['I', 'F', 'E', 'W', 'PL', 'PT', 'FAST']
 ignore = ["D100", "D104", "E402"]
 
 [tool.ruff.format]
