@@ -4,45 +4,45 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class HistoryRecargaSchema(BaseModel):
-    impressora_id: int
-    data: date
-    tipo_evento: str
-    id_insumo: int
-    descricao: Optional[str]
+class RefillHistorySchema(BaseModel):
+    printer_id: int
+    date: date
+    event_type: str
+    supply_id: int
+    description: Optional[str]
 
 
-class HistoryManutencaoSchema(BaseModel):
-    impressora_id: int
-    data: date
-    tipo_evento: str
-    descricao: Optional[str]
+class MaintenanceHistorySchema(BaseModel):
+    printer_id: int
+    date: date
+    event_type: str
+    description: Optional[str]
 
 
-class HistoryLixeiraSchema(BaseModel):
-    impressora_id: int
-    data: date
-    descricao: Optional[str]
+class PrinterTrashHistorySchema(BaseModel):
+    printer_id: int
+    date: date
+    description: Optional[str]
 
 
-class HistoryAlertaSchema(BaseModel):
-    impressora_id: int
-    data: date
-    tipo_alerta: str
-    descricao: Optional[str]
+class AlertHistorySchema(BaseModel):
+    printer_id: int
+    date: date
+    alert_type: str
+    description: Optional[str]
 
 
-class HistoryRecargaSchemaDB(HistoryRecargaSchema):
+class RefillHistorySchemaDB(RefillHistorySchema):
     id: int
 
 
-class HistoryManutencaoSchemaDB(HistoryManutencaoSchema):
+class MaintenanceHistorySchemaDB(MaintenanceHistorySchema):
     id: int
 
 
-class HistoryLixeiraSchemaDB(HistoryLixeiraSchema):
+class PrinterTrashHistorySchemaDB(PrinterTrashHistorySchema):
     id: int
 
 
-class HistoryAlertaSchemaDB(HistoryAlertaSchema):
+class AlertHistorySchemaDB(AlertHistorySchema):
     id: int

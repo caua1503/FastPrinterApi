@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from helpers.db_helper import get_session
+from helpers.database_helper import get_session
 from schemas.printer_schema import FullPrinterSchema, PrinterSchemaDB
 from services.printer_service import create_printer, delete_printer, get_printer, get_printers, update_printer
 from sqlalchemy.ext.asyncio import AsyncSession

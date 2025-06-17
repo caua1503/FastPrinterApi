@@ -5,8 +5,8 @@ from pydantic import BaseModel
 
 class UserSchema(BaseModel):
     login: str
-    senha_hash: str
-    codigo_hash: str
+    password_hash: str
+    code_hash: str
     api_key: str
 
 
@@ -14,7 +14,7 @@ class UserSchemaDB(UserSchema):
     id: int
 
 
-class UserConfigSchema(BaseModel):
-    nome_usuario: str
-    webhook_enable: bool
+class UserConfigurationSchema(BaseModel):
+    username: str
+    webhook_enabled: bool
     webhook_url: Optional[str]

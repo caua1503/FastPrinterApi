@@ -12,7 +12,7 @@ sys.path.insert(0, project_root)
 app_path = os.path.join(project_root, "app")
 sys.path.insert(1, app_path)
 
-from app.helpers.db_helper import get_session
+from helpers.database_helper import get_session
 from app.main import app
 from app.models.model_db import table_registry
 

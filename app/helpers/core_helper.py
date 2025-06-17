@@ -2,22 +2,23 @@ from datetime import date, datetime, timedelta
 from statistics import mean, median
 from typing import List
 
-from models.model_db import Historico_Lixeira_Impressora, Historico_Recarga, Impressora
+from models.history_model import PrinterTrashHistory, RefillHistory
+from models.printer_model import Printer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_printers(session: AsyncSession):
-    printers_database = (await session.scalars(select(Impressora))).all()
+    printers_database = (await session.scalars(select(Printer))).all()
     return printers_database
 
 
 async def extract_datas_recharge(printer_id: int, session: AsyncSession, limit: int) -> List:
     history_recharge = (
         await session.scalars(
-            select(Historico_Recarga)
-            .where(Historico_Recarga.impressora_id == printer_id)
-            .order_by(Historico_Recarga.data.desc())
+            select(RefillHistory)
+            .where(RefillHistory.printer_id == printer_id)
+            .order_by(RefillHistory.date.desc())
             .limit(limit)
         )
     ).all()
@@ -30,9 +31,9 @@ async def extract_datas_recharge(printer_id: int, session: AsyncSession, limit: 
 async def extract_trash_datas(printer_id: int, session: AsyncSession, limit: int) -> List:
     history_trash = (
         await session.scalars(
-            select(Historico_Lixeira_Impressora)
-            .where(Historico_Lixeira_Impressora.impressora_id == printer_id)
-            .order_by(Historico_Lixeira_Impressora.data.desc())
+            select(PrinterTrashHistory)
+            .where(PrinterTrashHistory.printer_id == printer_id)
+            .order_by(PrinterTrashHistory.date.desc())
             .limit(limit)
         )
     ).all()

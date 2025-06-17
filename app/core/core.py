@@ -56,7 +56,7 @@ async def get_all_printers_maintenance_info(session: AsyncSession, limit: int):
 
             alert_description = f"A limpeza da lixeira é urgente, percentual: {trash_cleaning_percentage_value}%"
             await create_history_alert(
-                impressora_id=printer.id,
+                printer_id=printer.id,
                 data=datetime.now(),
                 tipo_alerta="limpeza_urgente",
                 descricao=alert_description,

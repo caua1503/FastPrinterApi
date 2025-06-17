@@ -1,12 +1,18 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from models.model_db import Historico_Alerta, Historico_Lixeira_Impressora, Historico_Manutencao, Historico_Recarga
+from models.printer_model import Printer
+from models.supply_model import Supply
+from models.history_model import (
+    AlertHistory, 
+    MaintenanceHistory, 
+    PrinterTrashHistory, 
+    RefillHistory,)
 from schemas.history_schema import (
-    HistoryAlertaSchema,
-    HistoryLixeiraSchema,
-    HistoryManutencaoSchema,
-    HistoryRecargaSchema,
+    AlertHistorySchema,
+    MaintenanceHistorySchema,
+    PrinterTrashHistorySchema,
+    RefillHistorySchema,
 )
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,23 +24,34 @@ ROTA DE HISTORICO DE RECARGA
 """
 
 
-async def create_history_recharge(history: HistoryRecargaSchema, session: AsyncSession):
-    history_db = Historico_Recarga(
-        impressora_id=history.impressora_id,
-        data=history.data,
-        tipo_evento=history.tipo_evento,
-        id_insumo=history.id_insumo,
-        descricao=history.descricao,
+async def create_history_recharge(history: RefillHistorySchema, session: AsyncSession):
+
+    exist_printer = await session.scalar(select(Printer).where(Printer.id == history.printer_id))
+
+    if not exist_printer:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Printer not found")
+    
+    exist_supply = await session.scalar(select(Supply).where(Supply.id == history.supply_id))
+    
+    if not exist_supply:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Supply not found")
+
+    history_db = RefillHistory(
+        printer_id=history.printer_id,
+        date=history.date,
+        event_type=history.event_type,
+        supply_id=history.supply_id,
+        description=history.description,
     )
 
-    await session.add(history_db)
+    session.add(history_db)
     await session.commit()
     await session.refresh(history_db)
     return history_db
 
 
 async def get_history_recharge(session: AsyncSession, limit: int, offset: int):
-    historys = (await session.scalars(select(Historico_Recarga).limit(limit).offset(offset))).all()
+    historys = (await session.scalars(select(RefillHistory).limit(limit).offset(offset))).all()
 
     if not historys:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
@@ -43,7 +60,7 @@ async def get_history_recharge(session: AsyncSession, limit: int, offset: int):
 
 
 async def get_history_recharge_id(id: int, session: AsyncSession):
-    history = await session.scalar(select(Historico_Recarga).where(Historico_Recarga.id == id))
+    history = await session.scalar(select(RefillHistory).where(RefillHistory.id == id))
 
     if not history:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
@@ -51,13 +68,10 @@ async def get_history_recharge_id(id: int, session: AsyncSession):
     return history
 
 
-async def get_history_recharge_printer_id(impressora_id: int, limit: int, offset: int, session: AsyncSession):
+async def get_history_recharge_printer_id(printer_id: int, limit: int, offset: int, session: AsyncSession):
     historys = (
         await session.scalars(
-            select(Historico_Recarga)
-            .where(Historico_Recarga.impressora_id == impressora_id)
-            .limit(limit)
-            .offset(offset)
+            select(RefillHistory).where(RefillHistory.printer_id == printer_id).limit(limit).offset(offset)
         )
     ).all()
 
@@ -67,17 +81,17 @@ async def get_history_recharge_printer_id(impressora_id: int, limit: int, offset
     return historys
 
 
-async def update_history_recharge(id: int, history: HistoryRecargaSchema, session: AsyncSession):
-    history_db = await session.scalar(select(Historico_Recarga).where(Historico_Recarga.id == id))
+async def update_history_recharge(id: int, history: RefillHistorySchema, session: AsyncSession):
+    history_db = await session.scalar(select(RefillHistory).where(RefillHistory.id == id))
 
     if not history_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
 
-    history_db.impressora_id = history.impressora_id
-    history_db.data = history.data
-    history_db.tipo_evento = history.tipo_evento
-    history_db.id_insumo = history.id_insumo
-    history_db.descricao = history.descricao
+    history_db.printer_id = history.printer_id
+    history_db.date = history.date
+    history_db.event_type = history.event_type
+    history_db.supply_id = history.supply_id
+    history_db.description = history.description
 
     await session.commit()
     await session.refresh(history_db)
@@ -85,7 +99,7 @@ async def update_history_recharge(id: int, history: HistoryRecargaSchema, sessio
 
 
 async def delete_history_recharge(id: int, session: AsyncSession):
-    history_db = await session.scalar(select(Historico_Recarga).where(Historico_Recarga.id == id))
+    history_db = await session.scalar(select(RefillHistory).where(RefillHistory.id == id))
 
     if not history_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
@@ -100,27 +114,27 @@ ROTA DE HISTORICO DE MANUTENÇÃO
 """
 
 
-async def create_history_maintenance(history: HistoryManutencaoSchema, session: AsyncSession):
-    history_db = Historico_Manutencao(
-        impressora_id=history.impressora_id,
-        data=history.data,
-        tipo_evento=history.tipo_evento,
-        descricao=history.descricao,
+async def create_history_maintenance(history: MaintenanceHistorySchema, session: AsyncSession):
+    history_db = MaintenanceHistory(
+        printer_id=history.printer_id,
+        date=history.date,
+        event_type=history.event_type,
+        description=history.description,
     )
 
-    await session.add(history_db)
+    session.add(history_db)
     await session.commit()
     await session.refresh(history_db)
     return history_db
 
 
 async def get_history_maintenance(session: AsyncSession, limit: int, offset: int):
-    historys = (await session.scalars(select(Historico_Manutencao).limit(limit).offset(offset))).all()
+    historys = (await session.scalars(select(MaintenanceHistory).limit(limit).offset(offset))).all()
     return historys
 
 
 async def get_history_maintenance_id(id: int, session: AsyncSession):
-    history = await session.scalar(select(Historico_Manutencao).where(Historico_Manutencao.id == id))
+    history = await session.scalar(select(MaintenanceHistory).where(MaintenanceHistory.id == id))
 
     if not history:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
@@ -128,13 +142,10 @@ async def get_history_maintenance_id(id: int, session: AsyncSession):
     return history
 
 
-async def get_history_maintenance_printer_id(impressora_id: int, limit: int, offset: int, session: AsyncSession):
+async def get_history_maintenance_printer_id(printer_id: int, limit: int, offset: int, session: AsyncSession):
     historys = (
         await session.scalars(
-            select(Historico_Manutencao)
-            .where(Historico_Manutencao.impressora_id == impressora_id)
-            .limit(limit)
-            .offset(offset)
+            select(MaintenanceHistory).where(MaintenanceHistory.printer_id == printer_id).limit(limit).offset(offset)
         )
     ).all()
 
@@ -144,16 +155,16 @@ async def get_history_maintenance_printer_id(impressora_id: int, limit: int, off
     return historys
 
 
-async def update_history_maintenance(id: int, history: HistoryManutencaoSchema, session: AsyncSession):
-    history_db = await session.scalar(select(Historico_Manutencao).where(Historico_Manutencao.id == id))
+async def update_history_maintenance(id: int, history: MaintenanceHistorySchema, session: AsyncSession):
+    history_db = await session.scalar(select(MaintenanceHistory).where(MaintenanceHistory.id == id))
 
     if not history_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
 
-    history_db.impressora_id = history.impressora_id
-    history_db.data = history.data
-    history_db.tipo_evento = history.tipo_evento
-    history_db.descricao = history.descricao
+    history_db.printer_id = history.printer_id
+    history_db.date = history.date
+    history_db.event_type = history.event_type
+    history_db.description = history.description
 
     await session.commit()
     await session.refresh(history_db)
@@ -161,7 +172,7 @@ async def update_history_maintenance(id: int, history: HistoryManutencaoSchema, 
 
 
 async def delete_history_maintenance(id: int, session: AsyncSession):
-    history_db = await session.scalar(select(Historico_Manutencao).where(Historico_Manutencao.id == id))
+    history_db = await session.scalar(select(MaintenanceHistory).where(MaintenanceHistory.id == id))
 
     if not history_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
@@ -177,31 +188,28 @@ ROTA DE HISTORICO DE LIMPEZA DE LIXEIRA
 """
 
 
-async def create_history_trash(history: HistoryLixeiraSchema, session: AsyncSession):
-    history_db = Historico_Lixeira_Impressora(
-        impressora_id=history.impressora_id,
-        data=history.data,
-        descricao=history.descricao,
+async def create_history_trash(history: PrinterTrashHistorySchema, session: AsyncSession):
+    history_db = PrinterTrashHistory(
+        printer_id=history.printer_id,
+        date=history.date,
+        description=history.description,
     )
 
-    await session.add(history_db)
+    session.add(history_db)
     await session.commit()
     await session.refresh(history_db)
     return history_db
 
 
 async def get_history_trash(session: AsyncSession, limit: int, offset: int):
-    historys = (await session.scalars(select(Historico_Lixeira_Impressora).limit(limit).offset(offset))).all()
+    historys = (await session.scalars(select(PrinterTrashHistory).limit(limit).offset(offset))).all()
     return historys
 
 
-async def get_history_trash_printer_id(impressora_id: int, limit: int, offset: int, session: AsyncSession):
+async def get_history_trash_printer_id(printer_id: int, limit: int, offset: int, session: AsyncSession):
     historys = (
         await session.scalars(
-            select(Historico_Lixeira_Impressora)
-            .where(Historico_Lixeira_Impressora.impressora_id == impressora_id)
-            .limit(limit)
-            .offset(offset)
+            select(PrinterTrashHistory).where(PrinterTrashHistory.printer_id == printer_id).limit(limit).offset(offset)
         )
     ).all()
 
@@ -211,15 +219,15 @@ async def get_history_trash_printer_id(impressora_id: int, limit: int, offset: i
     return historys
 
 
-async def update_history_trash(id: int, history: HistoryLixeiraSchema, session: AsyncSession):
-    history_db = await session.scalar(select(Historico_Lixeira_Impressora).where(Historico_Lixeira_Impressora.id == id))
+async def update_history_trash(id: int, history: PrinterTrashHistorySchema, session: AsyncSession):
+    history_db = await session.scalar(select(PrinterTrashHistory).where(PrinterTrashHistory.id == id))
 
     if not history_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
 
-    history_db.impressora_id = history.impressora_id
-    history_db.data = history.data
-    history_db.descricao = history.descricao
+    history_db.printer_id = history.printer_id
+    history_db.date = history.date
+    history_db.description = history.description
 
     await session.commit()
     await session.refresh(history_db)
@@ -227,7 +235,7 @@ async def update_history_trash(id: int, history: HistoryLixeiraSchema, session: 
 
 
 async def delete_history_trash(id: int, session: AsyncSession):
-    history_db = await session.scalar(select(Historico_Lixeira_Impressora).where(Historico_Lixeira_Impressora.id == id))
+    history_db = await session.scalar(select(PrinterTrashHistory).where(PrinterTrashHistory.id == id))
 
     if not history_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
@@ -243,44 +251,44 @@ ROTA DE HISTORICO DE ALERTA
 """
 
 
-async def create_history_alert(history: HistoryAlertaSchema, session: AsyncSession) -> HistoryAlertaSchema:
-    history_db = Historico_Alerta(
-        impressora_id=history.impressora_id,
-        data=history.data,
-        tipo_alerta=history.tipo_alerta,
-        descricao=history.descricao,
+async def create_history_alert(history: AlertHistorySchema, session: AsyncSession) -> AlertHistorySchema:
+    history_db = AlertHistory(
+        printer_id=history.printer_id,
+        date=history.date,
+        alert_type=history.alert_type,
+        description=history.description,
     )
 
-    await session.add(history_db)
+    session.add(history_db)
     await session.commit()
     await session.refresh(history_db)
     return history_db
 
 
 async def get_history_alert(session: AsyncSession, limit: int, offset: int):
-    historys = (await session.scalars(select(Historico_Alerta).limit(limit).offset(offset))).all()
+    historys = (await session.scalars(select(AlertHistory).limit(limit).offset(offset))).all()
     return historys
 
 
-async def get_history_alert_printer_id(impressora_id: int, limit: int, offset: int, session: AsyncSession):
+async def get_history_alert_printer_id(printer_id: int, limit: int, offset: int, session: AsyncSession):
     historys = (
         await session.scalars(
-            select(Historico_Alerta).where(Historico_Alerta.impressora_id == impressora_id).limit(limit).offset(offset)
+            select(AlertHistory).where(AlertHistory.printer_id == printer_id).limit(limit).offset(offset)
         )
     ).all()
     return historys
 
 
-async def update_history_alert(id: int, history: HistoryAlertaSchema, session: AsyncSession):
-    history_db = await session.scalar(select(Historico_Alerta).where(Historico_Alerta.id == id))
+async def update_history_alert(id: int, history: AlertHistorySchema, session: AsyncSession):
+    history_db = await session.scalar(select(AlertHistory).where(AlertHistory.id == id))
 
     if not history_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
 
-    history_db.impressora_id = history.impressora_id
-    history_db.data = history.data
-    history_db.tipo_alerta = history.tipo_alerta
-    history_db.descricao = history.descricao
+    history_db.printer_id = history.printer_id
+    history_db.date = history.date
+    history_db.alert_type = history.alert_type
+    history_db.description = history.description
 
     await session.commit()
     await session.refresh(history_db)
@@ -288,7 +296,7 @@ async def update_history_alert(id: int, history: HistoryAlertaSchema, session: A
 
 
 async def delete_history_alert(id: int, session: AsyncSession):
-    history_db = await session.scalar(select(Historico_Alerta).where(Historico_Alerta.id == id))
+    history_db = await session.scalar(select(AlertHistory).where(AlertHistory.id == id))
 
     if not history_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")

@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from helpers.db_helper import get_session
+from helpers.database_helper import get_session
 from schemas.status_schema import StatusSchema
 from services.status_service import create_status, delete_status, get_status, get_status_id, update_status
 from sqlalchemy.ext.asyncio import AsyncSession

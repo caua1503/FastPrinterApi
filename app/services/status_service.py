@@ -1,14 +1,14 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from models.model_db import Status
+from models.printer_model import Status
 from schemas.status_schema import StatusSchema
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def create_status(status: StatusSchema, session: AsyncSession):
-    status_db = Status(status=status.status, descricao=status.descricao)
+    status_db = Status(status=status.status, description=status.description)
     session.add(status_db)
     await session.commit()
     await session.refresh(status_db)
@@ -36,7 +36,7 @@ async def update_status(id: int, status: StatusSchema, session: AsyncSession):
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
 
     status_db.status = status.status
-    status_db.descricao = status.descricao
+    status_db.description = status.description
 
     await session.commit()
     await session.refresh(status_db)

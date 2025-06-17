@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from models.model_db import Impressora
+from models.printer_model import Printer
 from schemas.printer_schema import FullPrinterSchema
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 async def create_printer(printer: FullPrinterSchema, session: AsyncSession):
     # Verificar se IP já existe
-    existing_printer = await session.scalar(select(Impressora).where(Impressora.ip == printer.ip))
+    existing_printer = await session.scalar(select(Printer).where(Printer.ip == printer.ip))
 
     if existing_printer:
         raise HTTPException(
@@ -18,19 +18,19 @@ async def create_printer(printer: FullPrinterSchema, session: AsyncSession):
         )
 
     # Criar nova impressora
-    db_printer = Impressora(
-        id_insumo=printer.id_insumo,
-        id_status=printer.id_status,
+    db_printer = Printer(
+        supply_id=printer.supply_id,
+        status_id=printer.status_id,
         name=printer.name,
-        marca=printer.marca,
+        brand=printer.brand,
         model=printer.model,
         ip=printer.ip,
-        setor=printer.setor,
-        descricao=printer.descricao,
-        previsao=printer.previsao,
-        ultima_recarga=printer.ultima_recarga,
-        ultima_manutencao=printer.ultima_manutencao,
-        ultima_verificacao=printer.ultima_verificacao,
+        department=printer.department,
+        description=printer.description,
+        forecast=printer.forecast,
+        last_refill=printer.last_refill,
+        last_maintenance=printer.last_maintenance,
+        last_check=printer.last_check,
     )
 
     session.add(db_printer)
@@ -41,12 +41,12 @@ async def create_printer(printer: FullPrinterSchema, session: AsyncSession):
 
 
 async def get_printers(session: AsyncSession, limit: int, offset: int):
-    printers = (await session.scalars(select(Impressora).limit(limit).offset(offset))).all()
+    printers = (await session.scalars(select(Printer).limit(limit).offset(offset))).all()
     return printers
 
 
 async def delete_printer(id: int, session: AsyncSession):
-    printer = await session.scalar(select(Impressora).where(Impressora.id == id))
+    printer = await session.scalar(select(Printer).where(Printer.id == id))
 
     if not printer:
         raise HTTPException(
@@ -59,7 +59,7 @@ async def delete_printer(id: int, session: AsyncSession):
 
 
 async def update_printer(id: int, printer: FullPrinterSchema, session: AsyncSession):
-    existing_printer = await session.scalar(select(Impressora).where(Impressora.id == id))
+    existing_printer = await session.scalar(select(Printer).where(Printer.id == id))
 
     if not existing_printer:
         raise HTTPException(
@@ -68,7 +68,7 @@ async def update_printer(id: int, printer: FullPrinterSchema, session: AsyncSess
         )
 
     if existing_printer.ip != printer.ip:
-        existing_ip_printer = await session.scalar(select(Impressora).where(Impressora.ip == printer.ip))
+        existing_ip_printer = await session.scalar(select(Printer).where(Printer.ip == printer.ip))
 
         if existing_ip_printer:
             raise HTTPException(
@@ -79,14 +79,14 @@ async def update_printer(id: int, printer: FullPrinterSchema, session: AsyncSess
     existing_printer.name = printer.name
     existing_printer.model = printer.model
     existing_printer.ip = printer.ip
-    existing_printer.setor = printer.setor
-    existing_printer.descricao = printer.descricao
-    existing_printer.previsao = printer.previsao
-    existing_printer.ultima_recarga = printer.ultima_recarga
-    existing_printer.ultima_manutencao = printer.ultima_manutencao
-    existing_printer.ultima_verificacao = printer.ultima_verificacao
-    existing_printer.id_status = printer.id_status
-    existing_printer.id_insumo = printer.id_insumo
+    existing_printer.department = printer.department
+    existing_printer.description = printer.description
+    existing_printer.forecast = printer.forecast
+    existing_printer.last_refill = printer.last_refill
+    existing_printer.last_maintenance = printer.last_maintenance
+    existing_printer.last_check = printer.last_check
+    existing_printer.status_id = printer.status_id
+    existing_printer.supply_id = printer.supply_id
 
     await session.commit()
     await session.refresh(existing_printer)
@@ -95,7 +95,7 @@ async def update_printer(id: int, printer: FullPrinterSchema, session: AsyncSess
 
 
 async def get_printer(id: int, session: AsyncSession):
-    printer = await session.scalar(select(Impressora).where(Impressora.id == id))
+    printer = await session.scalar(select(Printer).where(Printer.id == id))
 
     if not printer:
         raise HTTPException(

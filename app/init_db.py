@@ -1,7 +1,9 @@
 import asyncio
 
 from config import Config
-from models.model_db import Insumo, Status, Tipo_Insumo, table_registry
+from models import table_registry
+from models.printer_model import Status
+from models.supply_model import Supply, SupplyType
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
@@ -10,30 +12,30 @@ engine = create_async_engine(Config().DATABASE_URL, echo=True)
 
 # Dados iniciais
 tipo_insumo_iniciais = [
-    Tipo_Insumo(nome="Toner"),  # id 1
-    Tipo_Insumo(nome="Cartucho"),  # id 2
-    Tipo_Insumo(nome="Tinta"),  # id 3
-    Tipo_Insumo(nome="Toner/Tabor"),  # id 4
+    SupplyType(name="Toner"),  # id 1
+    SupplyType(name="Cartucho"),  # id 2
+    SupplyType(name="Tinta"),  # id 3
+    SupplyType(name="Toner/Tabor"),  # id 4
 ]
 
 insumos_iniciais = [
-    Insumo(nome="Toner", tipo_insumo=1, marca="Katun", descricao="Toner para impressoras kyocera"),  # id 1
-    Insumo(nome="Toner", tipo_insumo=1, marca="D-camp", descricao="Toner para impressoras kyocera"),  # id 2
-    Insumo(nome="Tinta", tipo_insumo=3, marca="Epson", descricao="Tinta para impressoras epson"),  # id 3
-    Insumo(nome="Cartucho", tipo_insumo=2, marca="Epson", descricao="Cartucho para impressoras epson"),  # id 4
-    Insumo(nome="Toner/Tabor", tipo_insumo=4, marca="OKI", descricao="Toner/Tabor da impressora OKI"),  # id 5
+    Supply(name="Toner", supply_type_id=1, brand="Katun", description="Toner para impressoras kyocera"),  # id 1
+    Supply(name="Toner", supply_type_id=1, brand="D-camp", description="Toner para impressoras kyocera"),  # id 2
+    Supply(name="Tinta", supply_type_id=3, brand="Epson", description="Tinta para impressoras epson"),  # id 3
+    Supply(name="Cartucho", supply_type_id=2, brand="Epson", description="Cartucho para impressoras epson"),  # id 4
+    Supply(name="Toner/Tabor", supply_type_id=4, brand="OKI", description="Toner/Tabor da impressora OKI"),  # id 5
 ]
 
 status_iniciais = [
-    Status(status="Excelente", descricao="Impressora com Toner >= 80%"),  # id 1
-    Status(status="Bom", descricao="Impressora com Toner >= 50%"),  # id 2
-    Status(status="Regular", descricao="Impressora com Toner >= 20%"),  # id 3
-    Status(status="Ruim", descricao="Impressora com Toner < 20%"),  # id 4
-    Status(status="Péssimo", descricao="Impressora com Toner < 10%"),  # id 5
-    Status(status="Em manutenção", descricao="Impressora em manutenção"),  # id 6
-    Status(status="Parada s/ defeito", descricao="Impressora parada (sem defeito)"),  # id 7
-    Status(status="Parada c/ defeito", descricao="Impressora parada (com defeito)"),  # id 8
-    Status(status="Não Disponível", descricao="Status não disponível"),  # id 9
+    Status(status="Excelente", description="Impressora com Toner >= 80%"),  # id 1
+    Status(status="Bom", description="Impressora com Toner >= 50%"),  # id 2
+    Status(status="Regular", description="Impressora com Toner >= 20%"),  # id 3
+    Status(status="Ruim", description="Impressora com Toner < 20%"),  # id 4
+    Status(status="Péssimo", description="Impressora com Toner < 10%"),  # id 5
+    Status(status="Em manutenção", description="Impressora em manutenção"),  # id 6
+    Status(status="Parada s/ defeito", description="Impressora parada (sem defeito)"),  # id 7
+    Status(status="Parada c/ defeito", description="Impressora parada (com defeito)"),  # id 8
+    Status(status="Não Disponível", description="Status não disponível"),  # id 9
 ]
 
 
@@ -46,7 +48,7 @@ async def init_db():
 
         async with AsyncSession(engine) as session:
             # Verifica e insere tipos de insumo
-            result = await session.execute(select(Tipo_Insumo).limit(1))
+            result = await session.execute(select(SupplyType).limit(1))
             if not result.scalar_one_or_none():
                 session.add_all(tipo_insumo_iniciais)
                 await session.commit()
@@ -55,7 +57,7 @@ async def init_db():
                 print("ℹ️ Tipos de insumo já existem. Nenhum novo inserido.")
 
             # Verifica e insere insumos
-            result = await session.execute(select(Insumo).limit(1))
+            result = await session.execute(select(Supply).limit(1))
             if not result.scalar_one_or_none():
                 session.add_all(insumos_iniciais)
                 await session.commit()

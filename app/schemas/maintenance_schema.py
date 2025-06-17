@@ -1,0 +1,17 @@
+from datetime import date
+from typing import Optional
+
+from pydantic import BaseModel
+
+
+class PrinterMaintenanceInfoSchema(BaseModel):
+    printer_id: int
+    last_update: date
+    next_refill: Optional[date]
+    next_cleaning: Optional[date]
+    refill_percentage: float
+    cleaning_percentage: float
+
+
+class PrinterMaintenanceInfoSchemaDB(PrinterMaintenanceInfoSchema):
+    id: int
