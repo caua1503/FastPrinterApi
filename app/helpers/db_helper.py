@@ -1,12 +1,9 @@
-from config import DATABASE_URL
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from config import Config
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+
+engine = create_async_engine(Config().DATABASE_URL)
 
 
-def get_session():
-    engine = create_engine(DATABASE_URL)
-    with Session(engine) as session:
-        try:
-            yield session
-        finally:
-            session.close()
+async def get_session():
+    async with AsyncSession(engine) as session:
+        yield session

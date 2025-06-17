@@ -2,14 +2,14 @@ from http import HTTPStatus
 
 from fastapi import HTTPException
 from models.model_db import Impressora
-from models.printer_model import FullPrinterSchema, FullPrinterSchemaDB
+from schemas.printer_schema import FullPrinterSchema
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def create_printer(printer: FullPrinterSchema, session: Session) -> FullPrinterSchemaDB:
+async def create_printer(printer: FullPrinterSchema, session: AsyncSession):
     # Verificar se IP já existe
-    existing_printer = session.scalar(select(Impressora).where(Impressora.ip == printer.ip))
+    existing_printer = await session.scalar(select(Impressora).where(Impressora.ip == printer.ip))
 
     if existing_printer:
         raise HTTPException(
@@ -34,20 +34,19 @@ async def create_printer(printer: FullPrinterSchema, session: Session) -> FullPr
     )
 
     session.add(db_printer)
-    session.commit()
-    session.refresh(db_printer)
+    await session.commit()
+    await session.refresh(db_printer)
 
     return db_printer
 
 
-async def get_printers(session: Session, limit: int, offset: int):
-    printers = session.scalars(select(Impressora).limit(limit).offset(offset)).all()
-
+async def get_printers(session: AsyncSession, limit: int, offset: int):
+    printers = (await session.scalars(select(Impressora).limit(limit).offset(offset))).all()
     return printers
 
 
-async def delete_printer(id: int, session: Session):
-    printer = session.scalar(select(Impressora).where(Impressora.id == id))
+async def delete_printer(id: int, session: AsyncSession):
+    printer = await session.scalar(select(Impressora).where(Impressora.id == id))
 
     if not printer:
         raise HTTPException(
@@ -55,39 +54,48 @@ async def delete_printer(id: int, session: Session):
             detail="Impressora não encontrada",
         )
 
-    session.delete(printer)
-    session.commit()
+    await session.delete(printer)
+    await session.commit()
 
 
-async def update_printer(id: int, printer: FullPrinterSchema, session: Session):
-    printer_db = session.scalar(select(Impressora).where(Impressora.id == id))
+async def update_printer(id: int, printer: FullPrinterSchema, session: AsyncSession):
+    existing_printer = await session.scalar(select(Impressora).where(Impressora.id == id))
 
-    if not printer_db:
+    if not existing_printer:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail="Impressora não encontrada",
         )
 
-    printer_db.name = printer.name
-    printer_db.model = printer.model
-    printer_db.ip = printer.ip
-    printer_db.setor = printer.setor
-    printer_db.descricao = printer.descricao
-    printer_db.previsao = printer.previsao
-    printer_db.ultima_recarga = printer.ultima_recarga
-    printer_db.ultima_manutencao = printer.ultima_manutencao
-    printer_db.ultima_verificacao = printer.ultima_verificacao
-    printer_db.id_status = printer.id_status
-    printer_db.id_insumo = printer.id_insumo
+    if existing_printer.ip != printer.ip:
+        existing_ip_printer = await session.scalar(select(Impressora).where(Impressora.ip == printer.ip))
 
-    session.commit()
-    session.refresh(printer_db)
+        if existing_ip_printer:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="O IP ja esta sendo usado",
+            )
 
-    return printer_db
+    existing_printer.name = printer.name
+    existing_printer.model = printer.model
+    existing_printer.ip = printer.ip
+    existing_printer.setor = printer.setor
+    existing_printer.descricao = printer.descricao
+    existing_printer.previsao = printer.previsao
+    existing_printer.ultima_recarga = printer.ultima_recarga
+    existing_printer.ultima_manutencao = printer.ultima_manutencao
+    existing_printer.ultima_verificacao = printer.ultima_verificacao
+    existing_printer.id_status = printer.id_status
+    existing_printer.id_insumo = printer.id_insumo
+
+    await session.commit()
+    await session.refresh(existing_printer)
+
+    return existing_printer
 
 
-async def get_printer(id: int, session: Session) -> FullPrinterSchemaDB:
-    printer = session.scalar(select(Impressora).where(Impressora.id == id))
+async def get_printer(id: int, session: AsyncSession):
+    printer = await session.scalar(select(Impressora).where(Impressora.id == id))
 
     if not printer:
         raise HTTPException(

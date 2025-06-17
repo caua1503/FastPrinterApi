@@ -1,14 +1,31 @@
+from .core_service import get_printer_maintenance_info_service
 from .history_service import (
+    create_history_alert,
     create_history_maintenance,
     create_history_recharge,
+    create_history_trash,
+    delete_history_alert,
     delete_history_maintenance,
     delete_history_recharge,
+    delete_history_trash,
+    get_history_alert,
+    get_history_alert_printer_id,
     get_history_maintenance,
     get_history_recharge,
+    get_history_trash,
+    get_history_trash_printer_id,
+    update_history_alert,
     update_history_maintenance,
     update_history_recharge,
+    update_history_trash,
 )
-from .printer_service import create_printer, delete_printer, get_printer, get_printers, update_printer
+from .printer_service import (
+    create_printer,
+    delete_printer,
+    get_printer,
+    get_printers,
+    update_printer,
+)
 
 __all__ = [
     "create_printer",
@@ -20,8 +37,19 @@ __all__ = [
     "create_history_maintenance",
     "get_history_recharge",
     "get_history_maintenance",
+    "get_printer_maintenance_info_service",
     "update_history_recharge",
     "update_history_maintenance",
     "delete_history_recharge",
     "delete_history_maintenance",
+    "create_history_trash",
+    "delete_history_trash",
+    "get_history_trash",
+    "get_history_trash_printer_id",
+    "update_history_trash",
+    "create_history_alert",
+    "get_history_alert",
+    "get_history_alert_printer_id",
+    "update_history_alert",
+    "delete_history_alert",
 ]

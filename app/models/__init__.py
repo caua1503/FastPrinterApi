@@ -1,10 +1,12 @@
-from .history_model import (
+from ..schemas.history_schema import (
+    HistoryLixeiraSchema,
+    HistoryLixeiraSchemaDB,
     HistoryManutencaoSchema,
     HistoryManutencaoSchemaDB,
     HistoryRecargaSchema,
     HistoryRecargaSchemaDB,
 )
-from .printer_model import FullPrinterSchema, FullPrinterSchemaDB, PrinterSchemaDB
+from ..schemas.printer_schema import FullPrinterSchema, FullPrinterSchemaDB, PrinterSchemaDB
 
 __all__ = [
     "FullPrinterSchema",
@@ -14,4 +16,6 @@ __all__ = [
     "HistoryRecargaSchemaDB",
     "HistoryManutencaoSchema",
     "HistoryManutencaoSchemaDB",
+    "HistoryLixeiraSchema",
+    "HistoryLixeiraSchemaDB",
 ]

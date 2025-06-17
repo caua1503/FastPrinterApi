@@ -1,13 +1,12 @@
-from config import DATABASE_URL
+import asyncio
+
+from config import Config
 from models.model_db import Insumo, Status, Tipo_Insumo, table_registry
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 # Configure seu banco de dados
-engine = create_engine(DATABASE_URL, echo=True)
-
-# Cria todas as tabelas
-table_registry.metadata.create_all(bind=engine)
+engine = create_async_engine(Config().DATABASE_URL, echo=True)
 
 # Dados iniciais
 tipo_insumo_iniciais = [
@@ -37,24 +36,50 @@ status_iniciais = [
     Status(status="Não Disponível", descricao="Status não disponível"),  # id 9
 ]
 
-with Session(engine) as session:
-    if not session.execute(select(Tipo_Insumo)).first():
-        session.add_all(tipo_insumo_iniciais)
-        print("✅ Tipos de insumo adicionados.")
-    else:
-        print("ℹ️ Tipos de insumo já existem. Nenhum novo inserido.")
 
-    if not session.execute(select(Insumo)).first():
-        session.add_all(insumos_iniciais)
-        print("✅ Insumos adicionados.")
-    else:
-        print("ℹ️ Insumos já existem. Nenhum novo inserido.")
+async def init_db():
+    try:
+        # Cria todas as tabelas assincronamente
+        async with engine.begin() as conn:
+            await conn.run_sync(table_registry.metadata.create_all)
+            print("✅ Tabelas criadas/verificadas com sucesso.")
 
-    if not session.execute(select(Status)).first():
-        session.add_all(status_iniciais)
-        print("✅ Status adicionados.")
-    else:
-        print("ℹ️ Status já existem. Nenhum novo inserido.")
+        async with AsyncSession(engine) as session:
+            # Verifica e insere tipos de insumo
+            result = await session.execute(select(Tipo_Insumo).limit(1))
+            if not result.scalar_one_or_none():
+                session.add_all(tipo_insumo_iniciais)
+                await session.commit()
+                print("✅ Tipos de insumo adicionados.")
+            else:
+                print("ℹ️ Tipos de insumo já existem. Nenhum novo inserido.")
 
-    session.commit()
-    print("✅ Banco de dados inicializado com sucesso.")
+            # Verifica e insere insumos
+            result = await session.execute(select(Insumo).limit(1))
+            if not result.scalar_one_or_none():
+                session.add_all(insumos_iniciais)
+                await session.commit()
+                print("✅ Insumos adicionados.")
+            else:
+                print("ℹ️ Insumos já existem. Nenhum novo inserido.")
+
+            # Verifica e insere status
+            result = await session.execute(select(Status).limit(1))
+            if not result.scalar_one_or_none():
+                session.add_all(status_iniciais)
+                await session.commit()
+                print("✅ Status adicionados.")
+            else:
+                print("ℹ️ Status já existem. Nenhum novo inserido.")
+
+        print("✅ Banco de dados inicializado com sucesso.")
+
+    except Exception as e:
+        print(f"❌ Erro ao inicializar banco de dados: {e}")
+        raise
+    finally:
+        await engine.dispose()
+
+
+if __name__ == "__main__":
+    asyncio.run(init_db())
