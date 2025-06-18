@@ -22,7 +22,7 @@ class FullPrinterSchema(BaseModel):
     brand: str
     model: str
     ip: str
-    department: str
+    department_id: int
     description: Optional[str] = None
     forecast: Optional[date] = None
     last_refill: Optional[date] = None
