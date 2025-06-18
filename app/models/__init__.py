@@ -1,5 +1,6 @@
 # Import all models to make them available when importing from models package
 from .base_model import table_registry
+from .department_model import Department
 from .history_model import (
     AlertHistory,
     MaintenanceHistory,
@@ -16,6 +17,8 @@ from .user_model import Permission, User, UserConfiguration
 __all__ = [
     # Base
     "table_registry",
+    # Department models
+    "Department",
     # Printer models
     "Status",
     "Printer",

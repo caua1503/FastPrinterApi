@@ -10,7 +10,7 @@ from .base_model import table_registry
 @table_registry.mapped_as_dataclass
 class User:
     __tablename__ = "users"
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     login: Mapped[str] = mapped_column(unique=True)
     password_hash: Mapped[str]
     code_hash: Mapped[str]
@@ -22,7 +22,7 @@ class User:
 @table_registry.mapped_as_dataclass
 class Permission:
     __tablename__ = "permissions"
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     name: Mapped[str]
     permissions: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
@@ -32,7 +32,7 @@ class Permission:
 @table_registry.mapped_as_dataclass
 class UserConfiguration:
     __tablename__ = "user_configuration"
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     username: Mapped[str]
     webhook_enabled: Mapped[bool] = mapped_column(default=False)

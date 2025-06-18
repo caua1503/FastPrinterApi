@@ -10,7 +10,7 @@ from .base_model import table_registry
 @table_registry.mapped_as_dataclass
 class Status:
     __tablename__ = "status"
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     status: Mapped[str]
     description: Mapped[Optional[str]]
 
@@ -18,14 +18,14 @@ class Status:
 @table_registry.mapped_as_dataclass
 class Printer:
     __tablename__ = "printer"
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     status_id: Mapped[int] = mapped_column(ForeignKey("status.id"))
     supply_id: Mapped[int] = mapped_column(ForeignKey("supply.id"))
     name: Mapped[str]
     brand: Mapped[str]
     model: Mapped[str]
     ip: Mapped[str] = mapped_column(unique=True)
-    department: Mapped[str]
+    department_id: Mapped[int] = mapped_column(ForeignKey("departments.id"))
     description: Mapped[Optional[str]]
     forecast: Mapped[Optional[date]]
     last_refill: Mapped[Optional[date]]
