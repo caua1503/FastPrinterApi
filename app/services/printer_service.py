@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def create_printer(printer: FullPrinterSchema, session: AsyncSession):
+async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
     # Verificar se IP já existe
     existing_printer = await session.scalar(select(Printer).where(Printer.ip == printer.ip))
 
@@ -25,7 +25,7 @@ async def create_printer(printer: FullPrinterSchema, session: AsyncSession):
         brand=printer.brand,
         model=printer.model,
         ip=printer.ip,
-        department=printer.department,
+        department_id=printer.department_id ,
         description=printer.description,
         forecast=printer.forecast,
         last_refill=printer.last_refill,
@@ -45,7 +45,52 @@ async def get_printers(session: AsyncSession, limit: int, offset: int):
     return printers
 
 
-async def delete_printer(id: int, session: AsyncSession):
+async def get_printer_id(session: AsyncSession, id: int):
+    printer = await session.scalar(select(Printer).where(Printer.id == id))
+
+    if not printer:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Impressora não encontrada",
+        )
+
+    return printer
+
+
+async def get_printer_department_id(session: AsyncSession, department_id: int, limit: int, offset: int):
+    printer_in_department = await session.scalars(
+        select(Printer).where(Printer.department_id == department_id).limit(limit).offset(offset)
+    )
+
+    if not printer_in_department:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Printer not found in department")
+
+    return printer_in_department
+
+
+async def get_printer_supply_id(session: AsyncSession, supply_id: int, limit: int, offset: int):
+    printer_in_supply = await session.scalars(
+        select(Printer).where(Printer.supply_id == supply_id).limit(limit).offset(offset)
+    )
+
+    if not printer_in_supply:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Printer not found in supply")
+
+    return printer_in_supply
+
+
+async def get_printer_status_id(session: AsyncSession, status_id: int, limit: int, offset: int):
+    printer_in_status = await session.scalars(
+        select(Printer).where(Printer.status_id == status_id).limit(limit).offset(offset)
+    )
+
+    if not printer_in_status:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Printer not found in status")
+
+    return printer_in_status
+
+
+async def delete_printer(session: AsyncSession, id: int):
     printer = await session.scalar(select(Printer).where(Printer.id == id))
 
     if not printer:
@@ -58,7 +103,7 @@ async def delete_printer(id: int, session: AsyncSession):
     await session.commit()
 
 
-async def update_printer(id: int, printer: FullPrinterSchema, session: AsyncSession):
+async def update_printer(session: AsyncSession, id: int, printer: FullPrinterSchema):
     existing_printer = await session.scalar(select(Printer).where(Printer.id == id))
 
     if not existing_printer:
@@ -92,15 +137,3 @@ async def update_printer(id: int, printer: FullPrinterSchema, session: AsyncSess
     await session.refresh(existing_printer)
 
     return existing_printer
-
-
-async def get_printer(id: int, session: AsyncSession):
-    printer = await session.scalar(select(Printer).where(Printer.id == id))
-
-    if not printer:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail="Impressora não encontrada",
-        )
-
-    return printer

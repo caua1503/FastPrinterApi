@@ -1,4 +1,11 @@
 from .core_service import get_printer_maintenance_info_service
+from .department_service import (
+    create_department,
+    delete_department,
+    get_department_id,
+    get_departments,
+    update_department,
+)
 from .history_service import (
     create_history_alert,
     create_history_maintenance,
@@ -22,16 +29,29 @@ from .history_service import (
 from .printer_service import (
     create_printer,
     delete_printer,
-    get_printer,
     get_printers,
     update_printer,
 )
+from .user_service import (
+    create_user,
+    delete_user,
+    update_user,
+    update_user_password,
+)
 
 __all__ = [
+    "create_department",
+    "create_user",
+    "delete_user",
+    "update_user",
+    "update_user_password",
+    "delete_department",
+    "get_department_id",
+    "get_departments",
+    "update_department",
     "create_printer",
     "delete_printer",
     "update_printer",
-    "get_printer",
     "get_printers",
     "create_history_recharge",
     "create_history_maintenance",

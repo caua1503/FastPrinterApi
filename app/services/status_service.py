@@ -1,7 +1,8 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from models.printer_model import Status
+from models.history_model import StatusHistory
+from models.printer_model import Printer, Status
 from schemas.status_schema import StatusSchema
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -46,8 +47,17 @@ async def update_status(id: int, status: StatusSchema, session: AsyncSession):
 
 async def delete_status(id: int, session: AsyncSession):
     status_db = await session.scalar(select(Status).where(Status.id == id))
+    printers = await session.scalars(select(Printer).where(Printer.status_id == id))
+    status_history = await session.scalars(select(StatusHistory).where(StatusHistory.status_id == id))
+
     if not status_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
+
+    if printers:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Status has printers")
+
+    if status_history:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Status has status history")
 
     await session.delete(status_db)
     await session.commit()

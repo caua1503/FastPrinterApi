@@ -1,13 +1,14 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
+from models.history_model import (
+    AlertHistory,
+    MaintenanceHistory,
+    PrinterTrashHistory,
+    RefillHistory,
+)
 from models.printer_model import Printer
 from models.supply_model import Supply
-from models.history_model import (
-    AlertHistory, 
-    MaintenanceHistory, 
-    PrinterTrashHistory, 
-    RefillHistory,)
 from schemas.history_schema import (
     AlertHistorySchema,
     MaintenanceHistorySchema,
@@ -25,14 +26,13 @@ ROTA DE HISTORICO DE RECARGA
 
 
 async def create_history_recharge(history: RefillHistorySchema, session: AsyncSession):
-
     exist_printer = await session.scalar(select(Printer).where(Printer.id == history.printer_id))
 
     if not exist_printer:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Printer not found")
-    
+
     exist_supply = await session.scalar(select(Supply).where(Supply.id == history.supply_id))
-    
+
     if not exist_supply:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Supply not found")
 

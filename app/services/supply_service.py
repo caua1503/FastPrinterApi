@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
+from models.printer_model import Printer
 from models.supply_model import Supply, SupplyType
 from schemas.supply_schema import SupplySchema, SupplyTypeSchema
 from sqlalchemy import select
@@ -57,9 +58,13 @@ async def update_supply(id: int, supply: SupplySchema, session: AsyncSession):
 
 async def delete_supply(id: int, session: AsyncSession):
     supply_db = await session.scalar(select(Supply).where(Supply.id == id))
+    printers = await session.scalars(select(Printer).where(Printer.supply_id == id))
 
     if not supply_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply not found")
+
+    if printers:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Supply has printers")
 
     await session.delete(supply_db)
     await session.commit()
@@ -99,9 +104,13 @@ async def update_supply_type(id: int, supply_type: SupplyTypeSchema, session: As
 
 async def delete_supply_type(id: int, session: AsyncSession):
     supply_type_db = await session.scalar(select(SupplyType).where(SupplyType.id == id))
+    supplys = await session.scalars(select(Supply).where(Supply.supply_type_id == id))
 
     if not supply_type_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply type not found")
+
+    if supplys:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Supply type has supplies")
 
     await session.delete(supply_type_db)
     await session.commit()
