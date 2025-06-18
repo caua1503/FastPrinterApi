@@ -4,7 +4,8 @@ from typing import Any, Union
 import redis.asyncio as redis
 from config import Config
 
-pool = redis.ConnectionPool(host=Config().REDIS_HOST, port=Config().REDIS_PORT, db=0)
+config = Config()
+pool = redis.ConnectionPool(host=config.REDIS_HOST, port=config.REDIS_PORT, db=0)
 
 
 async def get_redis_client() -> redis.Redis:
