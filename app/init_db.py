@@ -2,6 +2,7 @@ import asyncio
 
 from config import Config
 from models import table_registry
+from models.department_model import Department
 from models.printer_model import Status
 from models.supply_model import Supply, SupplyType
 from sqlalchemy import select
@@ -17,7 +18,12 @@ tipo_insumo_iniciais = [
     SupplyType(name="Tinta"),  # id 3
     SupplyType(name="Toner/Tabor"),  # id 4
 ]
-
+departments_iniciais = [
+    Department(name="ADM", description="Departamento de RH"),  # id 1
+    Department(name="Almoxarifado", description="Departamento de Financeiro"),  # id 2
+    Department(name="Vendas", description="Departamento de Vendas"),  # id 3
+    Department(name="Estoque", description="Departamento de Estoque"),  # id 4
+]
 insumos_iniciais = [
     Supply(name="Toner", supply_type_id=1, brand="Katun", description="Toner para impressoras kyocera"),  # id 1
     Supply(name="Toner", supply_type_id=1, brand="D-camp", description="Toner para impressoras kyocera"),  # id 2
@@ -73,6 +79,15 @@ async def init_db():
                 print("✅ Status adicionados.")
             else:
                 print("ℹ️ Status já existem. Nenhum novo inserido.")
+
+            # Verifica e insere departamentos
+            result = await session.execute(select(Department).limit(1))
+            if not result.scalar_one_or_none():
+                session.add_all(departments_iniciais)
+                await session.commit()
+                print("✅ Departamentos adicionados.")
+            else:
+                print("ℹ️ Departamentos já existem. Nenhum novo inserido.")
 
         print("✅ Banco de dados inicializado com sucesso.")
 
