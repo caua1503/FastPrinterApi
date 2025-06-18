@@ -18,7 +18,7 @@ from services.supply_service import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-supply_router = APIRouter(prefix="/supply", tags=["api - supply"])
+supply_router = APIRouter()
 
 
 @supply_router.post("/", status_code=HTTPStatus.CREATED)

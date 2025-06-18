@@ -7,7 +7,7 @@ from schemas.status_schema import StatusSchema
 from services.status_service import create_status, delete_status, get_status, get_status_id, update_status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-status_router = APIRouter(prefix="/status", tags=["api - status"])
+status_router = APIRouter()
 
 
 @status_router.post("/", status_code=HTTPStatus.CREATED)

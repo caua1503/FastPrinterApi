@@ -38,7 +38,7 @@ from services.history_service import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-history_router = APIRouter(prefix="/historys", tags=["api - historys"])
+history_router = APIRouter()
 
 """
     Historys recharge

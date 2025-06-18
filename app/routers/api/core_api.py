@@ -6,7 +6,7 @@ from helpers.database_helper import get_session
 from services.core_service import get_printer_maintenance_info_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
-core_router = APIRouter(prefix="/core", tags=["api - core"])
+core_router = APIRouter()
 
 
 @core_router.get("/current/info/printer/all")

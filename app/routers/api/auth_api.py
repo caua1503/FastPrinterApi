@@ -9,7 +9,7 @@ from models.user_model import User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-auth_router = APIRouter(prefix="/auth", tags=["api - auth"])
+auth_router = APIRouter()
 
 
 @auth_router.post("/token")
