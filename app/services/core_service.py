@@ -1,11 +1,12 @@
 from datetime import date
 
-from app.core import get_printer_maintenance_info
 from fastapi import HTTPException
-from app.models.maintenance_model import PrinterMaintenanceInfo
-from app.models.printer_model import Printer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core import get_printer_maintenance_info
+from app.models.maintenance_model import PrinterMaintenanceInfo
+from app.models.printer_model import Printer
 
 
 async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSession, limit: int = 6) -> dict:

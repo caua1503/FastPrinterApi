@@ -1,13 +1,14 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from app.core.security import verify_password
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from app.helpers.database_helper import get_session
-from app.models.user_model import User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.security import verify_password
+from app.helpers.database_helper import get_session
+from app.models.user_model import User
 
 auth_router = APIRouter()
 

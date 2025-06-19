@@ -1,26 +1,205 @@
-import os
-import sys
+from datetime import date
 
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.pool import StaticPool
-
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, project_root)
-app_path = os.path.join(project_root, "app")
-sys.path.insert(1, app_path)
 
 from app.helpers.database_helper import get_session
 from app.main import app
 from app.models import table_registry
+from app.models.department_model import Department
+from app.models.history_model import (
+    AlertHistory,
+    MaintenanceHistory,
+    PrinterTrashHistory,
+    RefillHistory,
+)
+from app.models.printer_model import Printer, Status
+from app.models.supply_model import Supply, SupplyType
+from app.models.user_model import User
 
+
+@pytest_asyncio.fixture
+async def user(session: AsyncSession):
+    user = User(
+        login="testuser",
+        password_hash="fake_password_hash",
+        code_hash="fake_code_hash",
+        api_key="fake_api_key",
+    )
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture
+async def supply(session: AsyncSession):
+    supply = Supply(
+        name="Supply 1",
+        description="Supply 1 description",
+        brand="Brand 1",
+        supply_type_id=1,
+    )
+    session.add(supply)
+    await session.commit()
+    await session.refresh(supply)
+    return supply
+
+
+@pytest_asyncio.fixture
+async def refill_history(session: AsyncSession, printer: Printer, supply: Supply) -> RefillHistory:
+    new_history = RefillHistory(
+        printer_id=printer.id,
+        date=date.today(),
+        event_type="Teste",
+        supply_id=supply.id,
+        description="description",
+    )
+    session.add(new_history)
+    await session.commit()
+    await session.refresh(new_history)
+    return new_history
+
+
+@pytest_asyncio.fixture
+async def maintenance_history(session: AsyncSession, printer: Printer) -> MaintenanceHistory:
+    new_history = MaintenanceHistory(
+        printer_id=printer.id,
+        date=date.today(),
+        event_type="Teste",
+        description="description",
+    )
+    session.add(new_history)
+    await session.commit()
+    await session.refresh(new_history)
+    return new_history
+
+
+@pytest_asyncio.fixture
+async def supply_type(session: AsyncSession):
+    supply_type = SupplyType(
+        name="Supply Type 1",
+    )
+    session.add(supply_type)
+    await session.commit()
+    await session.refresh(supply_type)
+    return supply_type
+
+
+@pytest_asyncio.fixture
+async def status(session: AsyncSession):
+    status = Status(
+        status="Status 1",
+        description="Status 1 description",
+    )
+    session.add(status)
+    await session.commit()
+    await session.refresh(status)
+    return status
+
+
+@pytest_asyncio.fixture
+async def department(session: AsyncSession):
+    department = Department(
+        name="TESTE",
+        description="TESTE",
+    )
+    session.add(department)
+    await session.commit()
+    await session.refresh(department)
+    return department
+
+
+@pytest_asyncio.fixture
+async def printer(session, status: Status, supply: Supply, department: Department):
+    printer = Printer(
+        name="Printer 1",
+        description="Printer 1 description",
+        status_id=status.id,
+        supply_id=supply.id,
+        department_id=department.id,
+        brand="Brand 1",
+        model="Model 1",
+        ip="192.168.1.1",
+        forecast=date.today(),
+        last_refill=date.today(),
+        last_maintenance=date.today(),
+        last_check=date.today(),
+    )
+    session.add(printer)
+    await session.commit()
+    await session.refresh(printer)
+    return printer
+
+
+@pytest_asyncio.fixture
+async def printer2(session: AsyncSession, status: Status, supply: Supply, department: Department):
+    printer = Printer(
+        name="Printer 1",
+        description="Printer 1 description",
+        status_id=status.id,
+        supply_id=supply.id,
+        department_id=department.id,
+        brand="Brand 1",
+        model="Model 1",
+        ip="192.168.1.2",
+        forecast=date.today(),
+        last_refill=date.today(),
+        last_maintenance=date.today(),
+        last_check=date.today(),
+    )
+    session.add(printer)
+    await session.commit()
+    await session.refresh(printer)
+    return printer
+
+
+@pytest_asyncio.fixture
+async def supply2(session: AsyncSession, supply_type: SupplyType):
+    supply = Supply(
+        name="Supply 2",
+        description="Supply 2 description",
+        brand="Brand 2",
+        supply_type_id=supply_type.id,
+    )
+    session.add(supply)
+    await session.commit()
+    await session.refresh(supply)
+    return supply
+
+
+@pytest_asyncio.fixture
+async def printer_trash_history(session: AsyncSession, printer: Printer) -> PrinterTrashHistory:
+    new_history = PrinterTrashHistory(
+        printer_id=printer.id,
+        date=date.today(),
+        description="description",
+    )
+    session.add(new_history)
+    await session.commit()
+    await session.refresh(new_history)
+    return new_history
+
+
+@pytest_asyncio.fixture
+async def alert_history(session: AsyncSession, printer: Printer) -> AlertHistory:
+    new_history = AlertHistory(
+        printer_id=printer.id,
+        date=date.today(),
+        alert_type="Test Alert",
+        description="description",
+    )
+    session.add(new_history)
+    await session.commit()
+    await session.refresh(new_history)
+    return new_history
 
 
 @pytest.fixture
-def client(session):
+def client(session: AsyncSession):
     def override_get_session():
         return session
 
@@ -31,11 +210,12 @@ def client(session):
     # Limpa as dependências após o teste
     app.dependency_overrides.clear()
 
+
 @pytest_asyncio.fixture
 async def session():
     engine = create_async_engine(
-        'sqlite+aiosqlite:///:memory:',
-        connect_args={'check_same_thread': False},
+        "sqlite+aiosqlite:///:memory:",
+        connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
     async with engine.begin() as conn:
@@ -46,5 +226,3 @@ async def session():
 
     async with engine.begin() as conn:
         await conn.run_sync(table_registry.metadata.drop_all)
-
-

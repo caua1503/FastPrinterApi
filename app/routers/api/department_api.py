@@ -1,6 +1,8 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.helpers.database_helper import get_session
 from app.schemas.department_schema import DepartmentSchema
 from app.services.department_service import (
@@ -10,7 +12,6 @@ from app.services.department_service import (
     get_departments,
     update_department,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
 
 department_router = APIRouter()
 

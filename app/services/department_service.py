@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.department_model import Department
 from app.models.printer_model import Printer
 from app.schemas.department_schema import DepartmentSchema
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def create_department(session: AsyncSession, department: DepartmentSchema):

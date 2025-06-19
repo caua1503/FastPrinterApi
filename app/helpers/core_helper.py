@@ -2,10 +2,11 @@ from datetime import date, datetime, timedelta
 from statistics import mean, median
 from typing import List
 
-from app.models.history_model import PrinterTrashHistory, RefillHistory
-from app.models.printer_model import Printer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.history_model import PrinterTrashHistory, RefillHistory
+from app.models.printer_model import Printer
 
 
 async def get_printers(session: AsyncSession):

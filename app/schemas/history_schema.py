@@ -32,6 +32,12 @@ class AlertHistorySchema(BaseModel):
     description: Optional[str]
 
 
+class StatusHistorySchema(BaseModel):
+    status_id: int
+    date: date
+    description: Optional[str] = None
+
+
 class RefillHistorySchemaDB(RefillHistorySchema):
     id: int
 
@@ -45,4 +51,8 @@ class PrinterTrashHistorySchemaDB(PrinterTrashHistorySchema):
 
 
 class AlertHistorySchemaDB(AlertHistorySchema):
+    id: int
+
+
+class StatusHistorySchemaDB(StatusHistorySchema):
     id: int

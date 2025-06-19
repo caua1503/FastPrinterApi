@@ -2,6 +2,7 @@ import json
 from typing import Any, Union
 
 import redis.asyncio as redis
+
 from app.config import Config
 
 config = Config()

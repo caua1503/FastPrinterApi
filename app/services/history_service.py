@@ -1,11 +1,15 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.history_model import (
     AlertHistory,
     MaintenanceHistory,
     PrinterTrashHistory,
     RefillHistory,
+    StatusHistory,
 )
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply
@@ -14,9 +18,8 @@ from app.schemas.history_schema import (
     MaintenanceHistorySchema,
     PrinterTrashHistorySchema,
     RefillHistorySchema,
+    StatusHistorySchema,
 )
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 """
 
@@ -53,18 +56,11 @@ async def create_history_recharge(history: RefillHistorySchema, session: AsyncSe
 async def get_history_recharge(session: AsyncSession, limit: int, offset: int):
     historys = (await session.scalars(select(RefillHistory).limit(limit).offset(offset))).all()
 
-    if not historys:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
-
     return historys
 
 
 async def get_history_recharge_id(id: int, session: AsyncSession):
     history = await session.scalar(select(RefillHistory).where(RefillHistory.id == id))
-
-    if not history:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
-
     return history
 
 
@@ -74,9 +70,6 @@ async def get_history_recharge_printer_id(printer_id: int, limit: int, offset: i
             select(RefillHistory).where(RefillHistory.printer_id == printer_id).limit(limit).offset(offset)
         )
     ).all()
-
-    if not historys:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
 
     return historys
 
@@ -106,7 +99,6 @@ async def delete_history_recharge(id: int, session: AsyncSession):
 
     await session.delete(history_db)
     await session.commit()
-    return True
 
 
 """
@@ -136,9 +128,6 @@ async def get_history_maintenance(session: AsyncSession, limit: int, offset: int
 async def get_history_maintenance_id(id: int, session: AsyncSession):
     history = await session.scalar(select(MaintenanceHistory).where(MaintenanceHistory.id == id))
 
-    if not history:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
-
     return history
 
 
@@ -148,9 +137,6 @@ async def get_history_maintenance_printer_id(printer_id: int, limit: int, offset
             select(MaintenanceHistory).where(MaintenanceHistory.printer_id == printer_id).limit(limit).offset(offset)
         )
     ).all()
-
-    if not historys:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
 
     return historys
 
@@ -212,9 +198,6 @@ async def get_history_trash_printer_id(printer_id: int, limit: int, offset: int,
             select(PrinterTrashHistory).where(PrinterTrashHistory.printer_id == printer_id).limit(limit).offset(offset)
         )
     ).all()
-
-    if not historys:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
 
     return historys
 
@@ -305,3 +288,51 @@ async def delete_history_alert(id: int, session: AsyncSession):
     await session.commit()
 
     return True
+
+
+"""
+ROTA DE HISTORICO DE STATUS
+"""
+
+
+async def create_history_status(history: StatusHistorySchema, session: AsyncSession):
+    history_db = StatusHistory(status_id=history.status_id, date=history.date, description=history.description)
+    session.add(history_db)
+    await session.commit()
+    await session.refresh(history_db)
+    return history_db
+
+
+async def get_history_status(session: AsyncSession, limit: int, offset: int):
+    historys = (await session.scalars(select(StatusHistory).limit(limit).offset(offset))).all()
+    return historys
+
+
+async def get_history_status_id(id: int, session: AsyncSession):
+    history = await session.scalar(select(StatusHistory).where(StatusHistory.id == id))
+    return history
+
+
+async def update_history_status(id: int, history: StatusHistorySchema, session: AsyncSession):
+    history_db = await session.scalar(select(StatusHistory).where(StatusHistory.id == id))
+
+    if not history_db:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
+
+    history_db.status_id = history.status_id
+    history_db.date = history.date
+    history_db.description = history.description
+
+    await session.commit()
+    await session.refresh(history_db)
+    return history_db
+
+
+async def delete_history_status(id: int, session: AsyncSession):
+    history_db = await session.scalar(select(StatusHistory).where(StatusHistory.id == id))
+
+    if not history_db:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="History not found")
+
+    await session.delete(history_db)
+    await session.commit()

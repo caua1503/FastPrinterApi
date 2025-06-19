@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from app.models.printer_model import Printer
-from app.schemas.printer_schema import FullPrinterSchema
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.printer_model import Printer
+from app.schemas.printer_schema import FullPrinterSchema
 
 
 async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
@@ -14,7 +15,7 @@ async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
     if existing_printer:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail="O IP ja esta sendo usado",
+            detail="IP already exists",
         )
 
     # Criar nova impressora
@@ -25,7 +26,7 @@ async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
         brand=printer.brand,
         model=printer.model,
         ip=printer.ip,
-        department_id=printer.department_id ,
+        department_id=printer.department_id,
         description=printer.description,
         forecast=printer.forecast,
         last_refill=printer.last_refill,
@@ -51,43 +52,43 @@ async def get_printer_id(session: AsyncSession, id: int):
     if not printer:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail="Impressora não encontrada",
+            detail="printer not found",
         )
 
     return printer
 
 
 async def get_printer_department_id(session: AsyncSession, department_id: int, limit: int, offset: int):
-    printer_in_department = await session.scalars(
-        select(Printer).where(Printer.department_id == department_id).limit(limit).offset(offset)
-    )
+    printers_in_department = (
+        await session.scalars(select(Printer).where(Printer.department_id == department_id).limit(limit).offset(offset))
+    ).all()
 
-    if not printer_in_department:
+    if not printers_in_department:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Printer not found in department")
 
-    return printer_in_department
+    return printers_in_department
 
 
 async def get_printer_supply_id(session: AsyncSession, supply_id: int, limit: int, offset: int):
-    printer_in_supply = await session.scalars(
-        select(Printer).where(Printer.supply_id == supply_id).limit(limit).offset(offset)
-    )
+    printers_in_supply = (
+        await session.scalars(select(Printer).where(Printer.supply_id == supply_id).limit(limit).offset(offset))
+    ).all()
 
-    if not printer_in_supply:
+    if not printers_in_supply:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Printer not found in supply")
 
-    return printer_in_supply
+    return printers_in_supply
 
 
 async def get_printer_status_id(session: AsyncSession, status_id: int, limit: int, offset: int):
-    printer_in_status = await session.scalars(
-        select(Printer).where(Printer.status_id == status_id).limit(limit).offset(offset)
-    )
+    printers_in_status = (
+        await session.scalars(select(Printer).where(Printer.status_id == status_id).limit(limit).offset(offset))
+    ).all()
 
-    if not printer_in_status:
+    if not printers_in_status:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Printer not found in status")
 
-    return printer_in_status
+    return printers_in_status
 
 
 async def delete_printer(session: AsyncSession, id: int):
@@ -96,12 +97,11 @@ async def delete_printer(session: AsyncSession, id: int):
     if not printer:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail="Impressora não encontrada",
+            detail="printer not found",
         )
 
     await session.delete(printer)
     await session.commit()
-    return {"message": f"printer id deleted: {id}"}
 
 
 async def update_printer(session: AsyncSession, id: int, printer: FullPrinterSchema):
@@ -110,7 +110,7 @@ async def update_printer(session: AsyncSession, id: int, printer: FullPrinterSch
     if not existing_printer:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail="Impressora não encontrada",
+            detail="printer not found",
         )
 
     if existing_printer.ip != printer.ip:

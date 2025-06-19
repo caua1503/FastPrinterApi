@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
-from app.core.security import generate_random_code, get_password_hash
 from fastapi import HTTPException
-from app.models.user_model import User
-from app.schemas.user_schema import UserSchema
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.security import generate_random_code, get_password_hash
+from app.models.user_model import User
+from app.schemas.user_schema import UserSchema
 
 
 async def create_user(session: AsyncSession, user: UserSchema):

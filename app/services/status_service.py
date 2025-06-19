@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.history_model import StatusHistory
 from app.models.printer_model import Printer, Status
 from app.schemas.status_schema import StatusSchema
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def create_status(status: StatusSchema, session: AsyncSession):
@@ -16,8 +17,8 @@ async def create_status(status: StatusSchema, session: AsyncSession):
     return status_db
 
 
-async def get_status(session: AsyncSession):
-    status = (await session.scalars(select(Status))).all()
+async def get_status(session: AsyncSession, limit: int = 10, offset: int = 0):
+    status = (await session.scalars(select(Status).limit(limit).offset(offset))).all()
     if not status:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
     return status
@@ -47,8 +48,8 @@ async def update_status(id: int, status: StatusSchema, session: AsyncSession):
 
 async def delete_status(id: int, session: AsyncSession):
     status_db = await session.scalar(select(Status).where(Status.id == id))
-    printers = await session.scalars(select(Printer).where(Printer.status_id == id))
-    status_history = await session.scalars(select(StatusHistory).where(StatusHistory.status_id == id))
+    printers = (await session.scalars(select(Printer).where(Printer.status_id == id))).all()
+    status_history = (await session.scalars(select(StatusHistory).where(StatusHistory.status_id == id))).all()
 
     if not status_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
