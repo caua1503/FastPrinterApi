@@ -1,4 +1,4 @@
-from config import Config
+from app.config import Config
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 engine = create_async_engine(Config().DATABASE_URL)

@@ -2,9 +2,9 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from helpers.database_helper import get_session
-from schemas.supply_schema import SupplySchema, SupplyTypeSchema
-from services.supply_service import (
+from app.helpers.database_helper import get_session
+from app.schemas.supply_schema import SupplySchema, SupplyTypeSchema
+from app.services.supply_service import (
     create_supply,
     create_supply_type,
     delete_supply,

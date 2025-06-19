@@ -2,8 +2,8 @@ from http import HTTPStatus
 from typing import Annotated, Dict, List
 
 from fastapi import APIRouter, Depends
-from helpers.database_helper import get_session
-from schemas.history_schema import (
+from app.helpers.database_helper import get_session
+from app.schemas.history_schema import (
     AlertHistorySchema,
     AlertHistorySchemaDB,
     MaintenanceHistorySchema,
@@ -13,7 +13,7 @@ from schemas.history_schema import (
     RefillHistorySchema,
     RefillHistorySchemaDB,
 )
-from services.history_service import (
+from app.services.history_service import (
     create_history_maintenance,
     create_history_recharge,
     create_history_trash,

@@ -2,9 +2,9 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from helpers.database_helper import get_session
-from schemas.printer_schema import FullPrinterSchema, PrinterSchemaDB
-from services.printer_service import (
+from app.helpers.database_helper import get_session
+from app.schemas.printer_schema import FullPrinterSchema, PrinterSchemaDB
+from app.services.printer_service import (
     create_printer,
     delete_printer,
     get_printer_department_id,
@@ -25,8 +25,7 @@ async def api_get_printers(session: Annotated[AsyncSession, Depends(get_session)
     return {"printers": printers}
 
 
-@printer_router.post(
-    "/", response_model=PrinterSchemaDB, status_code=HTTPStatus.CREATED, description="Create a printer"
+@printer_router.post("/", response_model=FullPrinterSchema, status_code=HTTPStatus.CREATED, description="Create a printer"
 )
 async def api_create_printer(printer: FullPrinterSchema, session: Annotated[AsyncSession, Depends(get_session)]):
     printer_db = await create_printer(session, printer)
@@ -49,8 +48,8 @@ async def api_update_printer(
 
 @printer_router.delete("/{id}", description="Delete a printer by id")
 async def api_delete_printer(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
-    await delete_printer(session, id)
-    return {"message": f"id deleted: {id}"}
+    result = await delete_printer(session, id)
+    return result
 
 
 @printer_router.get("/department/{department_id}", description="Get printers by department id")

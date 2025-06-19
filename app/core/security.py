@@ -3,7 +3,7 @@ import string
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from config import Config
+from app.config import Config
 from pwdlib import PasswordHash
 
 pwd_context = PasswordHash(hashers=["argon2"]).recommended()

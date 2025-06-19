@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from helpers.core_helper import (
+from app.helpers.core_helper import (
     calculate_next_recharge,
     calculate_recharge_percentage,
     calculate_trash_cleaning_next_time,

@@ -1,15 +1,15 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from models.history_model import (
+from app.models.history_model import (
     AlertHistory,
     MaintenanceHistory,
     PrinterTrashHistory,
     RefillHistory,
 )
-from models.printer_model import Printer
-from models.supply_model import Supply
-from schemas.history_schema import (
+from app.models.printer_model import Printer
+from app.models.supply_model import Supply
+from app.schemas.history_schema import (
     AlertHistorySchema,
     MaintenanceHistorySchema,
     PrinterTrashHistorySchema,

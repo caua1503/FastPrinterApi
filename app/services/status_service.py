@@ -1,9 +1,9 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from models.history_model import StatusHistory
-from models.printer_model import Printer, Status
-from schemas.status_schema import StatusSchema
+from app.models.history_model import StatusHistory
+from app.models.printer_model import Printer, Status
+from app.schemas.status_schema import StatusSchema
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

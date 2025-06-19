@@ -1,9 +1,9 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from helpers.database_helper import get_session
-from schemas.department_schema import DepartmentSchema
-from services.department_service import (
+from app.helpers.database_helper import get_session
+from app.schemas.department_schema import DepartmentSchema
+from app.services.department_service import (
     create_department,
     delete_department,
     get_department_id,

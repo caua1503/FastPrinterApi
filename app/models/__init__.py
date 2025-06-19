@@ -1,17 +1,17 @@
 # Import all models to make them available when importing from models package
-from .base_model import table_registry
-from .department_model import Department
-from .history_model import (
+from app.models.base_model import table_registry
+from app.models.department_model import Department
+from app.models.history_model import (
     AlertHistory,
     MaintenanceHistory,
     PrinterTrashHistory,
     RefillHistory,
     StatusHistory,
 )
-from .maintenance_model import PrinterMaintenanceInfo
-from .printer_model import Printer, Status
-from .supply_model import Supply, SupplyType
-from .user_model import Permission, User, UserConfiguration
+from app.models.maintenance_model import PrinterMaintenanceInfo
+from app.models.printer_model import Printer, Status
+from app.models.supply_model import Supply, SupplyType
+from app.models.user_model import Permission, User, UserConfiguration
 
 # Make all models available at package level
 __all__ = [

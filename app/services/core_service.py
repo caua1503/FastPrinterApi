@@ -1,9 +1,9 @@
 from datetime import date
 
-from core import get_printer_maintenance_info
+from app.core import get_printer_maintenance_info
 from fastapi import HTTPException
-from models.maintenance_model import PrinterMaintenanceInfo
-from models.printer_model import Printer
+from app.models.maintenance_model import PrinterMaintenanceInfo
+from app.models.printer_model import Printer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

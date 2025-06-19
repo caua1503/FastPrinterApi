@@ -1,9 +1,9 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from models.department_model import Department
-from models.printer_model import Printer
-from schemas.department_schema import DepartmentSchema
+from app.models.department_model import Department
+from app.models.printer_model import Printer
+from app.schemas.department_schema import DepartmentSchema
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

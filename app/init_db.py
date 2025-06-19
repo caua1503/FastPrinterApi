@@ -1,10 +1,10 @@
 import asyncio
 
-from config import Config
-from models import table_registry
-from models.department_model import Department
-from models.printer_model import Status
-from models.supply_model import Supply, SupplyType
+from app.config.config import Config
+from app.models import table_registry
+from app.models.department_model import Department
+from app.models.printer_model import Status
+from app.models.supply_model import Supply, SupplyType
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 

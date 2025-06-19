@@ -1,11 +1,11 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from core.security import verify_password
+from app.core.security import verify_password
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from helpers.database_helper import get_session
-from models.user_model import User
+from app.helpers.database_helper import get_session
+from app.models.user_model import User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

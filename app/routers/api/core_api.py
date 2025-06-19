@@ -1,9 +1,9 @@
 from typing import Annotated
 
-from core import get_all_printers_maintenance_info, get_printer_maintenance_info
+from app.core import get_all_printers_maintenance_info, get_printer_maintenance_info
 from fastapi import APIRouter, Depends
-from helpers.database_helper import get_session
-from services.core_service import get_printer_maintenance_info_service
+from app.helpers.database_helper import get_session
+from app.services.core_service import get_printer_maintenance_info_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 core_router = APIRouter()

@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from models.printer_model import Printer
-from schemas.printer_schema import FullPrinterSchema
+from app.models.printer_model import Printer
+from app.schemas.printer_schema import FullPrinterSchema
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -101,6 +101,7 @@ async def delete_printer(session: AsyncSession, id: int):
 
     await session.delete(printer)
     await session.commit()
+    return {"message": f"printer id deleted: {id}"}
 
 
 async def update_printer(session: AsyncSession, id: int, printer: FullPrinterSchema):
@@ -124,7 +125,8 @@ async def update_printer(session: AsyncSession, id: int, printer: FullPrinterSch
     existing_printer.name = printer.name
     existing_printer.model = printer.model
     existing_printer.ip = printer.ip
-    existing_printer.department = printer.department
+    existing_printer.brand = printer.brand
+    existing_printer.department_id = printer.department_id
     existing_printer.description = printer.description
     existing_printer.forecast = printer.forecast
     existing_printer.last_refill = printer.last_refill
