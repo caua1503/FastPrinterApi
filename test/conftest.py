@@ -15,6 +15,7 @@ from app.models.history_model import (
     MaintenanceHistory,
     PrinterTrashHistory,
     RefillHistory,
+    StatusHistory,
 )
 from app.models.printer_model import Printer, Status
 from app.models.supply_model import Supply, SupplyType
@@ -190,6 +191,20 @@ async def alert_history(session: AsyncSession, printer: Printer) -> AlertHistory
         printer_id=printer.id,
         date=date.today(),
         alert_type="Test Alert",
+        description="description",
+    )
+    session.add(new_history)
+    await session.commit()
+    await session.refresh(new_history)
+    return new_history
+
+
+@pytest_asyncio.fixture
+async def status_history(session: AsyncSession, printer: Printer, status: Status) -> StatusHistory:
+    new_history = StatusHistory(
+        printer_id=printer.id,
+        date=date.today(),
+        status_id=status.id,
         description="description",
     )
     session.add(new_history)

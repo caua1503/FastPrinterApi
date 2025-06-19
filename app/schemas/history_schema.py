@@ -33,6 +33,7 @@ class AlertHistorySchema(BaseModel):
 
 
 class StatusHistorySchema(BaseModel):
+    printer_id: int
     status_id: int
     date: date
     description: Optional[str] = None
