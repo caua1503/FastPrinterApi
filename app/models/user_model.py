@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base_model import table_registry
@@ -33,7 +33,7 @@ class Permission:
 class UserConfiguration:
     __tablename__ = "user_configuration"
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int]
     username: Mapped[str]
     webhook_enabled: Mapped[bool] = mapped_column(default=False)
     webhook_url: Mapped[Optional[str]] = mapped_column(default=None)

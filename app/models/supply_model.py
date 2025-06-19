@@ -1,6 +1,5 @@
 from typing import Optional
 
-from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base_model import table_registry
@@ -18,6 +17,6 @@ class Supply:
     __tablename__ = "supply"
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     name: Mapped[str]
-    supply_type_id: Mapped[int] = mapped_column(ForeignKey("supply_type.id"))
+    supply_type_id: Mapped[int]
     brand: Mapped[str]
     description: Mapped[Optional[str]]

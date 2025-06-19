@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base_model import table_registry
@@ -19,13 +19,13 @@ class Status:
 class Printer:
     __tablename__ = "printer"
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
-    status_id: Mapped[int] = mapped_column(ForeignKey("status.id"))
-    supply_id: Mapped[int] = mapped_column(ForeignKey("supply.id"))
+    status_id: Mapped[int]
+    supply_id: Mapped[int]
     name: Mapped[str]
     brand: Mapped[str]
     model: Mapped[str]
     ip: Mapped[str] = mapped_column(unique=True)
-    department_id: Mapped[int] = mapped_column(ForeignKey("departments.id"))
+    department_id: Mapped[int]
     description: Mapped[Optional[str]]
     forecast: Mapped[Optional[date]]
     last_refill: Mapped[Optional[date]]
