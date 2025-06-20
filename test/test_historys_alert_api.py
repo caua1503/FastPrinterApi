@@ -42,7 +42,7 @@ def test_update_history_alert(client, alert_history: AlertHistory):
 
 
 def test_get_history_alert_by_printer_id(client, alert_history: AlertHistory, printer: Printer):
-    response = client.get(f"/api/v1/history/alert/{printer.id}")
+    response = client.get(f"/api/v1/history/alert?printer_id={printer.id}")
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert len(response_json["historys"]) > 0

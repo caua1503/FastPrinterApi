@@ -70,7 +70,7 @@ def test_update_history_maintenance(client, maintenance_history: MaintenanceHist
 
 
 def test_get_history_maintenance_by_printer_id(client, maintenance_history: MaintenanceHistory, printer: Printer):
-    response = client.get(f"/api/v1/history/maintenance/printer/{printer.id}")
+    response = client.get(f"/api/v1/history/maintenance?printer_id={printer.id}")
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert len(response_json["historys"]) > 0

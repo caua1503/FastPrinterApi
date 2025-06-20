@@ -143,7 +143,7 @@ def test_delete_printer_with_printer_error(client, printer: Printer):
 
 
 def test_get_printers_by_department_id(client, printer: Printer):
-    response = client.get(f"/api/v1/printer/department/{printer.department_id}")
+    response = client.get(f"/api/v1/printer/?department_id={printer.department_id}")
     response_json = response.json()
     print(response_json)
     assert response.status_code == HTTPStatus.OK
@@ -163,7 +163,7 @@ def test_get_printers_by_department_id(client, printer: Printer):
 
 
 def test_get_printers_by_supply_id(client, printer: Printer):
-    response = client.get(f"/api/v1/printer/supply/{printer.supply_id}")
+    response = client.get(f"/api/v1/printer/?supply_id={printer.supply_id}")
     response_json = response.json()
     print(response_json)
     assert response.status_code == HTTPStatus.OK
@@ -176,7 +176,7 @@ def test_get_printers_by_supply_id(client, printer: Printer):
 
 
 def test_get_printers_by_status_id(client, printer: Printer):
-    response = client.get(f"/api/v1/printer/status/{printer.status_id}")
+    response = client.get(f"/api/v1/printer/?status_id={printer.status_id}")
     response_json = response.json()
     print(response_json)
     assert response.status_code == HTTPStatus.OK
@@ -186,3 +186,20 @@ def test_get_printers_by_status_id(client, printer: Printer):
     assert response_json["printers"][0]["model"] == printer.model
     assert response_json["printers"][0]["ip"] == printer.ip
     assert response_json["printers"][0]["status_id"] == printer.status_id
+
+
+def test_get_printers_by_multiple_filters(client, printer: Printer):
+    url = (
+        f"/api/v1/printer/?department_id={printer.department_id}"
+        f"&supply_id={printer.supply_id}"
+        f"&status_id={printer.status_id}"
+    )
+    response = client.get(url)
+    response_json = response.json()
+    assert response.status_code == HTTPStatus.OK
+    assert len(response_json["printers"]) == 1
+    printer_json = response_json["printers"][0]
+    assert printer_json["id"] == printer.id
+    assert printer_json["department_id"] == printer.department_id
+    assert printer_json["supply_id"] == printer.supply_id
+    assert printer_json["status_id"] == printer.status_id

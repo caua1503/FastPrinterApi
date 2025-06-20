@@ -54,7 +54,7 @@ def test_update_history_trash(client, printer_trash_history: PrinterTrashHistory
 
 
 def test_get_history_trash_by_printer_id(client, printer_trash_history: PrinterTrashHistory, printer: Printer):
-    response = client.get(f"/api/v1/history/trash/printer/{printer.id}")
+    response = client.get(f"/api/v1/history/trash?printer_id={printer.id}")
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert len(response_json["historys"]) > 0

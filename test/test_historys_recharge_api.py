@@ -80,7 +80,7 @@ def test_update_history_recharge(client, refill_history: RefillHistory, supply2:
 
 
 def test_get_history_recharge_by_printer_id(client, refill_history: RefillHistory, printer: Printer):
-    response = client.get(f"/api/v1/history/recharge/printer/{printer.id}")
+    response = client.get(f"/api/v1/history/recharge?printer_id={printer.id}")
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert len(response_json["historys"]) > 0
