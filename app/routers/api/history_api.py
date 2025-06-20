@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
-from app.schemas.filters import FilterBase
+from app.schemas.filters import FilterBase, FilterPrinter
 from app.schemas.history_schema import (
     AlertHistorySchema,
     AlertHistorySchemaDB,
@@ -27,18 +27,14 @@ from app.services.history_service import (
     delete_history_recharge,
     delete_history_status,
     delete_history_trash,
-    get_history_alert,
-    get_history_alert_printer_id,
+    get_history_alerts,
     get_history_maintenance,
     get_history_maintenance_id,
-    get_history_maintenance_printer_id,
     get_history_recharge,
     get_history_recharge_id,
-    get_history_recharge_printer_id,
     get_history_status,
     get_history_status_id,
     get_history_trash,
-    get_history_trash_printer_id,
     update_history_alert,
     update_history_maintenance,
     update_history_recharge,
@@ -58,7 +54,7 @@ history_router = APIRouter()
 
 @history_router.get("/recharge", status_code=HTTPStatus.OK)
 async def api_get_history_recharge(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
 ) -> Dict[str, List[RefillHistorySchemaDB]]:
     result = await get_history_recharge(session, filters)
     return {"historys": result}
@@ -83,14 +79,6 @@ async def api_get_history_recharge_id(id: int, session: Annotated[AsyncSession, 
     return await get_history_recharge_id(id, session)
 
 
-@history_router.get("/recharge/printer/{printer_id}", status_code=HTTPStatus.OK)
-async def api_get_history_recharge_printer_id(
-    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, filters: Annotated[FilterBase, Query()]
-) -> Dict[str, List[RefillHistorySchemaDB]]:
-    result = await get_history_recharge_printer_id(printer_id, filters, session)
-    return {"historys": result}
-
-
 @history_router.delete("/recharge/{id}", status_code=HTTPStatus.NO_CONTENT)
 async def api_delete_history_recharge(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
     return await delete_history_recharge(id, session)
@@ -112,7 +100,7 @@ async def api_create_history_maintenance(
 
 @history_router.get("/maintenance", status_code=HTTPStatus.OK)
 async def api_get_history_maintenance(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
 ) -> Dict[str, List[MaintenanceHistorySchemaDB]]:
     result = await get_history_maintenance(session, filters)
     return {"historys": result}
@@ -122,13 +110,6 @@ async def api_get_history_maintenance(
 async def api_get_history_maintenance_id(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
     return await get_history_maintenance_id(id, session)
 
-
-@history_router.get("/maintenance/printer/{printer_id}", status_code=HTTPStatus.OK)
-async def api_get_history_maintenance_printer_id(
-    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, filters: Annotated[FilterBase, Query()]
-) -> Dict[str, List[MaintenanceHistorySchemaDB]]:
-    result = await get_history_maintenance_printer_id(printer_id, filters, session)
-    return {"historys": result}
 
 
 @history_router.put("/maintenance/{id}", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
@@ -152,17 +133,9 @@ async def api_delete_history_maintenance(id: int, session: Annotated[AsyncSessio
 
 @history_router.get("/trash", status_code=HTTPStatus.OK)
 async def api_get_history_trash(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
 ) -> Dict[str, List[PrinterTrashHistorySchemaDB]]:
     result = await get_history_trash(session, filters)
-    return {"historys": result}
-
-
-@history_router.get("/trash/printer/{printer_id}", status_code=HTTPStatus.OK)
-async def api_get_history_trash_printer_id(
-    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, filters: Annotated[FilterBase, Query()]
-) -> Dict[str, List[PrinterTrashHistorySchemaDB]]:
-    result = await get_history_trash_printer_id(printer_id, filters, session)
     return {"historys": result}
 
 
@@ -186,19 +159,12 @@ async def api_create_history_trash(
 
 
 @history_router.get("/alert", status_code=HTTPStatus.OK)
-async def api_get_history_alert(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
+async def api_get_history_alerts(
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
 ) -> Dict[str, List[AlertHistorySchemaDB]]:
-    result = await get_history_alert(session, filters)
+    result = await get_history_alerts(session, filters)
     return {"historys": result}
 
-
-@history_router.get("/alert/{printer_id}", status_code=HTTPStatus.OK)
-async def api_get_history_alert_printer_id(
-    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, filters: Annotated[FilterBase, Query()]
-) -> Dict[str, List[AlertHistorySchemaDB]]:
-    result = await get_history_alert_printer_id(printer_id, filters, session)
-    return {"historys": result}
 
 
 @history_router.put("/alert/{id}", status_code=HTTPStatus.OK, response_model=AlertHistorySchemaDB)
@@ -222,7 +188,7 @@ async def api_delete_history_alert(id: int, session: Annotated[AsyncSession, Dep
 
 @history_router.get("/status", status_code=HTTPStatus.OK)
 async def api_get_history_status(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
 ) -> Dict[str, List[StatusHistorySchemaDB]]:
     result = await get_history_status(session, filters)
     return {"historys": result}
