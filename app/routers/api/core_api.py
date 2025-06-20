@@ -16,7 +16,7 @@ async def api_current_get_all_printers_maintenance_info(
     session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ):
     # return await asyncio.to_thread(get_all_printers_maintenance_info(session, limit))
-    return get_all_printers_maintenance_info(session, filters)
+    return await get_all_printers_maintenance_info(session, filters)
 
 
 @core_router.get("/current/info/printer/{printer_id}")
@@ -24,7 +24,7 @@ async def api_current_get_printer_maintenance_info(
     printer_id: int, session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ):
     # return await asyncio.to_thread(get_printer_maintenance_info(printer_id, session, limit))
-    return get_printer_maintenance_info(printer_id, session, filters)
+    return await get_printer_maintenance_info(printer_id, session, filters)
 
 
 @core_router.get("/info/printer/{printer_id}")
@@ -32,4 +32,4 @@ async def api_get_printer_maintenance_info(
     printer_id: int, session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ):
     # return await asyncio.to_thread(get_printer_maintenance_info_service(printer_id, session, limit))
-    return get_printer_maintenance_info_service(printer_id, session, filters)
+    return await get_printer_maintenance_info_service(printer_id, session, filters)

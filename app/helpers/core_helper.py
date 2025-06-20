@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.history_model import PrinterTrashHistory, RefillHistory
 from app.models.printer_model import Printer
+from app.schemas.filters import FilterBase
 
 
 async def get_printers(session: AsyncSession):
@@ -14,13 +15,13 @@ async def get_printers(session: AsyncSession):
     return printers_database
 
 
-async def extract_datas_recharge(printer_id: int, session: AsyncSession, limit: int) -> List:
+async def extract_datas_recharge(printer_id: int, session: AsyncSession, filters: FilterBase) -> List:
     history_recharge = (
         await session.scalars(
             select(RefillHistory)
             .where(RefillHistory.printer_id == printer_id)
             .order_by(RefillHistory.date.desc())
-            .limit(limit)
+            .limit(filters.limit)
         )
     ).all()
     if history_recharge:
@@ -29,13 +30,13 @@ async def extract_datas_recharge(printer_id: int, session: AsyncSession, limit: 
         return []
 
 
-async def extract_trash_datas(printer_id: int, session: AsyncSession, limit: int) -> List:
+async def extract_trash_datas(printer_id: int, session: AsyncSession, filters: FilterBase) -> List:
     history_trash = (
         await session.scalars(
             select(PrinterTrashHistory)
             .where(PrinterTrashHistory.printer_id == printer_id)
             .order_by(PrinterTrashHistory.date.desc())
-            .limit(limit)
+            .limit(filters.limit)
         )
     ).all()
     if history_trash:

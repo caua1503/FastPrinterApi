@@ -15,6 +15,7 @@ class User:
     password_hash: Mapped[str]
     code_hash: Mapped[str]
     api_key: Mapped[str]
+    permission_id: Mapped[int] = mapped_column(ForeignKey("permissions.id"))
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
 

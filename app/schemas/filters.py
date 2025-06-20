@@ -2,8 +2,8 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 class FilterBase(BaseModel):
-    limit: Optional[int] = Field(default=10, ge=1)
-    offset: Optional[int] = Field(default=0, ge=0)
+    limit: int = Field(default=10, ge=1)
+    offset: int = Field(default=0, ge=0)
 
 class FilterPrinter(FilterBase):
     printer_id: Optional[int] = Field(default=None)
