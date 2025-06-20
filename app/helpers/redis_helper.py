@@ -2,9 +2,11 @@ import json
 from typing import Any, Union
 
 import redis.asyncio as redis
-from config import REDIS_HOST, REDIS_PORT
 
-pool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=0)
+from app.config import Config
+
+config = Config()
+pool = redis.ConnectionPool(host=config.REDIS_HOST, port=config.REDIS_PORT, db=0)
 
 
 async def get_redis_client() -> redis.Redis:

@@ -1,34 +1,34 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from sqlalchemy import ForeignKey, func
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models.base_model import table_registry
 
 
-class PrinterSchema(BaseModel):
-    name: str
-    model: str
-    ip: str
-    marca: str
+@table_registry.mapped_as_dataclass
+class Status:
+    __tablename__ = "status"
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    status: Mapped[str]
+    description: Mapped[Optional[str]]
 
 
-class PrinterSchemaDB(PrinterSchema):
-    id: int
-
-
-class FullPrinterSchema(BaseModel):
-    id_insumo: int
-    id_status: int
-    name: str
-    marca: str
-    model: str
-    ip: str
-    setor: str
-    descricao: Optional[str] = None
-    previsao: Optional[date] = None
-    ultima_recarga: Optional[date] = None
-    ultima_manutencao: Optional[date] = None
-    ultima_verificacao: Optional[date] = None
-
-
-class FullPrinterSchemaDB(FullPrinterSchema):
-    id: int
+@table_registry.mapped_as_dataclass
+class Printer:
+    __tablename__ = "printer"
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    status_id: Mapped[int] = mapped_column(ForeignKey("status.id"))
+    supply_id: Mapped[int] = mapped_column(ForeignKey("supply.id"))
+    name: Mapped[str]
+    brand: Mapped[str]
+    model: Mapped[str]
+    ip: Mapped[str] = mapped_column(unique=True)
+    department_id: Mapped[int] = mapped_column(ForeignKey("departments.id"))
+    description: Mapped[Optional[str]]
+    forecast: Mapped[Optional[date]]
+    last_refill: Mapped[Optional[date]]
+    last_maintenance: Mapped[Optional[date]]
+    last_check: Mapped[Optional[date]]
+    created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())

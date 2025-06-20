@@ -1,10 +1,11 @@
-import os
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from dotenv import load_dotenv
 
-caminho = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(caminho, ".env"))
+class Config(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8")
 
-REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
-DATABASE_URL = os.getenv("DATABASE_URL")
+    REDIS_HOST: str
+    REDIS_PORT: str
+    DATABASE_URL: str
+    JWT_ALGORITHM: str

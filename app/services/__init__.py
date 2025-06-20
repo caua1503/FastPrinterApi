@@ -1,27 +1,71 @@
+from .core_service import get_printer_maintenance_info_service
+from .department_service import (
+    create_department,
+    delete_department,
+    get_department_id,
+    get_departments,
+    update_department,
+)
 from .history_service import (
+    create_history_alert,
     create_history_maintenance,
     create_history_recharge,
+    create_history_trash,
+    delete_history_alert,
     delete_history_maintenance,
     delete_history_recharge,
+    delete_history_trash,
+    get_history_alerts,
     get_history_maintenance,
     get_history_recharge,
+    get_history_trash,
+    update_history_alert,
     update_history_maintenance,
     update_history_recharge,
+    update_history_trash,
 )
-from .printer_service import create_printer, delete_printer, get_printer, get_printers, update_printer
+from .printer_service import (
+    create_printer,
+    delete_printer,
+    get_printers,
+    update_printer,
+)
+from .user_service import (
+    create_user,
+    delete_user,
+    update_user,
+    update_user_password,
+)
 
 __all__ = [
+    "create_department",
+    "create_user",
+    "delete_user",
+    "update_user",
+    "update_user_password",
+    "delete_department",
+    "get_department_id",
+    "get_departments",
+    "update_department",
     "create_printer",
     "delete_printer",
     "update_printer",
-    "get_printer",
     "get_printers",
     "create_history_recharge",
     "create_history_maintenance",
     "get_history_recharge",
     "get_history_maintenance",
+    "get_printer_maintenance_info_service",
     "update_history_recharge",
     "update_history_maintenance",
     "delete_history_recharge",
     "delete_history_maintenance",
+    "create_history_trash",
+    "delete_history_trash",
+    "get_history_trash",
+    "update_history_trash",
+    "create_history_alert",
+    "get_history_alert",
+    "update_history_alert",
+    "delete_history_alert",
 ]

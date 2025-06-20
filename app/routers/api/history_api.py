@@ -1,31 +1,48 @@
 from http import HTTPStatus
-from typing import Dict, List
+from typing import Annotated, Dict, List, Optional
 
-from fastapi import APIRouter, Depends
-from helpers.db_helper import get_session
-from models.history_model import (
-    HistoryManutencaoSchema,
-    HistoryManutencaoSchemaDB,
-    HistoryRecargaSchema,
-    HistoryRecargaSchemaDB,
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.helpers.database_helper import get_session
+from app.schemas.filters import FilterBase, FilterPrinter
+from app.schemas.history_schema import (
+    AlertHistorySchema,
+    AlertHistorySchemaDB,
+    MaintenanceHistorySchema,
+    MaintenanceHistorySchemaDB,
+    PrinterTrashHistorySchema,
+    PrinterTrashHistorySchemaDB,
+    RefillHistorySchema,
+    RefillHistorySchemaDB,
+    StatusHistorySchema,
+    StatusHistorySchemaDB,
 )
-from services.history_service import (
+from app.services.history_service import (
     create_history_maintenance,
     create_history_recharge,
+    create_history_trash,
+    delete_history_alert,
     delete_history_maintenance,
     delete_history_recharge,
+    delete_history_status,
+    delete_history_trash,
+    get_history_alerts,
     get_history_maintenance,
     get_history_maintenance_id,
-    get_history_maintenance_printer_id,
     get_history_recharge,
     get_history_recharge_id,
-    get_history_recharge_printer_id,
+    get_history_status,
+    get_history_status_id,
+    get_history_trash,
+    update_history_alert,
     update_history_maintenance,
     update_history_recharge,
+    update_history_status,
+    update_history_trash,
 )
-from sqlalchemy.orm import Session
 
-history_router = APIRouter(prefix="/historys", tags=["historys"])
+history_router = APIRouter()
 
 """
     Historys recharge
@@ -35,43 +52,35 @@ history_router = APIRouter(prefix="/historys", tags=["historys"])
 """
 
 
-@history_router.get("/recharge", status_code=HTTPStatus.ACCEPTED)
+@history_router.get("/recharge", status_code=HTTPStatus.OK)
 async def api_get_history_recharge(
-    session: Session = Depends(get_session), limit: int = 10, offset: int = 0
-) -> Dict[str, List[HistoryRecargaSchemaDB]]:
-    result = await get_history_recharge(session, limit, offset)
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
+) -> Dict[str, List[RefillHistorySchemaDB]]:
+    result = await get_history_recharge(session, filters)
     return {"historys": result}
 
 
-@history_router.post("/recharge", status_code=HTTPStatus.CREATED, response_model=HistoryRecargaSchema)
+@history_router.post("/recharge", status_code=HTTPStatus.CREATED, response_model=RefillHistorySchemaDB)
 async def api_create_history_recharge(
-    history: HistoryRecargaSchema, session: Session = Depends(get_session)
-) -> HistoryRecargaSchemaDB:
+    history: RefillHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+):
     return await create_history_recharge(history, session)
 
 
-@history_router.put("/recharge/{id}")
+@history_router.put("/recharge/{id}", status_code=HTTPStatus.OK, response_model=RefillHistorySchemaDB)
 async def api_update_history_recharge(
-    id: int, history: HistoryRecargaSchema, session: Session = Depends(get_session)
-) -> HistoryRecargaSchemaDB:
+    id: int, history: RefillHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+):
     return await update_history_recharge(id, history, session)
 
 
-@history_router.get("/recharge/{id}", response_model=HistoryRecargaSchemaDB)
-async def api_get_history_recharge_id(id: int, session: Session = Depends(get_session)) -> HistoryRecargaSchemaDB:
+@history_router.get("/recharge/{id}", status_code=HTTPStatus.OK, response_model=Optional[RefillHistorySchemaDB])
+async def api_get_history_recharge_id(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
     return await get_history_recharge_id(id, session)
 
 
-@history_router.get("/recharge/printer/{impressora_id}")
-async def api_get_history_recharge_printer_id(
-    impressora_id: int, limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
-):
-    result = await get_history_recharge_printer_id(impressora_id, limit, offset, session)
-    return {"historys": result}
-
-
-@history_router.delete("/recharge/{id}")
-async def api_delete_history_recharge(id: int, session: Session = Depends(get_session)):
+@history_router.delete("/recharge/{id}", status_code=HTTPStatus.NO_CONTENT)
+async def api_delete_history_recharge(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
     return await delete_history_recharge(id, session)
 
 
@@ -82,41 +91,121 @@ async def api_delete_history_recharge(id: int, session: Session = Depends(get_se
 """
 
 
-@history_router.post("/maintenance", status_code=HTTPStatus.CREATED, response_model=HistoryManutencaoSchema)
+@history_router.post("/maintenance", status_code=HTTPStatus.CREATED, response_model=MaintenanceHistorySchemaDB)
 async def api_create_history_maintenance(
-    history: HistoryManutencaoSchema, session: Session = Depends(get_session)
-) -> HistoryManutencaoSchemaDB:
+    history: MaintenanceHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+):
     return await create_history_maintenance(history, session)
 
 
-@history_router.get("/maintenance", status_code=HTTPStatus.ACCEPTED)
+@history_router.get("/maintenance", status_code=HTTPStatus.OK)
 async def api_get_history_maintenance(
-    session: Session = Depends(get_session), limit: int = 10, offset: int = 0
-) -> Dict[str, List[HistoryManutencaoSchemaDB]]:
-    result = await get_history_maintenance(session, limit, offset)
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
+) -> Dict[str, List[MaintenanceHistorySchemaDB]]:
+    result = await get_history_maintenance(session, filters)
     return {"historys": result}
 
 
-@history_router.get("/maintenance/{id}", response_model=HistoryManutencaoSchemaDB)
-async def api_get_history_maintenance_id(id: int, session: Session = Depends(get_session)):
+@history_router.get("/maintenance/{id}", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
+async def api_get_history_maintenance_id(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
     return await get_history_maintenance_id(id, session)
 
 
-@history_router.get("/maintenance/printer/{impressora_id}")
-async def api_get_history_maintenance_printer_id(
-    impressora_id: int, limit: int = 10, offset: int = 0, session: Session = Depends(get_session)
-):
-    result = await get_history_maintenance_printer_id(impressora_id, limit, offset, session)
-    return {"historys": result}
 
-
-@history_router.put("/maintenance/{id}")
+@history_router.put("/maintenance/{id}", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
 async def api_update_history_maintenance(
-    id: int, history: HistoryManutencaoSchema, session: Session = Depends(get_session)
+    id: int, history: MaintenanceHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
 ):
     return await update_history_maintenance(id, history, session)
 
 
-@history_router.delete("/maintenance/{id}")
-async def api_delete_history_maintenance(id: int, session: Session = Depends(get_session)):
+@history_router.delete("/maintenance/{id}", status_code=HTTPStatus.NO_CONTENT)
+async def api_delete_history_maintenance(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
     return await delete_history_maintenance(id, session)
+
+
+"""
+
+    Historys trash
+
+"""
+
+
+@history_router.get("/trash", status_code=HTTPStatus.OK)
+async def api_get_history_trash(
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
+) -> Dict[str, List[PrinterTrashHistorySchemaDB]]:
+    result = await get_history_trash(session, filters)
+    return {"historys": result}
+
+
+@history_router.put("/trash/{id}", status_code=HTTPStatus.OK, response_model=PrinterTrashHistorySchemaDB)
+async def api_update_history_trash(
+    id: int, history: PrinterTrashHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+):
+    return await update_history_trash(id, history, session)
+
+
+@history_router.delete("/trash/{id}", status_code=HTTPStatus.NO_CONTENT)
+async def api_delete_history_trash(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+    return await delete_history_trash(id, session)
+
+
+@history_router.post("/trash", status_code=HTTPStatus.CREATED, response_model=PrinterTrashHistorySchemaDB)
+async def api_create_history_trash(
+    history: PrinterTrashHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+):
+    return await create_history_trash(history, session)
+
+
+@history_router.get("/alert", status_code=HTTPStatus.OK)
+async def api_get_history_alerts(
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
+) -> Dict[str, List[AlertHistorySchemaDB]]:
+    result = await get_history_alerts(session, filters)
+    return {"historys": result}
+
+
+
+@history_router.put("/alert/{id}", status_code=HTTPStatus.OK, response_model=AlertHistorySchemaDB)
+async def api_update_history_alert(
+    id: int, history: AlertHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+):
+    return await update_history_alert(id, history, session)
+
+
+@history_router.delete("/alert/{id}", status_code=HTTPStatus.NO_CONTENT)
+async def api_delete_history_alert(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+    return await delete_history_alert(id, session)
+
+
+"""
+
+    Historys status
+
+"""
+
+
+@history_router.get("/status", status_code=HTTPStatus.OK)
+async def api_get_history_status(
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
+) -> Dict[str, List[StatusHistorySchemaDB]]:
+    result = await get_history_status(session, filters)
+    return {"historys": result}
+
+
+@history_router.get("/status/{id}", status_code=HTTPStatus.OK, response_model=StatusHistorySchemaDB)
+async def api_get_history_status_id(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+    return await get_history_status_id(id, session)
+
+
+@history_router.put("/status/{id}", status_code=HTTPStatus.OK, response_model=StatusHistorySchemaDB)
+async def api_update_history_status(
+    id: int, history: StatusHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+):
+    return await update_history_status(id, history, session)
+
+
+@history_router.delete("/status/{id}", status_code=HTTPStatus.NO_CONTENT)
+async def api_delete_history_status(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+    return await delete_history_status(id, session)

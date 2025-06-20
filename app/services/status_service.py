@@ -1,53 +1,66 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from models.status_model import StatusSchema, StatusSchemaDB
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.history_model import StatusHistory
+from app.models.printer_model import Printer, Status
+from app.schemas.status_schema import StatusSchema
+from app.schemas.filters import FilterBase
 
 
-async def create_status(status: StatusSchema, session: Session) -> StatusSchemaDB:
-    status_db = StatusSchemaDB(status=status.status, descricao=status.descricao)
+async def create_status(status: StatusSchema, session: AsyncSession):
+    status_db = Status(status=status.status, description=status.description)
     session.add(status_db)
-    session.commit()
-    session.refresh(status_db)
+    await session.commit()
+    await session.refresh(status_db)
     return status_db
 
 
-async def get_status(session: Session):
-    status = session.scalars(select(StatusSchemaDB)).all()
+async def get_status(session: AsyncSession, filters: FilterBase):
+    status = (await session.scalars(select(Status).limit(filters.limit).offset(filters.offset))).all()
     if not status:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
     return status
 
 
-async def get_status_id(id: int, session: Session):
-    status = session.scalar(select(StatusSchemaDB).where(StatusSchemaDB.id == id))
+async def get_status_id(id: int, session: AsyncSession):
+    status = await session.scalar(select(Status).where(Status.id == id))
     if not status:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
 
     return status
 
 
-async def update_status(id: int, status: StatusSchema, session: Session):
-    status_db = session.scalar(select(StatusSchemaDB).where(StatusSchemaDB.id == id))
+async def update_status(id: int, status: StatusSchema, session: AsyncSession):
+    status_db = await session.scalar(select(Status).where(Status.id == id))
     if not status_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
 
     status_db.status = status.status
-    status_db.descricao = status.descricao
+    status_db.description = status.description
 
-    session.commit()
-    session.refresh(status_db)
+    await session.commit()
+    await session.refresh(status_db)
 
     return status_db
 
 
-async def delete_status(id: int, session: Session):
-    status_db = session.scalar(select(StatusSchemaDB).where(StatusSchemaDB.id == id))
+async def delete_status(id: int, session: AsyncSession):
+    status_db = await session.scalar(select(Status).where(Status.id == id))
+    printers = (await session.scalars(select(Printer).where(Printer.status_id == id))).all()
+    status_history = (await session.scalars(select(StatusHistory).where(StatusHistory.status_id == id))).all()
+
     if not status_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
 
-    session.delete(status_db)
-    session.commit()
+    if printers:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Status has printers")
+
+    if status_history:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Status has status history")
+
+    await session.delete(status_db)
+    await session.commit()
     return status_db
