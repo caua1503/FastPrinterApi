@@ -2,6 +2,8 @@
 
 Uma API assíncrona desenvolvida em FastAPI para o gerenciamento centralizado de múltiplas impressoras, com foco em estatísticas, previsões e histórico detalhado de manutenção.
 
+Embora o núcleo do projeto seja a API RESTful, ele também inclui uma interface gráfica intuitiva para facilitar a interação e o gerenciamento.
+
 ## Objetivo
 
 Facilitar o controle, monitoramento e manutenção de parques de impressoras, fornecendo:
