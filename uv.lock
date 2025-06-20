@@ -3,18 +3,6 @@ revision = 2
 requires-python = ">=3.12"
 
 [[package]]
-name = "aiosqlite"
-version = "0.21.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/13/7d/8bca2bf9a247c2c5dfeec1d7a5f40db6518f88d314b8bca9da29670d2671/aiosqlite-0.21.0.tar.gz", hash = "sha256:131bb8056daa3bc875608c631c678cda73922a2d4ba8aec373b19f18c17e7aa3", size = 13454, upload-time = "2025-02-03T07:30:16.235Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f5/10/6c25ed6de94c49f88a91fa5018cb4c0f3625f31d5be9f771ebe5cc7cd506/aiosqlite-0.21.0-py3-none-any.whl", hash = "sha256:2549cf4057f95f53dcba16f2b64e8e2791d7e1adedb13197dd8ed77bb226d7d0", size = 15792, upload-time = "2025-02-03T07:30:13.6Z" },
-]
-
-[[package]]
 name = "alembic"
 version = "1.16.2"
 source = { registry = "https://pypi.org/simple" }
@@ -262,6 +250,45 @@ standard = [
 ]
 
 [[package]]
+name = "granian"
+version = "2.3.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f6/83/3c58fbccda2c70c19a09c26c5559314ac71f258e42d9e57cb88e7e36afa5/granian-2.3.4.tar.gz", hash = "sha256:ed04cb7f9befb1bcb8f97b7fee6d19eb4375346eeddd43c77193c35e9cf66b9a", size = 101156, upload-time = "2025-06-14T13:10:36.167Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/45/f1/6a6fcd3bd95711402432a6e26a07ad1afd1325d0172bbd558a2ec6eec5b7/granian-2.3.4-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:8f2b2c8e0cb60bc7121ba1c92826056d5a787ae7bd0be4033aaea25b0ca244f8", size = 3040217, upload-time = "2025-06-14T13:09:04.205Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/77/0b52597f47ef0916c1ddef631505ed3e09a33928272074e0ebba753b1a8f/granian-2.3.4-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:b1dc70db92729796d0bf94afe4680500e0264958a90939bc4c8a207f68d83f89", size = 2722036, upload-time = "2025-06-14T13:09:05.369Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/07/b8f6ef9de082fb74cd5b6fb87add0fadff8c62ac7ecc3b3b725ef8545c89/granian-2.3.4-cp312-cp312-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:5f206da0f25916a538f3c042b980b41e7df00f7eea52df2303887efb76069d52", size = 3345852, upload-time = "2025-06-14T13:09:06.838Z" },
+    { url = "https://files.pythonhosted.org/packages/73/ef/23070fbccc765a4fa493a869aebc72e7a4e0121a0abe0e1075b41d5fd4ba/granian-2.3.4-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:2f2e56ce5aaf54d4412cd903a85d3a210f97fc65f2672b6bd7aa3ee98479fbb8", size = 2999393, upload-time = "2025-06-14T13:09:08.142Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/1e/6a52f6b9eb524cb1e3afa258616aca49f57448efca1d0f51be9d2554e876/granian-2.3.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3491f1989059c3ac8df03a8fdced1233e144c068acddb1b93d6eb0c24fcc38f9", size = 3230311, upload-time = "2025-06-14T13:09:09.402Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/80/7253f6c8130792e3a9b61d4d64643f5da8bb352f02f8563dd6d6ad6fae83/granian-2.3.4-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:5187a30d86c3bd05939ee6b61ca542a98106e7b9ac4a28c53137db3d6f7a6f84", size = 3136368, upload-time = "2025-06-14T13:09:10.581Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/14/0bd63ac2b1b4534bf4d5988e37f33f543017aecb6a208ac721cad3f42339/granian-2.3.4-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:9dbf756a9861ac9c3788c2d9bff93496a7a287a6bc54bfcce443b8b8d41f4e90", size = 3150981, upload-time = "2025-06-14T13:09:11.838Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/c6/b6343698cc591d5294aa1d663ad5ddba3c5bfee32c9cec3f8ccea30d6d30/granian-2.3.4-cp312-cp312-musllinux_1_1_armv7l.whl", hash = "sha256:20ae1c2fe95a88053d8c1face5e072b281b607344b3d8c437c99b7c1bb9ce9be", size = 3467529, upload-time = "2025-06-14T13:09:13.014Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/ae/d56984f20f68ccfa7fc58a22cc2cedfa5166334993586d3b32592e9ba1e2/granian-2.3.4-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:b0ccfe516a8356437747596d2f94f8db2e1a855463ca299574f4e357154598b4", size = 3267723, upload-time = "2025-06-14T13:09:14.524Z" },
+    { url = "https://files.pythonhosted.org/packages/05/dd/9b7ac7b71cf7d0b4f2396cc265881776d33bad46f8ef3a3b6ce07a6f1f0f/granian-2.3.4-cp312-cp312-win_amd64.whl", hash = "sha256:bac75562ede2c419dc93323a82eee101c6dbc12d2ebed8d856d338e8ff48ce36", size = 2788810, upload-time = "2025-06-14T13:09:15.967Z" },
+    { url = "https://files.pythonhosted.org/packages/06/d5/e04a128a098584008690705f0365290bb8b6d8271d671380e3a185fb0a06/granian-2.3.4-cp313-cp313-macosx_10_12_x86_64.whl", hash = "sha256:f3a7488836f064bb3dedabd09c223bf7408e9fd5bf3a77587c73b51d6ce1dbce", size = 3039582, upload-time = "2025-06-14T13:09:17.703Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/1f/72f9bbb4e8f1b83d26cfbcfdb4f53711b1a9630b93692e8a0e7fa98588e3/granian-2.3.4-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:6ba37638c0bfa1b68c852738290ffac99f657ffbc2d6cdcc832d311e189d1947", size = 2721739, upload-time = "2025-06-14T13:09:19.822Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/40/c8d79fe2a3900895e595581a9b8be7872e1798efc180f426faf99b73282d/granian-2.3.4-cp313-cp313-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:29d6d5d407dbd5fcbe58a412619ca060fa3de26e6f37ef48f0ebef2eb8bbec57", size = 3345502, upload-time = "2025-06-14T13:09:21.236Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/2b/1dc6537e5ae95fbd553d771590f46bcedb8df3422d7eb034298af6c14d7a/granian-2.3.4-cp313-cp313-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:90d2c23a8df642af2bac8e40d17b09550d67498b2a8ea6a8ff8844edba9c14e8", size = 2999116, upload-time = "2025-06-14T13:09:22.914Z" },
+    { url = "https://files.pythonhosted.org/packages/67/d6/da281d75f7b897182021ce2586ce9f4bcb8e63def0ce905cc8da49122d5a/granian-2.3.4-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b94e70080877f368578bc8040936c605eebee204905cd64af0497a4c34307209", size = 3229521, upload-time = "2025-06-14T13:09:24.138Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/d4/af75b73ee146d4bc673303cb3f9af6f19d66738d0082ec041d9b8b465451/granian-2.3.4-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:a1a393fbb8a3245c0b26ae2cf37649d0f1438d61ea780445885212b878ba4e5d", size = 3136218, upload-time = "2025-06-14T13:09:25.426Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/8b/e2089e4d19e674bbe591b69013379004e93d0d05160a9c186726b478fdcb/granian-2.3.4-cp313-cp313-musllinux_1_1_aarch64.whl", hash = "sha256:b390427ac03fd09e6fdf5d290f47480b6e1471e2abf3889d278f119cbea97256", size = 3150105, upload-time = "2025-06-14T13:09:27.087Z" },
+    { url = "https://files.pythonhosted.org/packages/11/26/917d9ee53ee74471b494ba69f8bb160cbf99200ccf642f67942123033983/granian-2.3.4-cp313-cp313-musllinux_1_1_armv7l.whl", hash = "sha256:6135af0ed734b718f1d7ac2540a088971b06ef65db9f58d44c1ce7dd5df354ac", size = 3467642, upload-time = "2025-06-14T13:09:28.397Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/70/50c4911db8cc6f426aa266d0d114741a31a09ad37d10e832d57638f9c088/granian-2.3.4-cp313-cp313-musllinux_1_1_x86_64.whl", hash = "sha256:bac27d8b9bbecd5c2027a23cef6135d83ec05f6d0061b40dfdd9587a3f761579", size = 3267179, upload-time = "2025-06-14T13:09:30.059Z" },
+    { url = "https://files.pythonhosted.org/packages/b1/7c/83e02966e35614a3dbf190307ebec2f45a5f61be2492dd57ae3c56578eb8/granian-2.3.4-cp313-cp313-win_amd64.whl", hash = "sha256:baca4b613eb9545bc309af213afe1940e4253b22445da667c47f841bb7baa666", size = 2788646, upload-time = "2025-06-14T13:09:31.398Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/56/6b67b36b9b1b067dc4f956c88a633b821668007b1da393e366e68bb4748f/granian-2.3.4-cp313-cp313t-macosx_10_12_x86_64.whl", hash = "sha256:2224b46ad524d92ab8df5e301c489f2839312b8b487b3dcf8c032ef7f4a9b402", size = 2981091, upload-time = "2025-06-14T13:09:32.644Z" },
+    { url = "https://files.pythonhosted.org/packages/65/48/2833a6d0d32eb9f2f1f801ac27ebc4033cffac2789234d27c9fd0ae41e88/granian-2.3.4-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:670ce012d4f6fc045698bdf55b8d7ca262876d4c2fb894aceb5e015b1c488c25", size = 2691018, upload-time = "2025-06-14T13:09:34.513Z" },
+    { url = "https://files.pythonhosted.org/packages/76/10/197dd8815eef3249fcc7e9ab67d1cf2312acebcfbdbe0374f0a70d7961d1/granian-2.3.4-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fedf6fe1c2a4cf2141860d45ff82861bf257c9d71f39e225f1989091d9656c40", size = 3082566, upload-time = "2025-06-14T13:09:36.147Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/fd/526a113b20f7d952b2dafe57be0cb10ff3573f00f1ce76c4e97449f0089e/granian-2.3.4-cp313-cp313t-manylinux_2_28_aarch64.whl", hash = "sha256:41b020b24ac3888c477a2baf488e39cc64cc1235f6053d4d788542d56acbbb6c", size = 3011576, upload-time = "2025-06-14T13:09:38.277Z" },
+    { url = "https://files.pythonhosted.org/packages/a1/74/d899269dc1b9daa6707eb18935ef6401e995597bdf0ef04a806fe9f307e9/granian-2.3.4-cp313-cp313t-musllinux_1_1_aarch64.whl", hash = "sha256:1fb9132a3535f3d399ed89621580b6eaed6c9df5c3f673e0a6205c987abb26d0", size = 3141072, upload-time = "2025-06-14T13:09:39.509Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/95/f9c90d9e61853c31d18f1055e2f7378ed536960aa18c61f352833cd22c9c/granian-2.3.4-cp313-cp313t-musllinux_1_1_armv7l.whl", hash = "sha256:c223467643ca1e6436804cc84ec828c6f08c5c24beee6c861f76c9d65b5086c1", size = 3460907, upload-time = "2025-06-14T13:09:41.289Z" },
+    { url = "https://files.pythonhosted.org/packages/42/28/4caddadbf6778fc305e6706120a3cc78738ba421c6ae8ed45ac6ff677332/granian-2.3.4-cp313-cp313t-musllinux_1_1_x86_64.whl", hash = "sha256:4b2cef0a948a1278a6c7e5ae1414dbb852f893d56e9574da52e5f89c55fa9c3f", size = 3259581, upload-time = "2025-06-14T13:09:42.646Z" },
+    { url = "https://files.pythonhosted.org/packages/00/89/19744b3ca30de038d928019f266812c69f4fb7fb827500d6c03301e6c38c/granian-2.3.4-cp313-cp313t-win_amd64.whl", hash = "sha256:161d7abdc3097669136be543245d687fa23e1c69936b1844f8c5334aadc060ef", size = 2801933, upload-time = "2025-06-14T13:09:44.376Z" },
+]
+
+[[package]]
 name = "greenlet"
 version = "3.2.3"
 source = { registry = "https://pypi.org/simple" }
@@ -367,8 +394,8 @@ name = "impressoras"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "aiosqlite" },
     { name = "fastapi", extra = ["standard"] },
+    { name = "granian" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pwdlib", extra = ["argon2"] },
     { name = "pydantic-settings" },
@@ -387,8 +414,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiosqlite", specifier = ">=0.21.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" },
+    { name = "granian", specifier = ">=2.3.4" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2.9" },
     { name = "pwdlib", extras = ["argon2"], specifier = ">=0.2.1" },
     { name = "pydantic-settings", specifier = ">=2.9.1" },
