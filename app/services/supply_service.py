@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply, SupplyType
 from app.schemas.supply_schema import SupplySchema, SupplyTypeSchema
+from app.schemas.filters import FilterBase
 
 
 async def create_supply(supply: SupplySchema, session: AsyncSession):
@@ -23,8 +24,8 @@ async def create_supply(supply: SupplySchema, session: AsyncSession):
     return supply_db
 
 
-async def get_supply(session: AsyncSession, limit: int, offset: int):
-    supplys = (await session.scalars(select(Supply).limit(limit).offset(offset))).all()
+async def get_supply(session: AsyncSession, filters: FilterBase):
+    supplys = (await session.scalars(select(Supply).limit(filters.limit).offset(filters.offset))).all()
 
     if not supplys:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply not found")

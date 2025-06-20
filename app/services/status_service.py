@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.history_model import StatusHistory
 from app.models.printer_model import Printer, Status
 from app.schemas.status_schema import StatusSchema
+from app.schemas.filters import FilterBase
 
 
 async def create_status(status: StatusSchema, session: AsyncSession):
@@ -17,8 +18,8 @@ async def create_status(status: StatusSchema, session: AsyncSession):
     return status_db
 
 
-async def get_status(session: AsyncSession, limit: int = 10, offset: int = 0):
-    status = (await session.scalars(select(Status).limit(limit).offset(offset))).all()
+async def get_status(session: AsyncSession, filters: FilterBase):
+    status = (await session.scalars(select(Status).limit(filters.limit).offset(filters.offset))).all()
     if not status:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
     return status

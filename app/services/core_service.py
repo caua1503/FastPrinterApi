@@ -7,9 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core import get_printer_maintenance_info
 from app.models.maintenance_model import PrinterMaintenanceInfo
 from app.models.printer_model import Printer
+from app.schemas.filters import FilterBase
 
 
-async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSession, limit: int = 6) -> dict:
+async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSession, filters: FilterBase) -> dict:
     # 1. Verifica se a impressora existe
     printer = await session.scalar(select(Printer).where(Printer.id == printer_id))
     if not printer:
@@ -25,7 +26,7 @@ async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSe
         # 3. Se existe, verifica se ultima_atualizacao é hoje
         if info_manutencao.last_update != hoje:
             # Atualiza os dados
-            info_dict = await get_printer_maintenance_info(printer_id, session, limit)
+            info_dict = await get_printer_maintenance_info(printer_id, session, filters.limit)
             info_manutencao.last_update = hoje
             info_manutencao.next_refill = info_dict["next_recharge"]
             info_manutencao.refill_percentage = info_dict["percentage"]
@@ -44,7 +45,7 @@ async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSe
         }
     else:
         # 4. Se não existe, cria o registro
-        info_dict = get_printer_maintenance_info(printer_id, session, limit)
+        info_dict = get_printer_maintenance_info(printer_id, session, filters.limit)
         novo_info = PrinterMaintenanceInfo(
             printer_id=printer_id,
             last_update=hoje,

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.department_model import Department
 from app.models.printer_model import Printer
 from app.schemas.department_schema import DepartmentSchema
+from app.schemas.filters import FilterBase
 
 
 async def create_department(session: AsyncSession, department: DepartmentSchema):
@@ -24,8 +25,8 @@ async def create_department(session: AsyncSession, department: DepartmentSchema)
     return department_db
 
 
-async def get_departments(session: AsyncSession, limit: int, offset: int):
-    departments = (await session.scalars(select(Department).limit(limit).offset(offset))).all()
+async def get_departments(session: AsyncSession, filters: FilterBase):
+    departments = (await session.scalars(select(Department).limit(filters.limit).offset(filters.offset))).all()
     return departments
 
 

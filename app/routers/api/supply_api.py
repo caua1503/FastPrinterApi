@@ -1,10 +1,11 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
+from app.schemas.filters import FilterBase
 from app.schemas.supply_schema import SupplySchema, SupplyTypeSchema
 from app.services.supply_service import (
     create_supply,
@@ -28,8 +29,8 @@ async def api_create_supply(supply: SupplySchema, session: Annotated[AsyncSessio
 
 
 @supply_router.get("/")
-async def api_get_supply(session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0):
-    result = await get_supply(session, limit, offset)
+async def api_get_supply(session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]):
+    result = await get_supply(session, filters)
     return {"supplys": result}
 
 

@@ -1,10 +1,11 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
+from app.schemas.filters import FilterBase
 from app.schemas.printer_schema import FullPrinterSchema
 from app.services.printer_service import (
     create_printer,
@@ -21,8 +22,11 @@ printer_router = APIRouter()
 
 
 @printer_router.get("/", status_code=HTTPStatus.OK, description="Get all printers")
-async def api_get_printers(session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0):
-    printers = await get_printers(session, limit, offset)
+async def api_get_printers(
+    session: Annotated[AsyncSession, Depends(get_session)], 
+    filters: Annotated[FilterBase, Query()]
+    ):
+    printers = await get_printers(session, filters)
     return {"printers": printers}
 
 
@@ -57,23 +61,23 @@ async def api_delete_printer(id: int, session: Annotated[AsyncSession, Depends(g
     "/department/{department_id}", status_code=HTTPStatus.OK, description="Get printers by department id"
 )
 async def api_get_printer_department_id(
-    department_id: int, session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0
+    department_id: int, session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ):
-    printers = await get_printer_department_id(session, department_id, limit, offset)
+    printers = await get_printer_department_id(session, department_id, filters)
     return {"printers": printers}
 
 
 @printer_router.get("/supply/{supply_id}", status_code=HTTPStatus.OK, description="Get printers by supply id")
 async def api_get_printer_supply_id(
-    supply_id: int, session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0
+    supply_id: int, session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ):
-    printers = await get_printer_supply_id(session, supply_id, limit, offset)
+    printers = await get_printer_supply_id(session, supply_id, filters)
     return {"printers": printers}
 
 
 @printer_router.get("/status/{status_id}", status_code=HTTPStatus.OK, description="Get printers by status id")
 async def api_get_printer_status_id(
-    status_id: int, session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0
+    status_id: int, session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ):
-    printers = await get_printer_status_id(session, status_id, limit, offset)
+    printers = await get_printer_status_id(session, status_id, filters)
     return {"printers": printers}

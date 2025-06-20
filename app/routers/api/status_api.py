@@ -1,10 +1,11 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
+from app.schemas.filters import FilterBase
 from app.schemas.status_schema import StatusSchema
 from app.services.status_service import create_status, delete_status, get_status, get_status_id, update_status
 
@@ -17,8 +18,8 @@ async def api_create_status(status: StatusSchema, session: Annotated[AsyncSessio
 
 
 @status_router.get("/", status_code=HTTPStatus.OK)
-async def api_get_status(session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0):
-    result = await get_status(session, limit, offset)
+async def api_get_status(session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]):
+    result = await get_status(session, filters)
     return {"status": result}
 
 

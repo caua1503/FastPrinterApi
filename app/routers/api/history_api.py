@@ -1,10 +1,11 @@
 from http import HTTPStatus
 from typing import Annotated, Dict, List, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
+from app.schemas.filters import FilterBase
 from app.schemas.history_schema import (
     AlertHistorySchema,
     AlertHistorySchemaDB,
@@ -57,9 +58,9 @@ history_router = APIRouter()
 
 @history_router.get("/recharge", status_code=HTTPStatus.OK)
 async def api_get_history_recharge(
-    session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ) -> Dict[str, List[RefillHistorySchemaDB]]:
-    result = await get_history_recharge(session, limit, offset)
+    result = await get_history_recharge(session, filters)
     return {"historys": result}
 
 
@@ -84,9 +85,9 @@ async def api_get_history_recharge_id(id: int, session: Annotated[AsyncSession, 
 
 @history_router.get("/recharge/printer/{printer_id}", status_code=HTTPStatus.OK)
 async def api_get_history_recharge_printer_id(
-    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, limit: int = 10, offset: int = 0
+    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, filters: Annotated[FilterBase, Query()]
 ) -> Dict[str, List[RefillHistorySchemaDB]]:
-    result = await get_history_recharge_printer_id(printer_id, limit, offset, session)
+    result = await get_history_recharge_printer_id(printer_id, filters, session)
     return {"historys": result}
 
 
@@ -111,9 +112,9 @@ async def api_create_history_maintenance(
 
 @history_router.get("/maintenance", status_code=HTTPStatus.OK)
 async def api_get_history_maintenance(
-    session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ) -> Dict[str, List[MaintenanceHistorySchemaDB]]:
-    result = await get_history_maintenance(session, limit, offset)
+    result = await get_history_maintenance(session, filters)
     return {"historys": result}
 
 
@@ -124,9 +125,9 @@ async def api_get_history_maintenance_id(id: int, session: Annotated[AsyncSessio
 
 @history_router.get("/maintenance/printer/{printer_id}", status_code=HTTPStatus.OK)
 async def api_get_history_maintenance_printer_id(
-    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, limit: int = 10, offset: int = 0
+    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, filters: Annotated[FilterBase, Query()]
 ) -> Dict[str, List[MaintenanceHistorySchemaDB]]:
-    result = await get_history_maintenance_printer_id(printer_id, limit, offset, session)
+    result = await get_history_maintenance_printer_id(printer_id, filters, session)
     return {"historys": result}
 
 
@@ -151,17 +152,17 @@ async def api_delete_history_maintenance(id: int, session: Annotated[AsyncSessio
 
 @history_router.get("/trash", status_code=HTTPStatus.OK)
 async def api_get_history_trash(
-    session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ) -> Dict[str, List[PrinterTrashHistorySchemaDB]]:
-    result = await get_history_trash(session, limit, offset)
+    result = await get_history_trash(session, filters)
     return {"historys": result}
 
 
 @history_router.get("/trash/printer/{printer_id}", status_code=HTTPStatus.OK)
 async def api_get_history_trash_printer_id(
-    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, limit: int = 10, offset: int = 0
+    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, filters: Annotated[FilterBase, Query()]
 ) -> Dict[str, List[PrinterTrashHistorySchemaDB]]:
-    result = await get_history_trash_printer_id(printer_id, limit, offset, session)
+    result = await get_history_trash_printer_id(printer_id, filters, session)
     return {"historys": result}
 
 
@@ -186,17 +187,17 @@ async def api_create_history_trash(
 
 @history_router.get("/alert", status_code=HTTPStatus.OK)
 async def api_get_history_alert(
-    session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ) -> Dict[str, List[AlertHistorySchemaDB]]:
-    result = await get_history_alert(session, limit, offset)
+    result = await get_history_alert(session, filters)
     return {"historys": result}
 
 
 @history_router.get("/alert/{printer_id}", status_code=HTTPStatus.OK)
 async def api_get_history_alert_printer_id(
-    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, limit: int = 10, offset: int = 0
+    session: Annotated[AsyncSession, Depends(get_session)], printer_id: int, filters: Annotated[FilterBase, Query()]
 ) -> Dict[str, List[AlertHistorySchemaDB]]:
-    result = await get_history_alert_printer_id(printer_id, limit, offset, session)
+    result = await get_history_alert_printer_id(printer_id, filters, session)
     return {"historys": result}
 
 
@@ -221,9 +222,9 @@ async def api_delete_history_alert(id: int, session: Annotated[AsyncSession, Dep
 
 @history_router.get("/status", status_code=HTTPStatus.OK)
 async def api_get_history_status(
-    session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
 ) -> Dict[str, List[StatusHistorySchemaDB]]:
-    result = await get_history_status(session, limit, offset)
+    result = await get_history_status(session, filters)
     return {"historys": result}
 
 

@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
 from app.schemas.department_schema import DepartmentSchema
+from app.schemas.filters import FilterBase
 from app.services.department_service import (
     create_department,
     delete_department,
@@ -17,8 +18,8 @@ department_router = APIRouter()
 
 
 @department_router.get("/", description="Get all departments")
-async def api_get_departments(session: Annotated[AsyncSession, Depends(get_session)], limit: int = 10, offset: int = 0):
-    departments = await get_departments(session, limit, offset)
+async def api_get_departments(session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]):
+    departments = await get_departments(session, filters)
     return {"departments": departments}
 
 

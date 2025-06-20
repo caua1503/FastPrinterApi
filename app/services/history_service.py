@@ -20,6 +20,7 @@ from app.schemas.history_schema import (
     RefillHistorySchema,
     StatusHistorySchema,
 )
+from app.schemas.filters import FilterBase
 
 """
 
@@ -53,8 +54,8 @@ async def create_history_recharge(history: RefillHistorySchema, session: AsyncSe
     return history_db
 
 
-async def get_history_recharge(session: AsyncSession, limit: int, offset: int):
-    historys = (await session.scalars(select(RefillHistory).limit(limit).offset(offset))).all()
+async def get_history_recharge(session: AsyncSession, filters: FilterBase):
+    historys = (await session.scalars(select(RefillHistory).limit(filters.limit).offset(filters.offset))).all()
 
     return historys
 
@@ -64,10 +65,10 @@ async def get_history_recharge_id(id: int, session: AsyncSession):
     return history
 
 
-async def get_history_recharge_printer_id(printer_id: int, limit: int, offset: int, session: AsyncSession):
+async def get_history_recharge_printer_id(printer_id: int, filters: FilterBase, session: AsyncSession):
     historys = (
         await session.scalars(
-            select(RefillHistory).where(RefillHistory.printer_id == printer_id).limit(limit).offset(offset)
+            select(RefillHistory).where(RefillHistory.printer_id == printer_id).limit(filters.limit).offset(filters.offset)
         )
     ).all()
 
@@ -120,8 +121,8 @@ async def create_history_maintenance(history: MaintenanceHistorySchema, session:
     return history_db
 
 
-async def get_history_maintenance(session: AsyncSession, limit: int, offset: int):
-    historys = (await session.scalars(select(MaintenanceHistory).limit(limit).offset(offset))).all()
+async def get_history_maintenance(session: AsyncSession, filters: FilterBase):
+    historys = (await session.scalars(select(MaintenanceHistory).limit(filters.limit).offset(filters.offset))).all()
     return historys
 
 
@@ -131,10 +132,10 @@ async def get_history_maintenance_id(id: int, session: AsyncSession):
     return history
 
 
-async def get_history_maintenance_printer_id(printer_id: int, limit: int, offset: int, session: AsyncSession):
+async def get_history_maintenance_printer_id(printer_id: int, filters: FilterBase, session: AsyncSession):
     historys = (
         await session.scalars(
-            select(MaintenanceHistory).where(MaintenanceHistory.printer_id == printer_id).limit(limit).offset(offset)
+            select(MaintenanceHistory).where(MaintenanceHistory.printer_id == printer_id).limit(filters.limit).offset(filters.offset)
         )
     ).all()
 
@@ -187,15 +188,15 @@ async def create_history_trash(history: PrinterTrashHistorySchema, session: Asyn
     return history_db
 
 
-async def get_history_trash(session: AsyncSession, limit: int, offset: int):
-    historys = (await session.scalars(select(PrinterTrashHistory).limit(limit).offset(offset))).all()
+async def get_history_trash(session: AsyncSession, filters: FilterBase):
+    historys = (await session.scalars(select(PrinterTrashHistory).limit(filters.limit).offset(filters.offset))).all()
     return historys
 
 
-async def get_history_trash_printer_id(printer_id: int, limit: int, offset: int, session: AsyncSession):
+async def get_history_trash_printer_id(printer_id: int, filters: FilterBase, session: AsyncSession):
     historys = (
         await session.scalars(
-            select(PrinterTrashHistory).where(PrinterTrashHistory.printer_id == printer_id).limit(limit).offset(offset)
+            select(PrinterTrashHistory).where(PrinterTrashHistory.printer_id == printer_id).limit(filters.limit).offset(filters.offset)
         )
     ).all()
 
@@ -248,15 +249,15 @@ async def create_history_alert(history: AlertHistorySchema, session: AsyncSessio
     return history_db
 
 
-async def get_history_alert(session: AsyncSession, limit: int, offset: int):
-    historys = (await session.scalars(select(AlertHistory).limit(limit).offset(offset))).all()
+async def get_history_alert(session: AsyncSession, filters: FilterBase):
+    historys = (await session.scalars(select(AlertHistory).limit(filters.limit).offset(filters.offset))).all()
     return historys
 
 
-async def get_history_alert_printer_id(printer_id: int, limit: int, offset: int, session: AsyncSession):
+async def get_history_alert_printer_id(printer_id: int, filters: FilterBase, session: AsyncSession):
     historys = (
         await session.scalars(
-            select(AlertHistory).where(AlertHistory.printer_id == printer_id).limit(limit).offset(offset)
+            select(AlertHistory).where(AlertHistory.printer_id == printer_id).limit(filters.limit).offset(filters.offset)
         )
     ).all()
     return historys
@@ -303,8 +304,8 @@ async def create_history_status(history: StatusHistorySchema, session: AsyncSess
     return history_db
 
 
-async def get_history_status(session: AsyncSession, limit: int, offset: int):
-    historys = (await session.scalars(select(StatusHistory).limit(limit).offset(offset))).all()
+async def get_history_status(session: AsyncSession, filters: FilterBase):
+    historys = (await session.scalars(select(StatusHistory).limit(filters.limit).offset(filters.offset))).all()
     return historys
 
 

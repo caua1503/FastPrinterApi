@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.printer_model import Printer
 from app.schemas.printer_schema import FullPrinterSchema
-
+from app.schemas.filters import FilterBase
 
 async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
     # Verificar se IP já existe
@@ -41,8 +41,8 @@ async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
     return db_printer
 
 
-async def get_printers(session: AsyncSession, limit: int, offset: int):
-    printers = (await session.scalars(select(Printer).limit(limit).offset(offset))).all()
+async def get_printers(session: AsyncSession, filters: FilterBase):
+    printers = (await session.scalars(select(Printer).limit(filters.limit).offset(filters.offset))).all()
     return printers
 
 
@@ -58,9 +58,9 @@ async def get_printer_id(session: AsyncSession, id: int):
     return printer
 
 
-async def get_printer_department_id(session: AsyncSession, department_id: int, limit: int, offset: int):
+async def get_printer_department_id(session: AsyncSession, department_id: int, filters: FilterBase):
     printers_in_department = (
-        await session.scalars(select(Printer).where(Printer.department_id == department_id).limit(limit).offset(offset))
+        await session.scalars(select(Printer).where(Printer.department_id == department_id).limit(filters.limit).offset(filters.offset))
     ).all()
 
     if not printers_in_department:
@@ -69,9 +69,9 @@ async def get_printer_department_id(session: AsyncSession, department_id: int, l
     return printers_in_department
 
 
-async def get_printer_supply_id(session: AsyncSession, supply_id: int, limit: int, offset: int):
+async def get_printer_supply_id(session: AsyncSession, supply_id: int, filters: FilterBase):
     printers_in_supply = (
-        await session.scalars(select(Printer).where(Printer.supply_id == supply_id).limit(limit).offset(offset))
+        await session.scalars(select(Printer).where(Printer.supply_id == supply_id).limit(filters.limit).offset(filters.offset))
     ).all()
 
     if not printers_in_supply:
@@ -80,9 +80,9 @@ async def get_printer_supply_id(session: AsyncSession, supply_id: int, limit: in
     return printers_in_supply
 
 
-async def get_printer_status_id(session: AsyncSession, status_id: int, limit: int, offset: int):
+async def get_printer_status_id(session: AsyncSession, status_id: int, filters: FilterBase):
     printers_in_status = (
-        await session.scalars(select(Printer).where(Printer.status_id == status_id).limit(limit).offset(offset))
+        await session.scalars(select(Printer).where(Printer.status_id == status_id).limit(filters.limit).offset(filters.offset))
     ).all()
 
     if not printers_in_status:
