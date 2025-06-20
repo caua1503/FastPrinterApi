@@ -21,15 +21,15 @@ porcentagem = 100
 
 
 @pytest.mark.asyncio
-async def test_create_printer_db(session):
+async def test_create_printer_db(session, status, supply, department):
     printer = Printer(
         name="teste",
         model="teste",
         ip="192.168.1.1",
         brand="teste",
-        department_id=1,
-        status_id=1,
-        supply_id=1,
+        department_id=department.id,
+        status_id=status.id,
+        supply_id=supply.id,
         description="teste",
         forecast=date.today(),
         last_refill=date.today(),
@@ -55,13 +55,13 @@ async def test_create_status_db(session):
 
 
 @pytest.mark.asyncio
-async def test_create_supply_db(session):
-    supply = Supply(name="teste", supply_type_id=1, brand="teste", description="teste")
+async def test_create_supply_db(session, supply_type):
+    supply = Supply(name="teste", supply_type_id=supply_type.id, brand="teste", description="teste")
     session.add(supply)
     await session.commit()
     result = await session.scalar(select(Supply).where(Supply.name == "teste"))
     assert result.name == "teste"
-    assert result.supply_type_id == 1
+    assert result.supply_type_id == supply_type.id
     assert result.brand == "teste"
     assert result.description == "teste"
 
@@ -85,21 +85,21 @@ async def test_create_department_db(session):
 
 
 @pytest.mark.asyncio
-async def test_create_alert_history_db(session):
-    alert_history = AlertHistory(printer_id=1, alert_type="teste", date=date.today(), description="teste")
+async def test_create_alert_history_db(session, printer):
+    alert_history = AlertHistory(printer_id=printer.id, alert_type="teste", date=date.today(), description="teste")
     session.add(alert_history)
     await session.commit()
-    result = await session.scalar(select(AlertHistory).where(AlertHistory.printer_id == 1))
-    assert result.printer_id == 1
+    result = await session.scalar(select(AlertHistory).where(AlertHistory.printer_id == printer.id))
+    assert result.printer_id == printer.id
     assert result.alert_type == "teste"
     assert result.date == date.today()
     assert result.description == "teste"
 
 
 @pytest.mark.asyncio
-async def test_create_printer_maintenance_info_db(session):
+async def test_create_printer_maintenance_info_db(session, printer):
     printer_maintenance_info = PrinterMaintenanceInfo(
-        printer_id=1,
+        printer_id=printer.id,
         last_update=date.today(),
         next_refill=date.today(),
         next_cleaning=date.today(),
@@ -108,8 +108,8 @@ async def test_create_printer_maintenance_info_db(session):
     )
     session.add(printer_maintenance_info)
     await session.commit()
-    result = await session.scalar(select(PrinterMaintenanceInfo).where(PrinterMaintenanceInfo.printer_id == 1))
-    assert result.printer_id == 1
+    result = await session.scalar(select(PrinterMaintenanceInfo).where(PrinterMaintenanceInfo.printer_id == printer.id))
+    assert result.printer_id == printer.id
     assert result.last_update == date.today()
     assert result.next_refill == date.today()
     assert result.next_cleaning == date.today()
@@ -118,49 +118,49 @@ async def test_create_printer_maintenance_info_db(session):
 
 
 @pytest.mark.asyncio
-async def test_create_refill_history_db(session):
+async def test_create_refill_history_db(session, printer, supply):
     refill_history = RefillHistory(
-        printer_id=1, date=date.today(), event_type="teste", supply_id=1, description="teste"
+        printer_id=printer.id, date=date.today(), event_type="teste", supply_id=supply.id, description="teste"
     )
     session.add(refill_history)
     await session.commit()
-    result = await session.scalar(select(RefillHistory).where(RefillHistory.printer_id == 1))
-    assert result.printer_id == 1
+    result = await session.scalar(select(RefillHistory).where(RefillHistory.printer_id == printer.id))
+    assert result.printer_id == printer.id
     assert result.date == date.today()
     assert result.event_type == "teste"
-    assert result.supply_id == 1
+    assert result.supply_id == supply.id
     assert result.description == "teste"
 
 
 @pytest.mark.asyncio
-async def test_create_status_history_db(session):
-    status_history = StatusHistory(printer_id=1, status_id=1, date=date.today(), description="teste")
+async def test_create_status_history_db(session, printer, status):
+    status_history = StatusHistory(printer_id=printer.id, status_id=status.id, date=date.today(), description="teste")
     session.add(status_history)
     await session.commit()
-    result = await session.scalar(select(StatusHistory).where(StatusHistory.printer_id == 1))
-    assert result.printer_id == 1
-    assert result.status_id == 1
+    result = await session.scalar(select(StatusHistory).where(StatusHistory.printer_id == printer.id))
+    assert result.printer_id == printer.id
+    assert result.status_id == status.id
     assert result.date == date.today()
 
 
 @pytest.mark.asyncio
-async def test_create_maintenance_history_db(session):
-    maintenance_history = MaintenanceHistory(printer_id=1, date=date.today(), event_type="teste", description="teste")
+async def test_create_maintenance_history_db(session, printer):
+    maintenance_history = MaintenanceHistory(printer_id=printer.id, date=date.today(), event_type="teste", description="teste")
     session.add(maintenance_history)
     await session.commit()
-    result = await session.scalar(select(MaintenanceHistory).where(MaintenanceHistory.printer_id == 1))
-    assert result.printer_id == 1
+    result = await session.scalar(select(MaintenanceHistory).where(MaintenanceHistory.printer_id == printer.id))
+    assert result.printer_id == printer.id
     assert result.date == date.today()
     assert result.event_type == "teste"
     assert result.description == "teste"
 
 
 @pytest.mark.asyncio
-async def test_create_printer_trash_history_db(session):
-    printer_trash_history = PrinterTrashHistory(printer_id=1, date=date.today(), description="teste")
+async def test_create_printer_trash_history_db(session, printer):
+    printer_trash_history = PrinterTrashHistory(printer_id=printer.id, date=date.today(), description="teste")
     session.add(printer_trash_history)
     await session.commit()
-    result = await session.scalar(select(PrinterTrashHistory).where(PrinterTrashHistory.printer_id == 1))
-    assert result.printer_id == 1
+    result = await session.scalar(select(PrinterTrashHistory).where(PrinterTrashHistory.printer_id == printer.id))
+    assert result.printer_id == printer.id
     assert result.date == date.today()
     assert result.description == "teste"

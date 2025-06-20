@@ -45,15 +45,15 @@ def test_get_printer_by_id(client, printer: Printer):
     assert response_json["description"] == printer.description
 
 
-def test_create_printer(client):
+def test_create_printer(client, status, supply, department):
     data = {
         "name": "Printer 1",
         "brand": "Brand 1",
         "model": "Model 1",
         "ip": "192.168.1.1",
-        "department_id": 1,
-        "supply_id": 1,
-        "status_id": 1,
+        "department_id": department.id,
+        "supply_id": supply.id,
+        "status_id": status.id,
         "description": "Description 1",
         "forecast": "2025-01-01",
         "last_refill": "2025-01-01",
@@ -90,15 +90,15 @@ def test_create_printer_with_ip_already_exists(client, printer: Printer):
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
-def test_update_printer(client, printer: Printer):
+def test_update_printer(client, printer: Printer, status, supply, department):
     data = {
         "name": "Printer 1",
         "brand": "Brand 1",
         "model": "Model 1",
         "ip": "192.168.1.1",
-        "department_id": 1,
-        "supply_id": 1,
-        "status_id": 1,
+        "department_id": department.id,
+        "supply_id": supply.id,
+        "status_id": status.id,
         "description": "Description 1",
         "forecast": "2025-01-02",
         "last_refill": "2025-01-02",
@@ -113,15 +113,15 @@ def test_update_printer(client, printer: Printer):
     assert response.json()["last_check"] == "2025-01-02"
 
 
-def test_update_printer_with_ip_already_exists(client, printer: Printer, printer2: Printer):
+def test_update_printer_with_ip_already_exists(client, printer: Printer, printer2: Printer, status, supply, department):
     data = {
         "name": "Printer 1",
         "brand": "Brand 1",
         "model": "Model 1",
         "ip": printer.ip,
-        "department_id": 1,
-        "supply_id": 1,
-        "status_id": 1,
+        "department_id": department.id,
+        "supply_id": supply.id,
+        "status_id": status.id,
         "description": "Description 1",
         "forecast": "2025-01-01",
         "last_refill": "2025-01-01",

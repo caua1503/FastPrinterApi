@@ -38,12 +38,12 @@ async def user(session: AsyncSession):
 
 
 @pytest_asyncio.fixture
-async def supply(session: AsyncSession):
+async def supply(session: AsyncSession, supply_type: SupplyType):
     supply = Supply(
         name="Supply 1",
         description="Supply 1 description",
         brand="Brand 1",
-        supply_type_id=1,
+        supply_type_id=supply_type.id,
     )
     session.add(supply)
     await session.commit()
