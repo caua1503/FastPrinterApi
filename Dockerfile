@@ -8,4 +8,4 @@ RUN uv venv && uv sync --no-dev
 
 EXPOSE 8000
 
-CMD ["/app/.venv/bin/granian", "--interface", "asgi", "--host", "0.0.0.0", "--port", "8000", "app.main:app"]
+CMD ["/app/.venv/bin/granian", "--interface", "asgi", "--host", "0.0.0.0", "--workers", "2", "--port", "8000", "app.main:app"]
