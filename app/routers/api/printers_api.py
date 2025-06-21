@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
-from app.schemas.filters import FilterBase, FilterPrinter
+from app.schemas.filters import FilterPrinter
 from app.schemas.printer_schema import FullPrinterSchema
 from app.services.printer_service import (
     create_printer,
@@ -20,9 +20,8 @@ printer_router = APIRouter()
 
 @printer_router.get("/", status_code=HTTPStatus.OK, description="Get all printers")
 async def api_get_printers(
-    session: Annotated[AsyncSession, Depends(get_session)], 
-    filters: Annotated[FilterPrinter, Query()]
-    ):
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
+):
     printers = await get_printers(session, filters)
     return {"printers": printers}
 
@@ -52,4 +51,3 @@ async def api_update_printer(
 @printer_router.delete("/{id}", status_code=HTTPStatus.NO_CONTENT, description="Delete a printer by id")
 async def api_delete_printer(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
     await delete_printer(session, id)
-

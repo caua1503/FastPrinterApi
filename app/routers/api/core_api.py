@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import get_all_printers_maintenance_info, get_printer_maintenance_info
 from app.helpers.database_helper import get_session
-from app.services.core_service import get_printer_maintenance_info_service
 from app.schemas.filters import FilterBase
+from app.services.core_service import get_printer_maintenance_info_service
 
 core_router = APIRouter()
 

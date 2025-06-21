@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
-from app.schemas.filters import FilterBase, FilterPrinter
+from app.schemas.filters import FilterPrinter
 from app.schemas.history_schema import (
     AlertHistorySchema,
     AlertHistorySchemaDB,
@@ -111,7 +111,6 @@ async def api_get_history_maintenance_id(id: int, session: Annotated[AsyncSessio
     return await get_history_maintenance_id(id, session)
 
 
-
 @history_router.put("/maintenance/{id}", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
 async def api_update_history_maintenance(
     id: int, history: MaintenanceHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
@@ -164,7 +163,6 @@ async def api_get_history_alerts(
 ) -> Dict[str, List[AlertHistorySchemaDB]]:
     result = await get_history_alerts(session, filters)
     return {"historys": result}
-
 
 
 @history_router.put("/alert/{id}", status_code=HTTPStatus.OK, response_model=AlertHistorySchemaDB)

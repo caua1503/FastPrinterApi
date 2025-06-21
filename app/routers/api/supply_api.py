@@ -29,7 +29,9 @@ async def api_create_supply(supply: SupplySchema, session: Annotated[AsyncSessio
 
 
 @supply_router.get("/")
-async def api_get_supply(session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]):
+async def api_get_supply(
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
+):
     result = await get_supply(session, filters)
     return {"supplys": result}
 

@@ -18,7 +18,9 @@ department_router = APIRouter()
 
 
 @department_router.get("/", description="Get all departments")
-async def api_get_departments(session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]):
+async def api_get_departments(
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
+):
     departments = await get_departments(session, filters)
     return {"departments": departments}
 

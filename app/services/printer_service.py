@@ -5,8 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.printer_model import Printer
+from app.schemas.filters import FilterPrinter
 from app.schemas.printer_schema import FullPrinterSchema
-from app.schemas.filters import FilterBase, FilterPrinter
+
 
 async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
     # Verificar se IP já existe
@@ -42,7 +43,6 @@ async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
 
 
 async def get_printers(session: AsyncSession, filters: FilterPrinter):
-
     query = select(Printer)
 
     if filters.status_id:
@@ -56,6 +56,7 @@ async def get_printers(session: AsyncSession, filters: FilterPrinter):
 
     return printers if printers else []
 
+
 async def get_printer_id(session: AsyncSession, id: int):
     printer = await session.scalar(select(Printer).where(Printer.id == id))
 
@@ -66,6 +67,7 @@ async def get_printer_id(session: AsyncSession, id: int):
         )
 
     return printer
+
 
 async def delete_printer(session: AsyncSession, id: int):
     printer = await session.scalar(select(Printer).where(Printer.id == id))

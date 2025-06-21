@@ -3,9 +3,8 @@ from datetime import date
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
-from testcontainers.postgres import PostgresContainer
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.pool import StaticPool
+from testcontainers.postgres import PostgresContainer
 
 from app.helpers.database_helper import get_session
 from app.main import app
@@ -227,11 +226,12 @@ def client(session: AsyncSession):
     app.dependency_overrides.clear()
 
 
-@pytest.fixture(scope='session') 
+@pytest.fixture(scope="session")
 def engine():
-    with PostgresContainer('postgres:16', driver='psycopg') as postgres:
+    with PostgresContainer("postgres:16", driver="psycopg") as postgres:
         _engine = create_async_engine(postgres.get_connection_url())
         yield _engine
+
 
 @pytest_asyncio.fixture
 async def session(engine):

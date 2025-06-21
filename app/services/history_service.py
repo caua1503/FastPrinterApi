@@ -13,6 +13,7 @@ from app.models.history_model import (
 )
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply
+from app.schemas.filters import FilterPrinter
 from app.schemas.history_schema import (
     AlertHistorySchema,
     MaintenanceHistorySchema,
@@ -20,7 +21,6 @@ from app.schemas.history_schema import (
     RefillHistorySchema,
     StatusHistorySchema,
 )
-from app.schemas.filters import FilterBase, FilterPrinter
 
 """
 
@@ -243,6 +243,7 @@ async def get_history_alerts(session: AsyncSession, filters: FilterPrinter):
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
     return historys if historys else []
+
 
 async def update_history_alert(id: int, history: AlertHistorySchema, session: AsyncSession):
     history_db = await session.scalar(select(AlertHistory).where(AlertHistory.id == id))

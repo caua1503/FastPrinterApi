@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply, SupplyType
-from app.schemas.supply_schema import SupplySchema, SupplyTypeSchema
 from app.schemas.filters import FilterBase
+from app.schemas.supply_schema import SupplySchema, SupplyTypeSchema
 
 
 async def create_supply(supply: SupplySchema, session: AsyncSession):

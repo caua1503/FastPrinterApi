@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.filters import FilterBase
+
 from app.helpers.core_helper import (
     calculate_next_recharge,
     calculate_recharge_percentage,
@@ -12,6 +12,7 @@ from app.helpers.core_helper import (
     get_printers,
 )
 from app.models.history_model import AlertHistory
+from app.schemas.filters import FilterBase
 
 
 async def get_all_printers_maintenance_info(session: AsyncSession, filters: FilterBase):

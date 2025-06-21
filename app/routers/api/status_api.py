@@ -18,7 +18,9 @@ async def api_create_status(status: StatusSchema, session: Annotated[AsyncSessio
 
 
 @status_router.get("/", status_code=HTTPStatus.OK)
-async def api_get_status(session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]):
+async def api_get_status(
+    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
+):
     result = await get_status(session, filters)
     return {"status": result}
 
