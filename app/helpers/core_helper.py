@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.history_model import PrinterTrashHistory, RefillHistory
 from app.models.printer_model import Printer
-from app.schemas.filters import FilterBase
+from app.schemas.filter_schema import FilterBase
 
 
 async def get_printers(session: AsyncSession):
