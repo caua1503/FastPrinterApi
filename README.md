@@ -31,6 +31,20 @@ Facilitar o controle, monitoramento e manutenção de parques de impressoras, fo
 - Docker (opcional)
 - Testes automatizados (pytest)
 
+## Guia de uso
+ - Inicialize o .env com 
+ ```
+ terminal:
+ 
+ python create_env.py #create env file with default values
+
+ python create_env.py -ld or python create_env.py --list_default  #list all variables of env file with default value
+          
+ python create_env.py -v ACCESS_TOKEN_EXPIRE_MINUTES=60,  #define personalize variable
+ 
+ #mais informacoes em CREATE_ENV.md
+ ```
+
 ## Estrutura do Projeto
 
 ```
