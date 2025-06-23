@@ -6,5 +6,9 @@ class Config(BaseSettings):
 
     REDIS_HOST: str
     REDIS_PORT: str
+    REDIS_DB: int
     DATABASE_URL: str
+    DATABASE_LOGS_URL: str
     JWT_ALGORITHM: str
+    SECRET_KEY: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
