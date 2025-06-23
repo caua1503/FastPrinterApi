@@ -113,15 +113,15 @@ def test_update_printer(client, printer: Printer, status, supply, department):
     assert response.json()["last_check"] == "2025-01-02"
 
 
-def test_update_printer_with_ip_already_exists(client, printer: Printer, printer2: Printer, status, supply, department):
+def test_update_printer_with_ip_already_exists(client, printer: Printer, printer2: Printer):
     data = {
         "name": "Printer 1",
         "brand": "Brand 1",
         "model": "Model 1",
         "ip": printer.ip,
-        "department_id": department.id,
-        "supply_id": supply.id,
-        "status_id": status.id,
+        "department_id": printer.department_id,
+        "supply_id": printer.supply_id,
+        "status_id": printer.status_id,
         "description": "Description 1",
         "forecast": "2025-01-01",
         "last_refill": "2025-01-01",
@@ -159,7 +159,7 @@ def test_get_printers_by_department_id(client, printer: Printer):
     assert response_json["printers"][0]["forecast"] == printer.forecast.strftime("%Y-%m-%d")
     assert response_json["printers"][0]["last_refill"] == printer.last_refill.strftime("%Y-%m-%d")
     assert response_json["printers"][0]["last_maintenance"] == printer.last_maintenance.strftime("%Y-%m-%d")
-    assert response_json["printers"][0]["last_check"] == printer.last_check.strftime("%Y-%m-%d")
+    assert response_json["printers"][0]["last_check"] == (printer.last_check).strftime("%Y-%m-%d")
 
 
 def test_get_printers_by_supply_id(client, printer: Printer):

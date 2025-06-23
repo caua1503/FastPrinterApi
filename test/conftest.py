@@ -24,15 +24,19 @@ from app.models.user_model import User
 
 @pytest_asyncio.fixture
 async def user(session: AsyncSession):
+    password = "fake_password"
     user = User(
         login="testuser",
+        name="testuser",
         password_hash="fake_password_hash",
-        code_hash="fake_code_hash",
         api_key="fake_api_key",
     )
+
     session.add(user)
     await session.commit()
     await session.refresh(user)
+
+    user.password = password
     return user
 
 
