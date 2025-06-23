@@ -11,6 +11,7 @@ dependencies = [
     "pwdlib[argon2]>=0.2.1",
     "pydantic-settings>=2.9.1",
     "pyjwt>=2.10.1",
+    "python-multipart>=0.0.20",
     "redis>=6.2.0",
     "sqlalchemy[asyncio]>=2.0.41",
 ]
@@ -20,12 +21,13 @@ dev = [
     "alembic>=1.16.2",
     "pytest-asyncio>=1.0.0",
     "ruff>=0.11.13",
+    "taskipy>=1.14.1",
     "testcontainers>=4.10.0",
 ]
 
 [tool.ruff]
 line-length = 120
-extend-exclude = ['static', 'migrations']
+extend-exclude = ['static', 'migrations', 'migrations_logs']
 
 [tool.ruff.lint]
 preview=true
@@ -41,3 +43,17 @@ convention = "google"
 
 [tool.pytest.ini_options]
 pythonpath= "."
+
+[tool.taskipy.tasks]
+test = "uv run ruff format && uv run ruff check && uv run pytest"
+format = "uv run ruff format && uv run ruff check --fix"
+
+migrations = "uv run alembic -c alembic.ini init migrations"
+upgrade_db = "uv run alembic -c alembic.ini upgrade head"
+update_db = "uv run alembic -c alembic.ini revision --autogenerate -m"
+
+migrations_logs = "uv run alembic -c alembic_logs.ini init migrations_logs"
+upgrade_db_logs = "uv run alembic -c alembic_logs.ini upgrade head"
+update_db_logs = "uv run alembic -c alembic_logs.ini revision --autogenerate -m"
+
+
