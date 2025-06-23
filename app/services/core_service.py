@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core import get_printer_maintenance_info
 from app.models.maintenance_model import PrinterMaintenanceInfo
 from app.models.printer_model import Printer
-from app.schemas.filters import FilterBase
+from app.schemas.filter_schema import FilterBase
 
 
 async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSession, filters: FilterBase) -> dict:

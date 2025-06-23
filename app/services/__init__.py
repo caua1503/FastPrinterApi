@@ -65,7 +65,7 @@ __all__ = [
     "get_history_trash",
     "update_history_trash",
     "create_history_alert",
-    "get_history_alert",
     "update_history_alert",
-    "delete_history_alert", "get_history_alerts",
+    "delete_history_alert",
+    "get_history_alerts",
 ]

@@ -8,11 +8,16 @@ from app.models import table_registry
 from app.models.department_model import Department
 from app.models.printer_model import Status
 from app.models.supply_model import Supply, SupplyType
+from app.models.user_model import PermissionUser
 
 # Configure seu banco de dados
 engine = create_async_engine(Config().DATABASE_URL, echo=True)
 
 # Dados iniciais
+permissoes_iniciais = [
+    PermissionUser(name="Adminitradores", permissions="all"),
+    PermissionUser(name="Usuarios", permissions="all"),
+]
 tipo_insumo_iniciais = [
     SupplyType(name="Toner"),  # id 1
     SupplyType(name="Cartucho"),  # id 2

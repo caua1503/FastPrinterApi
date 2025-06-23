@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
 from app.schemas.department_schema import DepartmentSchema
-from app.schemas.filters import FilterBase
+from app.schemas.filter_schema import FilterBase
 from app.services.department_service import (
     create_department,
     delete_department,

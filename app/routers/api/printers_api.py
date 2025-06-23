@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
-from app.schemas.filters import FilterPrinter
+from app.schemas.filter_schema import FilterPrinter
 from app.schemas.printer_schema import FullPrinterSchema
 from app.services.printer_service import (
     create_printer,

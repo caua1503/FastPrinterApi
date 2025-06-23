@@ -7,8 +7,8 @@ from pydantic import BaseModel
 class PrinterMaintenanceInfoSchema(BaseModel):
     printer_id: int
     last_update: date
-    next_refill: Optional[date]
-    next_cleaning: Optional[date]
+    next_refill: Optional[date] = None
+    next_cleaning: Optional[date] = None
     refill_percentage: float
     cleaning_percentage: float
 

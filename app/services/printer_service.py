@@ -5,12 +5,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.printer_model import Printer
-from app.schemas.filters import FilterPrinter
+from app.schemas.filter_schema import FilterPrinter
 from app.schemas.printer_schema import FullPrinterSchema
 
 
 async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
-    # Verificar se IP já existe
     existing_printer = await session.scalar(select(Printer).where(Printer.ip == printer.ip))
 
     if existing_printer:
@@ -19,7 +18,6 @@ async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
             detail="IP already exists",
         )
 
-    # Criar nova impressora
     db_printer = Printer(
         supply_id=printer.supply_id,
         status_id=printer.status_id,

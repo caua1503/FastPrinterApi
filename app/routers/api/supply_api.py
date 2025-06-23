@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
-from app.schemas.filters import FilterBase
+from app.schemas.filter_schema import FilterBase
 from app.schemas.supply_schema import SupplySchema, SupplyTypeSchema
 from app.services.supply_service import (
     create_supply,

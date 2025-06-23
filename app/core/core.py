@@ -11,8 +11,8 @@ from app.helpers.core_helper import (
     extract_trash_datas,
     get_printers,
 )
-from app.models.history_model import AlertHistory
-from app.schemas.filters import FilterBase
+from app.schemas.filter_schema import FilterBase
+from app.schemas.history_schema import AlertHistorySchema
 
 
 async def get_all_printers_maintenance_info(session: AsyncSession, filters: FilterBase):
@@ -58,7 +58,7 @@ async def get_all_printers_maintenance_info(session: AsyncSession, filters: Filt
             from app.services.history_service import create_history_alert  # noqa: PLC0415
 
             alert_description = f"A limpeza da lixeira é urgente, percentual: {trash_cleaning_percentage_value}%"
-            alert_history = AlertHistory(
+            alert_history = AlertHistorySchema(
                 printer_id=printer.id,
                 date=datetime.now(),
                 alert_type="limpeza_urgente",

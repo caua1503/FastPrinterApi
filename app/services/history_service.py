@@ -13,7 +13,7 @@ from app.models.history_model import (
 )
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply
-from app.schemas.filters import FilterPrinter
+from app.schemas.filter_schema import FilterPrinter
 from app.schemas.history_schema import (
     AlertHistorySchema,
     MaintenanceHistorySchema,
@@ -232,7 +232,13 @@ async def create_history_alert(history: AlertHistorySchema, session: AsyncSessio
     session.add(history_db)
     await session.commit()
     await session.refresh(history_db)
-    return history_db
+
+    return AlertHistorySchema(
+        printer_id=history_db.printer_id,
+        date=history_db.date,
+        alert_type=history_db.alert_type,
+        description=history_db.description,
+    )
 
 
 async def get_history_alerts(session: AsyncSession, filters: FilterPrinter):
@@ -279,7 +285,9 @@ ROTA DE HISTORICO DE STATUS
 
 
 async def create_history_status(history: StatusHistorySchema, session: AsyncSession):
-    history_db = StatusHistory(status_id=history.status_id, date=history.date, description=history.description)
+    history_db = StatusHistory(
+        printer_id=history.printer_id, status_id=history.status_id, date=history.date, description=history.description
+    )
     session.add(history_db)
     await session.commit()
     await session.refresh(history_db)
