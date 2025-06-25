@@ -6,7 +6,6 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app.config import Config
-from app.core.logs import create_redis_log
 from app.schemas.logs_schema import LogLevelSchema
 
 config = Config()  # pyright: ignore
@@ -36,5 +35,7 @@ async def get_redis_client() -> redis.Redis:
     try:
         return redis.Redis(connection_pool=pool, decode_responses=True)
     except Exception as erro:
+        from app.core.logs import create_redis_log  # noqa: PLC0415
+
         asyncio.create_task(create_redis_log(erro, LogLevelSchema.CRITICAL))
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to Redis")
