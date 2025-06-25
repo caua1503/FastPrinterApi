@@ -6,18 +6,11 @@ from typing import Any, List, Optional, Type, Union
 import redis.asyncio as redis
 from fastapi import HTTPException
 
-from app.config import Config
 from app.core.logs import create_redis_log
+from app.helpers.database_helper import get_redis_client
 from app.helpers.utils_helper import ModelType, deserialize_data, serialize_data
-from app.schemas.logs_schema import LogLevelSchema
 
-config = Config()
 
-pool = redis.ConnectionPool(
-    host=config.REDIS_HOST,
-    port=config.REDIS_PORT,
-    db=config.REDIS_DB,
-)
 
 
 """
@@ -27,14 +20,6 @@ pool = redis.ConnectionPool(
     for multiple operations, if not past it gets a new connection
 
 """
-
-
-async def get_redis_client() -> redis.Redis:
-    try:
-        return redis.Redis(connection_pool=pool, decode_responses=True)
-    except Exception as erro:
-        asyncio.create_task(create_redis_log(erro, LogLevelSchema.CRITICAL))
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to Redis")
 
 
 async def verify_redis_value(key: str, redis_client: Optional[redis.Redis] = None) -> bool:

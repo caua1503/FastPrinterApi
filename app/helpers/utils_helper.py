@@ -1,6 +1,7 @@
 import json
-from typing import Any, List, Type, TypeVar, Union
 from datetime import date, datetime
+from typing import Any, List, Type, TypeVar, Union
+
 from pydantic import BaseModel, TypeAdapter
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
@@ -23,6 +24,7 @@ def deserialize_data(data: str, model: Type[ModelType], is_list: bool = False) -
 
     return TypeAdapter(model).validate_python(json_data)
 
+
 def serialize_for_json(data: Any) -> Any:
     if isinstance(data, BaseModel):
         return {key: serialize_for_json(value) for key, value in data.model_dump().items()}
@@ -35,17 +37,19 @@ def serialize_for_json(data: Any) -> Any:
     else:
         return data
 
+
 def _decode_data(data: Any) -> Any:
     if isinstance(data, dict):
         return {k: _decode_data(v) for k, v in data.items()}
     elif isinstance(data, list):
         return [_decode_data(i) for i in data]
     elif isinstance(data, str):
-        if data.startswith('__date__'):
+        if data.startswith("__date__"):
             return date.fromisoformat(data[8:])
-        elif data.startswith('__datetime__'):
+        elif data.startswith("__datetime__"):
             return datetime.fromisoformat(data[12:])
     return data
+
 
 def deserialize_from_json(data: dict, model: Type[ModelType]) -> ModelType:
     processed_data = _decode_data(data)

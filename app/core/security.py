@@ -12,9 +12,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Config
-from app.helpers.database_helper import get_session
+from app.helpers.database_helper import get_session, get_redis_client
 from app.helpers.redis_helper import (
-    get_redis_client,
     redis_get_value,
     # redis_set_value,
 )

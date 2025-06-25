@@ -29,7 +29,6 @@ async def user(session: AsyncSession):
         login="testuser",
         name="testuser",
         password_hash="fake_password_hash",
-        api_key="fake_api_key",
     )
 
     session.add(user)
