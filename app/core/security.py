@@ -26,7 +26,7 @@ from app.models.user_model import (
     UsersRoleSchema,
 )
 
-config = Config()
+config = Config() # pyright: ignore
 
 pwd_context = PasswordHash.recommended()
 
