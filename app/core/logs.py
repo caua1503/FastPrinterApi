@@ -3,6 +3,7 @@ from typing import Optional
 
 from redis.exceptions import AuthenticationError, ConnectionError, TimeoutError
 
+from app.core.task import task_create_system_log
 from app.helpers.database_helper import get_session_logs
 from app.models.logs_model import SystemLog, UserLog
 from app.schemas.logs_schema import LogLevelSchema, SystemLogSchema, UserLogSchema
@@ -44,7 +45,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             service="Redis",
             timestamp=datetime.now(),
         )
-        await create_system_log(erro_log)
+        await task_create_system_log.delay(erro_log)
 
     elif isinstance(erro, TimeoutError):
         erro_log = SystemLogSchema(
@@ -54,7 +55,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             service="Redis",
             timestamp=datetime.now(),
         )
-        await create_system_log(erro_log)
+        await task_create_system_log.delay(erro_log)
 
     elif isinstance(erro, AuthenticationError):
         erro_log = SystemLogSchema(
@@ -64,7 +65,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             service="Redis",
             timestamp=datetime.now(),
         )
-        await create_system_log(erro_log)
+        await task_create_system_log.delay(erro_log)
 
     else:
         erro_log = SystemLogSchema(
@@ -74,4 +75,4 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             service="Redis",
             timestamp=datetime.now(),
         )
-        await create_system_log(erro_log)
+        await task_create_system_log.delay(erro_log)
