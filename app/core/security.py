@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Config
-from app.helpers.database_helper import get_session, get_redis_client
+from app.helpers.database_helper import get_redis_client, get_session
 from app.helpers.redis_helper import (
     redis_get_value,
     # redis_set_value,
@@ -26,7 +26,7 @@ from app.models.user_model import (
     UsersRoleSchema,
 )
 
-config = Config() # pyright: ignore
+config = Config()  # pyright: ignore
 
 pwd_context = PasswordHash.recommended()
 

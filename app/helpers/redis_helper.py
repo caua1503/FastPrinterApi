@@ -10,9 +10,6 @@ from app.core.logs import create_redis_log
 from app.helpers.database_helper import get_redis_client
 from app.helpers.utils_helper import ModelType, deserialize_data, serialize_data
 
-
-
-
 """
     (redis_client: Optional[redis.Redis] = None)
 
