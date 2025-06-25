@@ -119,7 +119,7 @@ async def department(session: AsyncSession):
 
 
 @pytest_asyncio.fixture
-async def printer(session, status: Status, supply: Supply, department: Department):
+async def printer(session: AsyncSession, status: Status, supply: Supply, department: Department):
     printer = Printer(
         name="Printer 1",
         description="Printer 1 description",
