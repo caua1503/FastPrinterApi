@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "celery[redis]>=5.3.1",
     "fastapi[standard]>=0.115.12",
     "granian>=2.3.4",
     "psycopg[binary]>=3.2.9",
