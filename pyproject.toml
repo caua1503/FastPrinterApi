@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.16.2",
     "celery[redis]>=5.3.1",
     "fastapi[standard]>=0.115.12",
     "granian>=2.3.4",
@@ -19,7 +20,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "alembic>=1.16.2",
     "pytest-asyncio>=1.0.0",
     "ruff>=0.11.13",
     "taskipy>=1.14.1",
@@ -58,4 +58,5 @@ migrations_logs = "uv run alembic -c alembic_logs.ini init migrations_logs"
 upgrade_db_logs = "uv run alembic -c alembic_logs.ini upgrade head"
 update_db_logs = "uv run alembic -c alembic_logs.ini revision --autogenerate -m"
 
-
+build = "docker build --no-cache -t fastprinterapi:latest ."
+run_build = "docker run -it --name fastprinterapi -p 8000:8000 fastprinterapi:latest"
