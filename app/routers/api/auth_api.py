@@ -5,13 +5,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.helpers.database_helper import get_session
-from app.schemas.token_schema import TokenSchemma
+from app.schemas.token_schema import TokenSchema
 from app.services.auth_service import get_token_jwt
 
 auth_router = APIRouter()
 
 
-@auth_router.post("/token", response_model=TokenSchemma)
+@auth_router.post("/token", response_model=TokenSchema)
 async def api_get_token_jwt(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: Annotated[AsyncSession, Depends(get_session)]
 ):

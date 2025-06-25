@@ -19,7 +19,6 @@ from app.helpers.redis_helper import (
     # redis_set_value,
 )
 from app.models.user_model import (
-    ApiKeyPermission,
     PermissionApiKey,
     PermissionUser,
     User,
@@ -58,17 +57,18 @@ def generate_api_key() -> str:
 async def verify_api_key_db(session: AsyncSession, api_key: str) -> bool:
     existing_api_key = await session.scalar(select(UserApiKey).where(UserApiKey.api_key == api_key))
 
-    if existing_api_key:
-        return True
+    if existing_api_key is None:
+        return False
 
-    return False
+    return True
 
 
 async def get_api_key(session: AsyncSession) -> str:
     while True:
         api_key = generate_api_key()
+        print(api_key)
         existing_api_key = await verify_api_key_db(session, api_key)
-        if existing_api_key:
+        if not existing_api_key:
             return api_key
 
 
@@ -98,7 +98,7 @@ def has_access(
     role: UsersRoleSchema = UsersRoleSchema.member,
     required_user_code: Optional[str] = None,
     required_api_scope: Optional[str] = None,
-):
+) -> User:
     """
     Dependency to handle user access control.
     It verifies authentication via JWT (Bearer) or API Key and then checks
@@ -126,8 +126,11 @@ def has_access(
         auth_type: str = ""
 
         if auth.startswith("Bearer "):
+            # print(auth)
             token = auth.removeprefix("Bearer ")
             auth_type = "bearer"
+            # print(auth_type)
+            # print(token)
             try:
                 payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.JWT_ALGORITHM])
                 user_id = payload.get("sub")
@@ -139,6 +142,8 @@ def has_access(
                 user = result.scalar_one_or_none()
 
             except jwt.PyJWTError:
+                # except Exception as e:
+                # print(str(e))
                 raise HTTPException(
                     status_code=HTTPStatus.UNAUTHORIZED,
                     detail="Invalid or expired token",
@@ -182,7 +187,7 @@ def has_access(
                 )
 
         if auth_type == "apikey" and required_api_scope:
-            stmt = select(PermissionApiKey.code).join(ApiKeyPermission).where(ApiKeyPermission.user_id == user.id)
+            stmt = select(PermissionApiKey.code).join(UserApiKey).where(UserApiKey.user_id == user.id)
             permissions_result = await session.execute(stmt)
             api_permissions = {code for (code,) in permissions_result}
             if required_api_scope not in api_permissions:

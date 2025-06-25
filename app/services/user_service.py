@@ -7,9 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import (
     get_api_key,
     get_password_hash,
+    verify_password,
 )
+from app.helpers.redis_helper import redis_get_value, redis_set_value
 from app.models.user_model import User, UserApiKey
-from app.schemas.user_schema import UserCreateSchema, UserPasswordSchema, UserUpdateSchema
+from app.schemas.user_schema import UserCreateSchema, UserNewPasswordSchema, UserUpdateSchema
 
 
 async def create_user(session: AsyncSession, user: UserCreateSchema):
@@ -49,19 +51,22 @@ async def update_user(session: AsyncSession, id: int, user: UserUpdateSchema):
     return existing_user
 
 
-async def update_user_password(session: AsyncSession, id: int, password: UserPasswordSchema):
+async def update_user_password(session: AsyncSession, id: int, user_password: UserNewPasswordSchema):
     existing_user = await session.scalar(select(User).where(User.id == id))
-    if not existing_user:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Usuário não encontrado")
 
-    existing_user.password_hash = get_password_hash(password.password)
+    if not existing_user:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="User not found")
+
+    if not verify_password(user_password.current_password, existing_user.password_hash):
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Current password is incorrect ")
+
+    existing_user.password_hash = get_password_hash(user_password.new_password)
+
     await session.commit()
     await session.refresh(existing_user)
 
 
 async def create_api_key(session: AsyncSession, id: int):
-    # user = await session.scalar(select(User).where(User.id == id))
-
     new_api_key = await get_api_key(session)
 
     user_api_key = UserApiKey(
@@ -74,6 +79,25 @@ async def create_api_key(session: AsyncSession, id: int):
     await session.refresh(user_api_key)
 
     return user_api_key
+
+
+async def get_api_key_from_user_id(session: AsyncSession, id: int):
+    user_api_key = (await session.scalars(select(UserApiKey).where(UserApiKey.user_id == id))).all()
+
+    if not user_api_key:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="API key não encontrada")
+
+    list_api_key = await redis_get_value(f"list_api_key_{id}")
+
+    if list_api_key:
+        return list_api_key
+
+    list_api_key = [api_key.api_key for api_key in user_api_key]
+
+    if not list_api_key or list_api_key == []:
+        await redis_set_value(f"list_api_key_{id}", list_api_key)
+
+    return list_api_key if list_api_key else []
 
 
 async def delete_user(session: AsyncSession, id: int):

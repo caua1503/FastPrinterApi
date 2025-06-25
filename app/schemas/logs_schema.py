@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class LogLevel(str, Enum):
+class LogLevelSchema(str, Enum):
     DEBUG = "debug"
     INFO = "info"
     WARNING = "warning"
@@ -13,7 +13,7 @@ class LogLevel(str, Enum):
     CRITICAL = "critical"
 
 
-class LogDescription(str, Enum):
+class LogDescriptionSchema(str, Enum):
     DEBUG = "Details for development and debugging"
     INFO = "Normal application events"
     WARNING = "Something unexpected, but that did not prevent the application from continuing"
@@ -21,17 +21,17 @@ class LogDescription(str, Enum):
     CRITICAL = "Serious failures (no Database, no Redis, etc)"
 
 
-class Log(BaseModel):
+class LogSchema(BaseModel):
     message: str
     description: Optional[str] = None
-    level: LogLevel
+    level: LogLevelSchema
     service: str
     timestamp: date
 
 
-class UserLog(Log):
+class UserLogSchema(LogSchema):
     user_id: int
 
 
-class SystemLog(Log):
+class SystemLogSchema(LogSchema):
     service: str

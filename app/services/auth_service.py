@@ -7,10 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_access_token, verify_password
 from app.models.user_model import User
-from app.schemas.token_schema import TokenSchemma
+from app.schemas.token_schema import TokenSchema
 
 
 async def get_token_jwt(form_data: OAuth2PasswordRequestForm, session: AsyncSession):
+    # print(form_data.username, form_data.password)
+
     user = await session.scalar(select(User).where(User.login == form_data.username))
 
     if not user:
@@ -23,8 +25,8 @@ async def get_token_jwt(form_data: OAuth2PasswordRequestForm, session: AsyncSess
         "sub": str(user.id),
     }
 
-    token = TokenSchemma(
-        acess_token=create_access_token(data),
+    token = TokenSchema(
+        access_token=create_access_token(data),
         token_type="bearer",
     )
 

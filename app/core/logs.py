@@ -1,51 +1,76 @@
 from datetime import datetime
+from typing import Optional
 
 from redis.exceptions import AuthenticationError, ConnectionError, TimeoutError
 
-from app.schemas.logs_schema import LogLevel, SystemLog, UserLog
+from app.helpers.database_helper import get_session_logs
+from app.models.logs_model import SystemLog, UserLog
+from app.schemas.logs_schema import LogLevelSchema, SystemLogSchema, UserLogSchema
 
 
-async def create_user_log(log: UserLog): ...
+async def create_user_log(log: UserLogSchema):
+    async for session in get_session_logs():
+        log_db = UserLog(
+            user_id=log.user_id,
+            message=log.message,
+            level=log.level,
+            service=log.service,
+            timestamp=log.timestamp,
+            description=log.description,
+        )
+        session.add(log_db)
+        await session.commit()
 
 
-async def create_system_log(log: SystemLog): ...
+async def create_system_log(log: SystemLogSchema):
+    async for session in get_session_logs():
+        log_db = SystemLog(
+            message=log.message,
+            description=log.description,
+            level=log.level,
+            service=log.service,
+            timestamp=log.timestamp,
+        )
+        session.add(log_db)
+        await session.commit()
 
 
-async def create_redis_log(erro: Exception):
+async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] = None):
     if isinstance(erro, ConnectionError):
-        erro_log = SystemLog(
+        erro_log = SystemLogSchema(
             message=str(erro),
             description="Connection error",
-            level=LogLevel.CRITICAL,
+            level=LogLevelSchema.CRITICAL,
             service="Redis",
             timestamp=datetime.now(),
         )
         await create_system_log(erro_log)
 
     elif isinstance(erro, TimeoutError):
-        erro_log = SystemLog(
+        erro_log = SystemLogSchema(
             message=str(erro),
             description="Timeout error",
-            level=LogLevel.CRITICAL,
+            level=LogLevelSchema.CRITICAL,
             service="Redis",
             timestamp=datetime.now(),
         )
         await create_system_log(erro_log)
 
     elif isinstance(erro, AuthenticationError):
-        erro_log = SystemLog(
+        erro_log = SystemLogSchema(
             message=str(erro),
             description="Authentication error",
-            level=LogLevel.CRITICAL,
+            level=LogLevelSchema.CRITICAL,
             service="Redis",
             timestamp=datetime.now(),
         )
         await create_system_log(erro_log)
 
     else:
-        erro_log = SystemLog(
+        erro_log = SystemLogSchema(
             message=str(erro),
-            level=LogLevel.WARNING,
+            description="Unknown Redis error",
+            level=LogLevelSchema.WARNING if level_log is None else level_log,
             service="Redis",
             timestamp=datetime.now(),
         )

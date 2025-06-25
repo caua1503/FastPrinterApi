@@ -9,8 +9,9 @@ class UsersRoleSchema(Enum):
     member = "member"
 
 
-class UserPasswordSchema(BaseModel):
-    password: str
+class UserNewPasswordSchema(BaseModel):
+    current_password: str
+    new_password: str
 
 
 class UserApiKeySchema(BaseModel):
