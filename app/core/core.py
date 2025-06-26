@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -60,7 +60,7 @@ async def get_all_printers_maintenance_info(session: AsyncSession, filters: Filt
             alert_description = f"A limpeza da lixeira é urgente, percentual: {trash_cleaning_percentage_value}%"
             alert_history = AlertHistorySchema(
                 printer_id=printer.id,
-                date=datetime.now(),
+                date=date.today(),
                 alert_type="limpeza_urgente",
                 description=alert_description,
             )
