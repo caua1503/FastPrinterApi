@@ -1,18 +1,22 @@
 from datetime import date
 from http import HTTPStatus
 
+import pytest
+
 from app.models.history_model import AlertHistory
 from app.models.printer_model import Printer
 
 
-def test_get_history_alert_empty(client):
-    response = client.get("/api/v1/history/alert")
+@pytest.mark.asyncio
+async def test_get_history_alert_empty(client, token):
+    response = client.get("/api/v1/history/alert", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {"historys": []}
 
 
-def test_get_history_alert(client, alert_history: AlertHistory):
-    response = client.get("/api/v1/history/alert")
+@pytest.mark.asyncio
+async def test_get_history_alert(client, alert_history: AlertHistory, token):
+    response = client.get("/api/v1/history/alert", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["historys"][0]["id"] == alert_history.id
@@ -22,7 +26,8 @@ def test_get_history_alert(client, alert_history: AlertHistory):
     assert response_json["historys"][0]["description"] == alert_history.description
 
 
-def test_update_history_alert(client, alert_history: AlertHistory):
+@pytest.mark.asyncio
+async def test_update_history_alert(client, alert_history: AlertHistory, token):
     new_description = "Updated description"
     new_alert_type = "Updated alert type"
     response = client.put(
@@ -33,6 +38,7 @@ def test_update_history_alert(client, alert_history: AlertHistory):
             "alert_type": new_alert_type,
             "description": new_description,
         },
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == HTTPStatus.OK
     response_json = response.json()
@@ -41,8 +47,11 @@ def test_update_history_alert(client, alert_history: AlertHistory):
     assert response_json["alert_type"] == new_alert_type
 
 
-def test_get_history_alert_by_printer_id(client, alert_history: AlertHistory, printer: Printer):
-    response = client.get(f"/api/v1/history/alert?printer_id={printer.id}")
+@pytest.mark.asyncio
+async def test_get_history_alert_by_printer_id(client, alert_history: AlertHistory, printer: Printer, token):
+    response = client.get(
+        f"/api/v1/history/alert?printer_id={printer.id}", headers={"Authorization": f"Bearer {token}"}
+    )
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert len(response_json["historys"]) > 0
@@ -50,11 +59,13 @@ def test_get_history_alert_by_printer_id(client, alert_history: AlertHistory, pr
     assert response_json["historys"][0]["id"] == alert_history.id
 
 
-def test_delete_history_alert(client, alert_history: AlertHistory):
-    response = client.delete(f"/api/v1/history/alert/{alert_history.id}")
+@pytest.mark.asyncio
+async def test_delete_history_alert(client, alert_history: AlertHistory, token):
+    response = client.delete(f"/api/v1/history/alert/{alert_history.id}", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.NO_CONTENT
 
 
-def test_delete_history_alert_not_found(client):
-    response = client.delete("/api/v1/history/alert/99999")
+@pytest.mark.asyncio
+async def test_delete_history_alert_not_found(client, token):
+    response = client.delete("/api/v1/history/alert/99999", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.NOT_FOUND

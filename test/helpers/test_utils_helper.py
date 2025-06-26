@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.helpers.utils_helper import deserialize_from_json, serialize_for_json
+from app.helpers.utils_helper import deserialize_from_json, serialize_from_json
 
 
 class NestedModel(BaseModel):
@@ -38,7 +38,7 @@ def test_serialize_for_json():
         "optional_field": None,
     }
 
-    serialized_data = serialize_for_json(test_data)
+    serialized_data = serialize_from_json(test_data)
 
     assert serialized_data == expected_output
 

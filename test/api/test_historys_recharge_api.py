@@ -1,20 +1,24 @@
 from datetime import date
 from http import HTTPStatus
 
+import pytest
+
 from app.models.history_model import RefillHistory
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply
 
 
-def test_get_history_recharge_empty(client):
-    response = client.get("/api/v1/history/recharge")
+@pytest.mark.asyncio
+async def test_get_history_recharge_empty(client, token):
+    response = client.get("/api/v1/history/recharge", headers={"Authorization": f"Bearer {token}"})
     print(response.json())
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {"historys": []}
 
 
-def test_get_history_recharge(client, refill_history: RefillHistory):
-    response = client.get("/api/v1/history/recharge")
+@pytest.mark.asyncio
+async def test_get_history_recharge(client, refill_history: RefillHistory, token):
+    response = client.get("/api/v1/history/recharge", headers={"Authorization": f"Bearer {token}"})
     print(response.json())
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
@@ -26,8 +30,9 @@ def test_get_history_recharge(client, refill_history: RefillHistory):
     assert response_json["historys"][0]["description"] == refill_history.description
 
 
-def test_get_history_recharge_by_id(client, refill_history: RefillHistory):
-    response = client.get(f"/api/v1/history/recharge/{refill_history.id}")
+@pytest.mark.asyncio
+async def test_get_history_recharge_by_id(client, refill_history: RefillHistory, token):
+    response = client.get(f"/api/v1/history/recharge/{refill_history.id}", headers={"Authorization": f"Bearer {token}"})
     print(response.json())
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
@@ -39,7 +44,8 @@ def test_get_history_recharge_by_id(client, refill_history: RefillHistory):
     assert response_json["description"] == refill_history.description
 
 
-def test_create_history_recharge(client, printer: Printer, supply: Supply):
+@pytest.mark.asyncio
+async def test_create_history_recharge(client, printer: Printer, supply: Supply, token):
     response = client.post(
         "/api/v1/history/recharge",
         json={
@@ -49,6 +55,7 @@ def test_create_history_recharge(client, printer: Printer, supply: Supply):
             "supply_id": supply.id,
             "description": "Test description",
         },
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == HTTPStatus.CREATED
     response_json = response.json()
@@ -58,7 +65,8 @@ def test_create_history_recharge(client, printer: Printer, supply: Supply):
     assert "id" in response_json
 
 
-def test_update_history_recharge(client, refill_history: RefillHistory, supply2: Supply):
+@pytest.mark.asyncio
+async def test_update_history_recharge(client, refill_history: RefillHistory, supply2: Supply, token):
     new_description = "Updated description"
     new_event_type = "Updated event type"
     response = client.put(
@@ -70,6 +78,7 @@ def test_update_history_recharge(client, refill_history: RefillHistory, supply2:
             "supply_id": supply2.id,
             "description": new_description,
         },
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == HTTPStatus.OK
     response_json = response.json()
@@ -79,8 +88,11 @@ def test_update_history_recharge(client, refill_history: RefillHistory, supply2:
     assert response_json["supply_id"] == supply2.id
 
 
-def test_get_history_recharge_by_printer_id(client, refill_history: RefillHistory, printer: Printer):
-    response = client.get(f"/api/v1/history/recharge?printer_id={printer.id}")
+@pytest.mark.asyncio
+async def test_get_history_recharge_by_printer_id(client, refill_history: RefillHistory, printer: Printer, token):
+    response = client.get(
+        f"/api/v1/history/recharge?printer_id={printer.id}", headers={"Authorization": f"Bearer {token}"}
+    )
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert len(response_json["historys"]) > 0
@@ -88,11 +100,15 @@ def test_get_history_recharge_by_printer_id(client, refill_history: RefillHistor
     assert response_json["historys"][0]["id"] == refill_history.id
 
 
-def test_delete_history_recharge(client, refill_history: RefillHistory):
-    response = client.delete(f"/api/v1/history/recharge/{refill_history.id}")
+@pytest.mark.asyncio
+async def test_delete_history_recharge(client, refill_history: RefillHistory, token):
+    response = client.delete(
+        f"/api/v1/history/recharge/{refill_history.id}", headers={"Authorization": f"Bearer {token}"}
+    )
     assert response.status_code == HTTPStatus.NO_CONTENT
 
 
-def test_delete_history_recharge_not_found(client):
-    response = client.delete("/api/v1/history/recharge/99999")
+@pytest.mark.asyncio
+async def test_delete_history_recharge_not_found(client, token):
+    response = client.delete("/api/v1/history/recharge/99999", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.NOT_FOUND

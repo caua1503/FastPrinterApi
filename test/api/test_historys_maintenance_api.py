@@ -1,18 +1,22 @@
 from datetime import date
 from http import HTTPStatus
 
+import pytest
+
 from app.models.history_model import MaintenanceHistory
 from app.models.printer_model import Printer
 
 
-def test_get_history_maintenance_empty(client):
-    response = client.get("/api/v1/history/maintenance")
+@pytest.mark.asyncio
+async def test_get_history_maintenance_empty(client, token):
+    response = client.get("/api/v1/history/maintenance", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {"historys": []}
 
 
-def test_get_history_maintenance(client, maintenance_history: MaintenanceHistory):
-    response = client.get("/api/v1/history/maintenance")
+@pytest.mark.asyncio
+async def test_get_history_maintenance(client, maintenance_history: MaintenanceHistory, token):
+    response = client.get("/api/v1/history/maintenance", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["historys"][0]["id"] == maintenance_history.id
@@ -22,8 +26,11 @@ def test_get_history_maintenance(client, maintenance_history: MaintenanceHistory
     assert response_json["historys"][0]["description"] == maintenance_history.description
 
 
-def test_get_history_maintenance_by_id(client, maintenance_history: MaintenanceHistory):
-    response = client.get(f"/api/v1/history/maintenance/{maintenance_history.id}")
+@pytest.mark.asyncio
+async def test_get_history_maintenance_by_id(client, maintenance_history: MaintenanceHistory, token):
+    response = client.get(
+        f"/api/v1/history/maintenance/{maintenance_history.id}", headers={"Authorization": f"Bearer {token}"}
+    )
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["id"] == maintenance_history.id
@@ -33,7 +40,8 @@ def test_get_history_maintenance_by_id(client, maintenance_history: MaintenanceH
     assert response_json["description"] == maintenance_history.description
 
 
-def test_create_history_maintenance(client, printer: Printer):
+@pytest.mark.asyncio
+async def test_create_history_maintenance(client, printer: Printer, token):
     response = client.post(
         "/api/v1/history/maintenance",
         json={
@@ -42,6 +50,7 @@ def test_create_history_maintenance(client, printer: Printer):
             "event_type": "Test Maintenance",
             "description": "Test description",
         },
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == HTTPStatus.CREATED
     response_json = response.json()
@@ -50,7 +59,8 @@ def test_create_history_maintenance(client, printer: Printer):
     assert "id" in response_json
 
 
-def test_update_history_maintenance(client, maintenance_history: MaintenanceHistory):
+@pytest.mark.asyncio
+async def test_update_history_maintenance(client, maintenance_history: MaintenanceHistory, token):
     new_description = "Updated description"
     new_event_type = "Updated event type"
     response = client.put(
@@ -61,6 +71,7 @@ def test_update_history_maintenance(client, maintenance_history: MaintenanceHist
             "event_type": new_event_type,
             "description": new_description,
         },
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == HTTPStatus.OK
     response_json = response.json()
@@ -69,8 +80,13 @@ def test_update_history_maintenance(client, maintenance_history: MaintenanceHist
     assert response_json["event_type"] == new_event_type
 
 
-def test_get_history_maintenance_by_printer_id(client, maintenance_history: MaintenanceHistory, printer: Printer):
-    response = client.get(f"/api/v1/history/maintenance?printer_id={printer.id}")
+@pytest.mark.asyncio
+async def test_get_history_maintenance_by_printer_id(
+    client, maintenance_history: MaintenanceHistory, printer: Printer, token
+):
+    response = client.get(
+        f"/api/v1/history/maintenance?printer_id={printer.id}", headers={"Authorization": f"Bearer {token}"}
+    )
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert len(response_json["historys"]) > 0
@@ -78,11 +94,15 @@ def test_get_history_maintenance_by_printer_id(client, maintenance_history: Main
     assert response_json["historys"][0]["id"] == maintenance_history.id
 
 
-def test_delete_history_maintenance(client, maintenance_history: MaintenanceHistory):
-    response = client.delete(f"/api/v1/history/maintenance/{maintenance_history.id}")
+@pytest.mark.asyncio
+async def test_delete_history_maintenance(client, maintenance_history: MaintenanceHistory, token):
+    response = client.delete(
+        f"/api/v1/history/maintenance/{maintenance_history.id}", headers={"Authorization": f"Bearer {token}"}
+    )
     assert response.status_code == HTTPStatus.NO_CONTENT
 
 
-def test_delete_history_maintenance_not_found(client):
-    response = client.delete("/api/v1/history/maintenance/99999")
+@pytest.mark.asyncio
+async def test_delete_history_maintenance_not_found(client, token):
+    response = client.delete("/api/v1/history/maintenance/99999", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.NOT_FOUND

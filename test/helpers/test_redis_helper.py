@@ -75,6 +75,6 @@ async def test_set_and_get_list_value_pydantic_with_date(session_redis):
         last_check=date.today(),
     )
     list_pydantic = [printer, printer]
-    await redis_set_value_pydantic(key, list_pydantic, session_redis)
-    # result = await redis_get_value_pydantic(key, FullPrinterSchema, True, session_redis)
-    # assert result == list_pydantic
+    await redis_set_value_pydantic(key, list_pydantic, session_redis, valid_json=False)
+    result = await redis_get_value_pydantic(key, FullPrinterSchema, True, session_redis, valid_json=False)
+    assert result == list_pydantic
