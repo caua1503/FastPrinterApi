@@ -2,11 +2,11 @@ import asyncio
 
 from celery import Celery
 
+from app.config import Config
 from app.core import get_all_printers_maintenance_info
 from app.helpers.database_helper import get_session
 from app.schemas.filter_schema import FilterBase
 from app.schemas.logs_schema import SystemLogSchema, UserLogSchema
-from app.config import Config
 
 config = Config()  # pyright: ignore
 
@@ -29,7 +29,7 @@ def task_get_all_printers_maintenance_info():
 
 @celery_app.task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 6, "countdown": 15})
 def task_create_system_log(log: SystemLogSchema):
-    from app.core.logs import create_system_log
+    from app.core.logs import create_system_log  # noqa: PLC0415
 
     try:
 
@@ -43,7 +43,7 @@ def task_create_system_log(log: SystemLogSchema):
 
 @celery_app.task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 6, "countdown": 15})
 def task_create_user_log(log: UserLogSchema):
-    from app.core.logs import create_user_log
+    from app.core.logs import create_user_log  # noqa: PLC0415
 
     try:
 
