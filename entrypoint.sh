@@ -27,6 +27,10 @@ log "Executing migrations for the logs database..."
 uv run --no-dev alembic -c alembic_logs.ini upgrade head
 check_error "Logs database migrations failed"
 
+# Initialize database
+log "Initializing database..."
+uv run --no-dev init_db.py -p  #use -p para inicializar em portugues
+
 # Start Celery worker in background
 log "Starting Celery worker..."
 uv run --no-dev celery -A celery_worker worker --loglevel=info &

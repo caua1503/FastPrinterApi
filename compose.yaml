@@ -16,6 +16,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      
   fastprinterapi_logs_database:
     image: postgres:17
     volumes:
@@ -33,6 +34,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   fastprinterapi_redis:
     image: redis:8.0
     ports:
@@ -46,6 +48,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   fastprinterapi_app:
     image: fastprinterapi
     build: 
@@ -63,11 +66,8 @@ services:
       fastprinterapi_redis:
         condition: service_healthy
     environment:
-      # Banco de dados principal
       DATABASE_URL: postgresql+psycopg://postgres_user:postgres_password@fastprinterapi_database:5432/app_db
-      # Banco de dados de logs
       DATABASE_LOGS_URL: postgresql+psycopg://postgres_user:postgres_password@fastprinterapi_logs_database:5432/app_logs_db
-      # Redis
       REDIS_URL: redis://fastprinterapi_redis:6379/
     restart: unless-stopped
 
