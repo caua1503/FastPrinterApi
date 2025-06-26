@@ -60,7 +60,7 @@ async def update_supply(id: int, supply: SupplySchema, session: AsyncSession):
 
 async def delete_supply(id: int, session: AsyncSession):
     supply_db = await session.scalar(select(Supply).where(Supply.id == id))
-    printers = await session.scalars(select(Printer).where(Printer.supply_id == id))
+    printers = (await session.scalars(select(Printer).where(Printer.supply_id == id))).all()
 
     if not supply_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply not found")
@@ -73,8 +73,8 @@ async def delete_supply(id: int, session: AsyncSession):
     return supply_db
 
 
-async def get_supply_type(session: AsyncSession):
-    supply_types = (await session.scalars(select(SupplyType))).all()
+async def get_supply_type(session: AsyncSession, filters: FilterBase):
+    supply_types = (await session.scalars(select(SupplyType).limit(filters.limit).offset(filters.offset))).all()
 
     if not supply_types:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply type not found")
@@ -96,7 +96,7 @@ async def update_supply_type(id: int, supply_type: SupplyTypeSchema, session: As
     if not supply_type_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply type not found")
 
-    supply_type_db.nome = supply_type.nome
+    supply_type_db.name = supply_type.name
 
     await session.commit()
     await session.refresh(supply_type_db)
@@ -106,7 +106,7 @@ async def update_supply_type(id: int, supply_type: SupplyTypeSchema, session: As
 
 async def delete_supply_type(id: int, session: AsyncSession):
     supply_type_db = await session.scalar(select(SupplyType).where(SupplyType.id == id))
-    supplys = await session.scalars(select(Supply).where(Supply.supply_type_id == id))
+    supplys = (await session.scalars(select(Supply).where(Supply.supply_type_id == id))).all()
 
     if not supply_type_db:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply type not found")
@@ -116,7 +116,6 @@ async def delete_supply_type(id: int, session: AsyncSession):
 
     await session.delete(supply_type_db)
     await session.commit()
-    return supply_type_db
 
 
 async def get_supply_type_id(id: int, session: AsyncSession):

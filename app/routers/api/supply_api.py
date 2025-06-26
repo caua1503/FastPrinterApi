@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security import has_access
 from app.helpers.database_helper import get_session
 from app.schemas.filter_schema import FilterBase
 from app.schemas.supply_schema import SupplySchema, SupplyTypeSchema
@@ -28,52 +29,69 @@ async def api_create_supply(supply: SupplySchema, session: Annotated[AsyncSessio
     return await create_supply(supply, session)
 
 
-@supply_router.get("/")
+@supply_router.get("/", status_code=HTTPStatus.OK)
 async def api_get_supply(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterBase, Query()]
+    session: Annotated[AsyncSession, Depends(get_session)],
+    filters: Annotated[FilterBase, Query()],
+    current_user=has_access(),
 ):
     result = await get_supply(session, filters)
     return {"supplys": result}
 
 
-@supply_router.get("/{id}")
-async def api_get_supply_id(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
-    return await get_supply_id(id, session)
-
-
-@supply_router.put("/{id}")
-async def api_update_supply(id: int, supply: SupplySchema, session: Annotated[AsyncSession, Depends(get_session)]):
-    return await update_supply(id, supply, session)
-
-
-@supply_router.delete("/{id}")
-async def api_delete_supply(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
-    return await delete_supply(id, session)
-
-
-@supply_router.get("/type")
-async def api_get_supply_type(session: Annotated[AsyncSession, Depends(get_session)]):
-    result = await get_supply_type(session)
+@supply_router.get("/type", status_code=HTTPStatus.OK)
+async def api_get_supply_type(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    filters: Annotated[FilterBase, Query()],
+    current_user=has_access(),
+):
+    result = await get_supply_type(session, filters)
     return {"supply_types": result}
 
 
-@supply_router.post("/type")
-async def api_create_supply_type(supply_type: SupplyTypeSchema, session: Annotated[AsyncSession, Depends(get_session)]):
+@supply_router.post("/type", status_code=HTTPStatus.CREATED)
+async def api_create_supply_type(
+    supply_type: SupplyTypeSchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await create_supply_type(supply_type, session)
 
 
-@supply_router.put("/type/{id}")
+@supply_router.get("/type/{id}", status_code=HTTPStatus.OK)
+async def api_get_supply_type_id(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
+    return await get_supply_type_id(id, session)
+
+
+@supply_router.put("/type/{id}", status_code=HTTPStatus.OK)
 async def api_update_supply_type(
-    id: int, supply_type: SupplyTypeSchema, session: Annotated[AsyncSession, Depends(get_session)]
+    id: int,
+    supply_type: SupplyTypeSchema,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user=has_access(),
 ):
     return await update_supply_type(id, supply_type, session)
 
 
-@supply_router.delete("/type/{id}")
-async def api_delete_supply_type(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+@supply_router.delete("/type/{id}", status_code=HTTPStatus.NO_CONTENT)
+async def api_delete_supply_type(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await delete_supply_type(id, session)
 
 
-@supply_router.get("/type/{id}")
-async def api_get_supply_type_id(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
-    return await get_supply_type_id(id, session)
+@supply_router.get("/{id}", status_code=HTTPStatus.OK)
+async def api_get_supply_id(id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
+    return await get_supply_id(id, session)
+
+
+@supply_router.put("/{id}", status_code=HTTPStatus.OK)
+async def api_update_supply(
+    id: int, supply: SupplySchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
+    return await update_supply(id, supply, session)
+
+
+@supply_router.delete("/{id}", status_code=HTTPStatus.NO_CONTENT)
+async def api_delete_supply(id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
+    return await delete_supply(id, session)

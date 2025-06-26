@@ -11,15 +11,13 @@ from app.schemas.token_schema import TokenSchema
 
 
 async def get_token_jwt(form_data: OAuth2PasswordRequestForm, session: AsyncSession):
-    # print(form_data.username, form_data.password)
-
     user = await session.scalar(select(User).where(User.login == form_data.username))
 
     if not user:
         raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="invalid credencials")
 
     if not verify_password(form_data.password, user.password_hash):
-        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="invalid credencials")
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="invalid credencials")    
 
     data = {
         "sub": str(user.id),

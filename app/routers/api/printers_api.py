@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security import has_access
 from app.helpers.database_helper import get_session
 from app.schemas.filter_schema import FilterPrinter
 from app.schemas.printer_schema import FullPrinterSchema
@@ -20,7 +21,9 @@ printer_router = APIRouter()
 
 @printer_router.get("/", status_code=HTTPStatus.OK, description="Get all printers")
 async def api_get_printers(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
+    session: Annotated[AsyncSession, Depends(get_session)],
+    filters: Annotated[FilterPrinter, Query()],
+    current_user=has_access(),
 ):
     printers = await get_printers(session, filters)
     return {"printers": printers}
@@ -29,25 +32,32 @@ async def api_get_printers(
 @printer_router.post(
     "/", status_code=HTTPStatus.CREATED, response_model=FullPrinterSchema, description="Create a printer"
 )
-async def api_create_printer(printer: FullPrinterSchema, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_create_printer(
+    printer: FullPrinterSchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     printer_db = await create_printer(session, printer)
     return printer_db
 
 
 @printer_router.get("/{id}", status_code=HTTPStatus.OK, description="Get a printer by id")
-async def api_get_printer(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_get_printer(id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
     printer = await get_printer_id(session, id)
     return printer
 
 
 @printer_router.put("/{id}", status_code=HTTPStatus.OK, description="Update a printer by id")
 async def api_update_printer(
-    id: int, printer: FullPrinterSchema, session: Annotated[AsyncSession, Depends(get_session)]
+    id: int,
+    printer: FullPrinterSchema,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user=has_access(),
 ):
     printer_db = await update_printer(session, id, printer)
     return printer_db
 
 
 @printer_router.delete("/{id}", status_code=HTTPStatus.NO_CONTENT, description="Delete a printer by id")
-async def api_delete_printer(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_delete_printer(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     await delete_printer(session, id)

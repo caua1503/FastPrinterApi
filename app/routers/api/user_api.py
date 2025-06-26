@@ -54,7 +54,6 @@ async def api_update_user_password(
 async def api_get_api_key_from_user_id(
     session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access(UsersRoleSchema.member)
 ):
-    print(current_user.id)
     return await get_api_key_from_user_id(session, current_user.id)
 
 

@@ -13,7 +13,8 @@ auth_router = APIRouter()
 
 @auth_router.post("/token", response_model=TokenSchema)
 async def api_get_token_jwt(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: Annotated[AsyncSession, Depends(get_session)]
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     return await get_token_jwt(form_data, session)
 
