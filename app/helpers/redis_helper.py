@@ -8,7 +8,13 @@ from fastapi import HTTPException
 
 from app.core.logs import create_redis_log
 from app.helpers.database_helper import get_redis_client
-from app.helpers.utils_helper import ModelType, deserialize_data, serialize_data
+from app.helpers.utils_helper import (
+    ModelType,
+    deserialize_data,
+    deserialize_from_json,
+    serialize_data,
+    serialize_from_json,
+)
 
 """
     (redis_client: Optional[redis.Redis] = None)
@@ -48,7 +54,7 @@ async def redis_get_value(key: str, redis_client: Optional[redis.Redis] = None):
         if result:
             return json.loads(result)
 
-        return False
+        return None
     except Exception as erro:
         asyncio.create_task(create_redis_log(erro))
         raise erro
@@ -58,7 +64,7 @@ async def redis_set_value_pydantic(
     key: str,
     value: Union[ModelType, List[ModelType]],
     redis_client: Optional[redis.Redis] = None,
-    invalid_json: bool = False,
+    valid_json: bool = True,
     **kwargs,
 ):
     """
@@ -67,14 +73,17 @@ async def redis_set_value_pydantic(
         value: The value can be a model or list of models,
         this is handled internally by the function automatically by the function
         redis_client (Optional[redis.Redis]): Redis client, which can pass or get automatically
+        valid_json (bool): If True, uses standard JSON serialization. If False, handles special types like dates
         **kwargs : accept all redis.set() functions
     return:
         True (bool): Opicional, indicates that it was successfully saved
-
     """
-    if invalid_json:
-        ...
-    return await redis_set_value(key, serialize_data(value), redis_client, **kwargs)
+    if valid_json:
+        serialized_value = serialize_data(value)
+    else:
+        serialized_value = json.dumps(serialize_from_json(value))
+
+    return await redis_set_value(key, serialized_value, redis_client, **kwargs)
 
 
 async def redis_get_value_pydantic(
@@ -82,6 +91,28 @@ async def redis_get_value_pydantic(
     model: Type[ModelType],
     is_list: bool = False,
     redis_client: Optional[redis.Redis] = None,
+    valid_json: bool = True,
 ):
+    """
+    a function to retrieve Pydantic models from Redis
+    Args:
+        key: Redis key to retrieve
+        model: Pydantic model class to deserialize into
+        is_list: Whether to expect a list of models
+        redis_client: Optional Redis client
+        valid_json: If True, uses standard JSON deserialization. If False, handles special types like dates
+    return:
+        Union[ModelType, List[ModelType]]: The deserialized model(s) or None if not found
+    """
     result = await redis_get_value(key, redis_client)
-    return deserialize_data(str(result), model, is_list)
+
+    if not result:
+        return None
+
+    if valid_json:
+        return deserialize_data(result, model, is_list)
+    else:
+        if is_list:
+            data_list = json.loads(result)
+            return [deserialize_from_json(item, model) for item in data_list]
+        return deserialize_from_json(json.loads(result), model)
