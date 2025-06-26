@@ -46,6 +46,7 @@ convention = "google"
 pythonpath= "."
 
 [tool.taskipy.tasks]
+run = "uv run fastapi dev ./app"
 test = "uv run ruff format && uv run ruff check && uv run pytest"
 lint = "uv run ruff format && uv run ruff check --fix"
 check = "uv run ruff check"
@@ -59,4 +60,5 @@ upgrade_db_logs = "uv run alembic -c alembic_logs.ini upgrade head"
 update_db_logs = "uv run alembic -c alembic_logs.ini revision --autogenerate -m"
 
 build = "docker build --no-cache -t fastprinterapi:latest ."
-run_build = "docker run -it --name fastprinterapi -p 8000:8000 fastprinterapi:latest"
+run_build = "docker compose up -d"
+docker = "docker build --no-cache -t fastprinterapi:latest . && docker compose up -d"
