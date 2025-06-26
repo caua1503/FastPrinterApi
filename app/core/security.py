@@ -30,8 +30,8 @@ config = Config()  # pyright: ignore
 
 pwd_context = PasswordHash.recommended()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
-api_key_scheme = APIKeyHeader(name="Authorization", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token", auto_error=False)
+api_key_scheme = APIKeyHeader(name="X-Api-Key", auto_error=False)
 
 
 def get_password_hash(password: str) -> str:
@@ -108,28 +108,15 @@ def has_access(
     """
 
     async def dependency(  # noqa: PLR0912
-        request: Request,
-        token: str = Depends(oauth2_scheme),
-        api_key: str = Depends(api_key_scheme),
+        token: Optional[str] = Depends(oauth2_scheme),
+        api_key: Optional[str] = Depends(api_key_scheme),
         session: AsyncSession = Depends(get_session),
     ):
-        auth = request.headers.get("Authorization")
-
-        if not auth:
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED,
-                detail="Missing authorization header",
-            )
-
         user: Optional[User] = None
-        auth_type: str = ""
+        auth_type: Optional[str] = None
 
-        if auth.startswith("Bearer "):
-            # print(auth)
-            token = auth.removeprefix("Bearer ")
+        if token:
             auth_type = "bearer"
-            # print(auth_type)
-            # print(token)
             try:
                 payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.JWT_ALGORITHM])
                 user_id = payload.get("sub")
@@ -141,24 +128,21 @@ def has_access(
                 user = result.scalar_one_or_none()
 
             except jwt.PyJWTError:
-                # except Exception as e:
-                # print(str(e))
                 raise HTTPException(
                     status_code=HTTPStatus.UNAUTHORIZED,
                     detail="Invalid or expired token",
                 )
 
-        elif auth.startswith("ApiKey "):
-            api_key = auth.removeprefix("ApiKey ")
+        elif api_key:
             auth_type = "apikey"
             stmt = select(User).join(User.api_keys).where(UserApiKey.api_key == api_key)
             result = await session.execute(stmt)
             user = result.scalar_one_or_none()
 
-        else:
+        if not auth_type:
             raise HTTPException(
                 status_code=HTTPStatus.UNAUTHORIZED,
-                detail="Unsupported authentication scheme. Use 'Bearer' or 'ApiKey'.",
+                detail="Not authenticated",
             )
 
         if not user:
