@@ -19,6 +19,13 @@ class ServiceSchema(str, Enum):
     OTHER = "other"
 
 
+class ApiKeyActionSchema(str, Enum):
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+    READ = "read"
+
+
 class LogDescriptionSchema(str, Enum):
     DEBUG = "Details for development and debugging"
     INFO = "Normal application events"
