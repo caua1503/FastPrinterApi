@@ -1,17 +1,21 @@
 from datetime import date
 from http import HTTPStatus
 
+import pytest
+
 from app.models.history_model import StatusHistory
 
 
-def test_get_history_status_empty(client):
-    response = client.get("/api/v1/history/status")
+@pytest.mark.asyncio
+async def test_get_history_status_empty(client, token):
+    response = client.get("/api/v1/history/status", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {"historys": []}
 
 
-def test_get_history_status(client, status_history: StatusHistory):
-    response = client.get("/api/v1/history/status")
+@pytest.mark.asyncio
+async def test_get_history_status(client, status_history: StatusHistory, token):
+    response = client.get("/api/v1/history/status", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert len(response_json["historys"]) > 0
@@ -22,8 +26,9 @@ def test_get_history_status(client, status_history: StatusHistory):
     assert response_json["historys"][0]["description"] == status_history.description
 
 
-def test_get_history_status_by_id(client, status_history: StatusHistory):
-    response = client.get(f"/api/v1/history/status/{status_history.id}")
+@pytest.mark.asyncio
+async def test_get_history_status_by_id(client, status_history: StatusHistory, token):
+    response = client.get(f"/api/v1/history/status/{status_history.id}", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["id"] == status_history.id
@@ -33,7 +38,8 @@ def test_get_history_status_by_id(client, status_history: StatusHistory):
     assert response_json["description"] == status_history.description
 
 
-def test_update_history_status(client, status_history: StatusHistory):
+@pytest.mark.asyncio
+async def test_update_history_status(client, status_history: StatusHistory, token):
     new_description = "Updated description"
     response = client.put(
         f"/api/v1/history/status/{status_history.id}",
@@ -43,6 +49,7 @@ def test_update_history_status(client, status_history: StatusHistory):
             "date": date.today().strftime("%Y-%m-%d"),
             "description": new_description,
         },
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == HTTPStatus.OK
     response_json = response.json()
@@ -51,11 +58,15 @@ def test_update_history_status(client, status_history: StatusHistory):
     assert response_json["status_id"] == status_history.status_id
 
 
-def test_delete_history_status(client, status_history: StatusHistory):
-    response = client.delete(f"/api/v1/history/status/{status_history.id}")
+@pytest.mark.asyncio
+async def test_delete_history_status(client, status_history: StatusHistory, token):
+    response = client.delete(
+        f"/api/v1/history/status/{status_history.id}", headers={"Authorization": f"Bearer {token}"}
+    )
     assert response.status_code == HTTPStatus.NO_CONTENT
 
 
-def test_delete_history_status_not_found(client):
-    response = client.delete("/api/v1/history/status/99999")
+@pytest.mark.asyncio
+async def test_delete_history_status_not_found(client, token):
+    response = client.delete("/api/v1/history/status/99999", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.NOT_FOUND

@@ -3,10 +3,10 @@ from datetime import date
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
-from testcontainers.postgres import PostgresContainer
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.pool import StaticPool
+from testcontainers.postgres import PostgresContainer
 
+from app.core.security import get_password_hash
 from app.helpers.database_helper import get_session
 from app.main import app
 from app.models import table_registry
@@ -24,16 +24,25 @@ from app.models.user_model import User
 
 
 @pytest_asyncio.fixture
+async def token(client: TestClient, user: User):
+    response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})  # type: ignore
+    return response.json()["access_token"]
+
+
+@pytest_asyncio.fixture
 async def user(session: AsyncSession):
+    password = "fake_password"
     user = User(
         login="testuser",
-        password_hash="fake_password_hash",
-        code_hash="fake_code_hash",
-        api_key="fake_api_key",
+        name="testuser",
+        password_hash=get_password_hash(password),
     )
+
     session.add(user)
     await session.commit()
     await session.refresh(user)
+
+    user.password = password  # type: ignore
     return user
 
 
@@ -116,7 +125,7 @@ async def department(session: AsyncSession):
 
 
 @pytest_asyncio.fixture
-async def printer(session, status: Status, supply: Supply, department: Department):
+async def printer(session: AsyncSession, status: Status, supply: Supply, department: Department):
     printer = Printer(
         name="Printer 1",
         description="Printer 1 description",
@@ -227,11 +236,12 @@ def client(session: AsyncSession):
     app.dependency_overrides.clear()
 
 
-@pytest.fixture(scope='session') 
+@pytest.fixture(scope="session")
 def engine():
-    with PostgresContainer('postgres:16', driver='psycopg') as postgres:
+    with PostgresContainer("postgres:16", driver="psycopg") as postgres:
         _engine = create_async_engine(postgres.get_connection_url())
         yield _engine
+
 
 @pytest_asyncio.fixture
 async def session(engine):

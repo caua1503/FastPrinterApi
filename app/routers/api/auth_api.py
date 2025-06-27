@@ -1,28 +1,23 @@
-from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import verify_password
 from app.helpers.database_helper import get_session
-from app.models.user_model import User
+from app.schemas.token_schema import TokenSchema
+from app.services.auth_service import get_token_jwt
 
 auth_router = APIRouter()
 
 
-@auth_router.post("/token")
-async def login(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: Annotated[AsyncSession, Depends(get_session)]
+@auth_router.post("/token", response_model=TokenSchema)
+async def api_get_token_jwt(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
-    user = await session.scalar(select(User).where(User.login == form_data.username))
+    return await get_token_jwt(form_data, session)
 
-    if not user:
-        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Credenciais inválidas")
 
-    if not verify_password(form_data.password, user.password_hash):
-        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Credenciais inválidas")
-
-    return {"message": "Login realizado com sucesso"}
+@auth_router.get("/refresh-token")
+async def refresh_token(): ...

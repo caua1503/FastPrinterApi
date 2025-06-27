@@ -5,27 +5,30 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.16.2",
+    "celery[redis]>=5.3.1",
     "fastapi[standard]>=0.115.12",
     "granian>=2.3.4",
     "psycopg[binary]>=3.2.9",
     "pwdlib[argon2]>=0.2.1",
     "pydantic-settings>=2.9.1",
     "pyjwt>=2.10.1",
+    "python-multipart>=0.0.20",
     "redis>=6.2.0",
     "sqlalchemy[asyncio]>=2.0.41",
 ]
 
 [dependency-groups]
 dev = [
-    "alembic>=1.16.2",
     "pytest-asyncio>=1.0.0",
     "ruff>=0.11.13",
+    "taskipy>=1.14.1",
     "testcontainers>=4.10.0",
 ]
 
 [tool.ruff]
 line-length = 120
-extend-exclude = ['static', 'migrations']
+extend-exclude = ['static', 'migrations', 'migrations_logs']
 
 [tool.ruff.lint]
 preview=true
@@ -41,3 +44,21 @@ convention = "google"
 
 [tool.pytest.ini_options]
 pythonpath= "."
+
+[tool.taskipy.tasks]
+run = "uv run fastapi dev ./app"
+test = "uv run ruff format && uv run ruff check && uv run pytest"
+lint = "uv run ruff format && uv run ruff check --fix"
+check = "uv run ruff check"
+
+migrations = "uv run alembic -c alembic.ini init migrations"
+upgrade_db = "uv run alembic -c alembic.ini upgrade head"
+update_db = "uv run alembic -c alembic.ini revision --autogenerate -m"
+
+migrations_logs = "uv run alembic -c alembic_logs.ini init migrations_logs"
+upgrade_db_logs = "uv run alembic -c alembic_logs.ini upgrade head"
+update_db_logs = "uv run alembic -c alembic_logs.ini revision --autogenerate -m"
+
+build = "docker build --no-cache -t fastprinterapi:latest ."
+run_build = "docker compose up -d"
+docker = "docker build --no-cache -t fastprinterapi:latest . && docker compose up -d"

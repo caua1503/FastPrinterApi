@@ -49,6 +49,7 @@ setup.py
 llm_tool_fusion.egg-info
 llm_tool_fusion.egg-info/
 docs
+docs.md
 docs/
 # PyInstaller
 #  Usually these files are written by a python script from a template

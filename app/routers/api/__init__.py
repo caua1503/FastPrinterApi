@@ -1,12 +1,14 @@
 from fastapi import APIRouter
 
-from .auth_api import auth_router
-from .core_api import core_router
-from .department_api import department_router
-from .history_api import history_router
-from .printers_api import printer_router
-from .status_api import status_router
-from .supply_api import supply_router
+from app.routers.api.auth_api import auth_router
+from app.routers.api.core_api import core_router
+from app.routers.api.department_api import department_router
+from app.routers.api.history_api import history_router
+from app.routers.api.logs_api import log_router
+from app.routers.api.printers_api import printer_router
+from app.routers.api.status_api import status_router
+from app.routers.api.supply_api import supply_router
+from app.routers.api.user_api import user_router
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -23,6 +25,10 @@ api_router.include_router(department_router, prefix="/department", tags=["api - 
 api_router.include_router(core_router, prefix="/core", tags=["api - core"])
 
 api_router.include_router(auth_router, prefix="/auth", tags=["api - auth"])
+
+api_router.include_router(user_router, prefix="/user", tags=["api - user"])
+
+api_router.include_router(log_router, prefix="/log", tags=["api - log"])
 
 
 @api_router.get("/")

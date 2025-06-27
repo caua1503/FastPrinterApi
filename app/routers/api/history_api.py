@@ -4,8 +4,9 @@ from typing import Annotated, Dict, List, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security import has_access
 from app.helpers.database_helper import get_session
-from app.schemas.filters import FilterBase, FilterPrinter
+from app.schemas.filter_schema import FilterPrinter
 from app.schemas.history_schema import (
     AlertHistorySchema,
     AlertHistorySchemaDB,
@@ -54,33 +55,42 @@ history_router = APIRouter()
 
 @history_router.get("/recharge", status_code=HTTPStatus.OK)
 async def api_get_history_recharge(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
-) -> Dict[str, List[RefillHistorySchemaDB]]:
+    session: Annotated[AsyncSession, Depends(get_session)],
+    filters: Annotated[FilterPrinter, Query()],
+    current_user=has_access(),
+) -> Dict[str, List[RefillHistorySchemaDB] | list]:
     result = await get_history_recharge(session, filters)
     return {"historys": result}
 
 
 @history_router.post("/recharge", status_code=HTTPStatus.CREATED, response_model=RefillHistorySchemaDB)
 async def api_create_history_recharge(
-    history: RefillHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+    history: RefillHistorySchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
     return await create_history_recharge(history, session)
 
 
 @history_router.put("/recharge/{id}", status_code=HTTPStatus.OK, response_model=RefillHistorySchemaDB)
 async def api_update_history_recharge(
-    id: int, history: RefillHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+    id: int,
+    history: RefillHistorySchema,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user=has_access(),
 ):
     return await update_history_recharge(id, history, session)
 
 
 @history_router.get("/recharge/{id}", status_code=HTTPStatus.OK, response_model=Optional[RefillHistorySchemaDB])
-async def api_get_history_recharge_id(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_get_history_recharge_id(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await get_history_recharge_id(id, session)
 
 
 @history_router.delete("/recharge/{id}", status_code=HTTPStatus.NO_CONTENT)
-async def api_delete_history_recharge(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_delete_history_recharge(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await delete_history_recharge(id, session)
 
 
@@ -93,34 +103,42 @@ async def api_delete_history_recharge(id: int, session: Annotated[AsyncSession, 
 
 @history_router.post("/maintenance", status_code=HTTPStatus.CREATED, response_model=MaintenanceHistorySchemaDB)
 async def api_create_history_maintenance(
-    history: MaintenanceHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+    history: MaintenanceHistorySchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
     return await create_history_maintenance(history, session)
 
 
 @history_router.get("/maintenance", status_code=HTTPStatus.OK)
 async def api_get_history_maintenance(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
-) -> Dict[str, List[MaintenanceHistorySchemaDB]]:
+    session: Annotated[AsyncSession, Depends(get_session)],
+    filters: Annotated[FilterPrinter, Query()],
+    current_user=has_access(),
+) -> Dict[str, List[MaintenanceHistorySchemaDB] | list]:
     result = await get_history_maintenance(session, filters)
     return {"historys": result}
 
 
 @history_router.get("/maintenance/{id}", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
-async def api_get_history_maintenance_id(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_get_history_maintenance_id(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await get_history_maintenance_id(id, session)
-
 
 
 @history_router.put("/maintenance/{id}", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
 async def api_update_history_maintenance(
-    id: int, history: MaintenanceHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+    id: int,
+    history: MaintenanceHistorySchema,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user=has_access(),
 ):
     return await update_history_maintenance(id, history, session)
 
 
 @history_router.delete("/maintenance/{id}", status_code=HTTPStatus.NO_CONTENT)
-async def api_delete_history_maintenance(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_delete_history_maintenance(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await delete_history_maintenance(id, session)
 
 
@@ -133,49 +151,64 @@ async def api_delete_history_maintenance(id: int, session: Annotated[AsyncSessio
 
 @history_router.get("/trash", status_code=HTTPStatus.OK)
 async def api_get_history_trash(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
-) -> Dict[str, List[PrinterTrashHistorySchemaDB]]:
+    session: Annotated[AsyncSession, Depends(get_session)],
+    filters: Annotated[FilterPrinter, Query()],
+    current_user=has_access(),
+) -> Dict[str, List[PrinterTrashHistorySchemaDB] | list]:
     result = await get_history_trash(session, filters)
     return {"historys": result}
 
 
 @history_router.put("/trash/{id}", status_code=HTTPStatus.OK, response_model=PrinterTrashHistorySchemaDB)
 async def api_update_history_trash(
-    id: int, history: PrinterTrashHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+    id: int,
+    history: PrinterTrashHistorySchema,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user=has_access(),
 ):
     return await update_history_trash(id, history, session)
 
 
 @history_router.delete("/trash/{id}", status_code=HTTPStatus.NO_CONTENT)
-async def api_delete_history_trash(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_delete_history_trash(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await delete_history_trash(id, session)
 
 
 @history_router.post("/trash", status_code=HTTPStatus.CREATED, response_model=PrinterTrashHistorySchemaDB)
 async def api_create_history_trash(
-    history: PrinterTrashHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+    history: PrinterTrashHistorySchema,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user=has_access(),
 ):
     return await create_history_trash(history, session)
 
 
 @history_router.get("/alert", status_code=HTTPStatus.OK)
 async def api_get_history_alerts(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
-) -> Dict[str, List[AlertHistorySchemaDB]]:
+    session: Annotated[AsyncSession, Depends(get_session)],
+    filters: Annotated[FilterPrinter, Query()],
+    current_user=has_access(),
+) -> Dict[str, List[AlertHistorySchemaDB] | list]:
     result = await get_history_alerts(session, filters)
     return {"historys": result}
 
 
-
 @history_router.put("/alert/{id}", status_code=HTTPStatus.OK, response_model=AlertHistorySchemaDB)
 async def api_update_history_alert(
-    id: int, history: AlertHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
+    id: int,
+    history: AlertHistorySchema,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user=has_access(),
 ):
     return await update_history_alert(id, history, session)
 
 
 @history_router.delete("/alert/{id}", status_code=HTTPStatus.NO_CONTENT)
-async def api_delete_history_alert(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_delete_history_alert(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await delete_history_alert(id, session)
 
 
@@ -188,14 +221,18 @@ async def api_delete_history_alert(id: int, session: Annotated[AsyncSession, Dep
 
 @history_router.get("/status", status_code=HTTPStatus.OK)
 async def api_get_history_status(
-    session: Annotated[AsyncSession, Depends(get_session)], filters: Annotated[FilterPrinter, Query()]
-) -> Dict[str, List[StatusHistorySchemaDB]]:
+    session: Annotated[AsyncSession, Depends(get_session)],
+    filters: Annotated[FilterPrinter, Query()],
+    current_user=has_access(),
+) -> Dict[str, List[StatusHistorySchemaDB] | list]:
     result = await get_history_status(session, filters)
     return {"historys": result}
 
 
 @history_router.get("/status/{id}", status_code=HTTPStatus.OK, response_model=StatusHistorySchemaDB)
-async def api_get_history_status_id(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_get_history_status_id(
+    id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await get_history_status_id(id, session)
 
 

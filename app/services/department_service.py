@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.department_model import Department
 from app.models.printer_model import Printer
 from app.schemas.department_schema import DepartmentSchema
-from app.schemas.filters import FilterBase
+from app.schemas.filter_schema import FilterBase
 
 
 async def create_department(session: AsyncSession, department: DepartmentSchema):

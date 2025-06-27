@@ -145,7 +145,9 @@ async def test_create_status_history_db(session, printer, status):
 
 @pytest.mark.asyncio
 async def test_create_maintenance_history_db(session, printer):
-    maintenance_history = MaintenanceHistory(printer_id=printer.id, date=date.today(), event_type="teste", description="teste")
+    maintenance_history = MaintenanceHistory(
+        printer_id=printer.id, date=date.today(), event_type="teste", description="teste"
+    )
     session.add(maintenance_history)
     await session.commit()
     result = await session.scalar(select(MaintenanceHistory).where(MaintenanceHistory.printer_id == printer.id))

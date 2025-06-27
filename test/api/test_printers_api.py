@@ -1,23 +1,28 @@
 from http import HTTPStatus
 
+import pytest
+
 from app.models import Printer
 
 
-def test_apirouter(client):
-    response = client.get("/api/v1/")
+@pytest.mark.asyncio
+async def test_apirouter(client, token):
+    response = client.get("/api/v1/", headers={"Authorization": f"Bearer {token}"})
 
     assert response.status_code == HTTPStatus.OK
 
 
-def test_get_printers(client):
-    response = client.get("/api/v1/printer/")
+@pytest.mark.asyncio
+async def test_get_printers(client, token):
+    response = client.get("/api/v1/printer/", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["printers"] == []
 
 
-def test_get_printers_with_printers(client, printer: Printer):
-    response = client.get("/api/v1/printer/")
+@pytest.mark.asyncio
+async def test_get_printers_with_printers(client, printer: Printer, token):
+    response = client.get("/api/v1/printer/", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["printers"][0]["id"] == printer.id
@@ -31,8 +36,9 @@ def test_get_printers_with_printers(client, printer: Printer):
     assert response_json["printers"][0]["description"] == printer.description
 
 
-def test_get_printer_by_id(client, printer: Printer):
-    response = client.get(f"/api/v1/printer/{printer.id}")
+@pytest.mark.asyncio
+async def test_get_printer_by_id(client, printer: Printer, token):
+    response = client.get(f"/api/v1/printer/{printer.id}", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["name"] == printer.name
@@ -45,7 +51,8 @@ def test_get_printer_by_id(client, printer: Printer):
     assert response_json["description"] == printer.description
 
 
-def test_create_printer(client, status, supply, department):
+@pytest.mark.asyncio
+async def test_create_printer(client, status, supply, department, token):
     data = {
         "name": "Printer 1",
         "brand": "Brand 1",
@@ -60,7 +67,7 @@ def test_create_printer(client, status, supply, department):
         "last_maintenance": "2025-01-01",
         "last_check": "2025-01-01",
     }
-    response = client.post("/api/v1/printer/", json=data)
+    response = client.post("/api/v1/printer/", json=data, headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.CREATED
     assert response.json()["name"] == data["name"]
     assert response.json()["brand"] == data["brand"]
@@ -71,7 +78,8 @@ def test_create_printer(client, status, supply, department):
     assert response.json()["status_id"] == data["status_id"]
 
 
-def test_create_printer_with_ip_already_exists(client, printer: Printer):
+@pytest.mark.asyncio
+async def test_create_printer_with_ip_already_exists(client, printer: Printer, token):
     data = {
         "name": "Printer 1",
         "brand": "Brand 1",
@@ -86,11 +94,12 @@ def test_create_printer_with_ip_already_exists(client, printer: Printer):
         "last_maintenance": "2025-01-01",
         "last_check": "2025-01-01",
     }
-    response = client.post("/api/v1/printer/", json=data)
+    response = client.post("/api/v1/printer/", json=data, headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
-def test_update_printer(client, printer: Printer, status, supply, department):
+@pytest.mark.asyncio
+async def test_update_printer(client, printer: Printer, status, supply, department, token):  # noqa: PLR0917, PLR0913
     data = {
         "name": "Printer 1",
         "brand": "Brand 1",
@@ -105,7 +114,7 @@ def test_update_printer(client, printer: Printer, status, supply, department):
         "last_maintenance": "2025-01-02",
         "last_check": "2025-01-02",
     }
-    response = client.put(f"/api/v1/printer/{printer.id}", json=data)
+    response = client.put(f"/api/v1/printer/{printer.id}", json=data, headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.OK
     assert response.json()["forecast"] == "2025-01-02"
     assert response.json()["last_refill"] == "2025-01-02"
@@ -113,37 +122,43 @@ def test_update_printer(client, printer: Printer, status, supply, department):
     assert response.json()["last_check"] == "2025-01-02"
 
 
-def test_update_printer_with_ip_already_exists(client, printer: Printer, printer2: Printer, status, supply, department):
+@pytest.mark.asyncio
+async def test_update_printer_with_ip_already_exists(client, printer: Printer, printer2: Printer, token):
     data = {
         "name": "Printer 1",
         "brand": "Brand 1",
         "model": "Model 1",
         "ip": printer.ip,
-        "department_id": department.id,
-        "supply_id": supply.id,
-        "status_id": status.id,
+        "department_id": printer.department_id,
+        "supply_id": printer.supply_id,
+        "status_id": printer.status_id,
         "description": "Description 1",
         "forecast": "2025-01-01",
         "last_refill": "2025-01-01",
         "last_maintenance": "2025-01-01",
         "last_check": "2025-01-01",
     }
-    response = client.put(f"/api/v1/printer/{printer2.id}", json=data)
+    response = client.put(f"/api/v1/printer/{printer2.id}", json=data, headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
-def test_delete_printer(client):
-    response = client.delete("/api/v1/printer/1")
+@pytest.mark.asyncio
+async def test_delete_printer(client, token):
+    response = client.delete("/api/v1/printer/1", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_delete_printer_with_printer_error(client, printer: Printer):
-    response = client.delete(f"/api/v1/printer/{printer.id}")
+@pytest.mark.asyncio
+async def test_delete_printer_with_printer_error(client, printer: Printer, token):
+    response = client.delete(f"/api/v1/printer/{printer.id}", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.NO_CONTENT
 
 
-def test_get_printers_by_department_id(client, printer: Printer):
-    response = client.get(f"/api/v1/printer/?department_id={printer.department_id}")
+@pytest.mark.asyncio
+async def test_get_printers_by_department_id(client, printer: Printer, token):
+    response = client.get(
+        f"/api/v1/printer/?department_id={printer.department_id}", headers={"Authorization": f"Bearer {token}"}
+    )
     response_json = response.json()
     print(response_json)
     assert response.status_code == HTTPStatus.OK
@@ -156,14 +171,17 @@ def test_get_printers_by_department_id(client, printer: Printer):
     assert response_json["printers"][0]["supply_id"] == printer.supply_id
     assert response_json["printers"][0]["status_id"] == printer.status_id
     assert response_json["printers"][0]["description"] == printer.description
-    assert response_json["printers"][0]["forecast"] == printer.forecast.strftime("%Y-%m-%d")
-    assert response_json["printers"][0]["last_refill"] == printer.last_refill.strftime("%Y-%m-%d")
-    assert response_json["printers"][0]["last_maintenance"] == printer.last_maintenance.strftime("%Y-%m-%d")
-    assert response_json["printers"][0]["last_check"] == printer.last_check.strftime("%Y-%m-%d")
+    assert response_json["printers"][0]["forecast"] == printer.forecast.strftime("%Y-%m-%d")  # type: ignore
+    assert response_json["printers"][0]["last_refill"] == printer.last_refill.strftime("%Y-%m-%d")  # type: ignore
+    assert response_json["printers"][0]["last_maintenance"] == printer.last_maintenance.strftime("%Y-%m-%d")  # type: ignore
+    assert response_json["printers"][0]["last_check"] == (printer.last_check).strftime("%Y-%m-%d")  # type: ignore
 
 
-def test_get_printers_by_supply_id(client, printer: Printer):
-    response = client.get(f"/api/v1/printer/?supply_id={printer.supply_id}")
+@pytest.mark.asyncio
+async def test_get_printers_by_supply_id(client, printer: Printer, token):
+    response = client.get(
+        f"/api/v1/printer/?supply_id={printer.supply_id}", headers={"Authorization": f"Bearer {token}"}
+    )
     response_json = response.json()
     print(response_json)
     assert response.status_code == HTTPStatus.OK
@@ -175,8 +193,11 @@ def test_get_printers_by_supply_id(client, printer: Printer):
     assert response_json["printers"][0]["supply_id"] == printer.supply_id
 
 
-def test_get_printers_by_status_id(client, printer: Printer):
-    response = client.get(f"/api/v1/printer/?status_id={printer.status_id}")
+@pytest.mark.asyncio
+async def test_get_printers_by_status_id(client, printer: Printer, token):
+    response = client.get(
+        f"/api/v1/printer/?status_id={printer.status_id}", headers={"Authorization": f"Bearer {token}"}
+    )
     response_json = response.json()
     print(response_json)
     assert response.status_code == HTTPStatus.OK
@@ -188,13 +209,14 @@ def test_get_printers_by_status_id(client, printer: Printer):
     assert response_json["printers"][0]["status_id"] == printer.status_id
 
 
-def test_get_printers_by_multiple_filters(client, printer: Printer):
+@pytest.mark.asyncio
+async def test_get_printers_by_multiple_filters(client, printer: Printer, token):
     url = (
         f"/api/v1/printer/?department_id={printer.department_id}"
         f"&supply_id={printer.supply_id}"
         f"&status_id={printer.status_id}"
     )
-    response = client.get(url)
+    response = client.get(url, headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert len(response_json["printers"]) == 1

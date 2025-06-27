@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,9 +11,11 @@ from app.helpers.core_helper import (
     extract_trash_datas,
     get_printers,
 )
+from app.schemas.filter_schema import FilterBase
+from app.schemas.history_schema import AlertHistorySchema
 
 
-async def get_all_printers_maintenance_info(session: AsyncSession, limit: int):
+async def get_all_printers_maintenance_info(session: AsyncSession, filters: FilterBase):
     """
     Retorna uma lista de dicionários com o id da impressora, a próxima data de recarga, o percentual de carga atual,
     a próxima data de limpeza da lixeira e o percentual de necessidade de limpeza da lixeira.
@@ -32,8 +34,8 @@ async def get_all_printers_maintenance_info(session: AsyncSession, limit: int):
     result = []
 
     for printer in printers:
-        datas_recarga = await extract_datas_recharge(printer.id, session, limit)
-        trash_datas = await extract_trash_datas(printer.id, session, limit)
+        datas_recarga = await extract_datas_recharge(printer.id, session, filters)
+        trash_datas = await extract_trash_datas(printer.id, session, filters)
 
         if datas_recarga:
             next_recharge_date = calculate_next_recharge(datas_recarga, "media")
@@ -53,15 +55,16 @@ async def get_all_printers_maintenance_info(session: AsyncSession, limit: int):
 
         if trash_cleaning_percentage_value <= alert_cleaning_percentage:
             # Import dinâmico para evitar circular import
-            from services.history_service import create_history_alert  # noqa: PLC0415
+            from app.services.history_service import create_history_alert  # noqa: PLC0415
 
             alert_description = f"A limpeza da lixeira é urgente, percentual: {trash_cleaning_percentage_value}%"
-            await create_history_alert(
+            alert_history = AlertHistorySchema(
                 printer_id=printer.id,
-                data=datetime.now(),
-                tipo_alerta="limpeza_urgente",
-                descricao=alert_description,
+                date=date.today(),
+                alert_type="limpeza_urgente",
+                description=alert_description,
             )
+            await create_history_alert(alert_history, session)
 
         result.append({
             "id": printer.id,
@@ -74,7 +77,7 @@ async def get_all_printers_maintenance_info(session: AsyncSession, limit: int):
     return result
 
 
-async def get_printer_maintenance_info(printer_id: int, session: AsyncSession, limit: int):
+async def get_printer_maintenance_info(printer_id: int, session: AsyncSession, filters: FilterBase):
     """
     Retorna um dicionário com as informações de manutenção da impressora.
     Args:
@@ -89,8 +92,8 @@ async def get_printer_maintenance_info(printer_id: int, session: AsyncSession, l
             - trash_cleaning_next_time (date | None): Próxima data de limpeza da lixeira como objeto date ou None
             - trash_cleaning_percentage (float): Percentual de necessidade de limpeza da lixeira (0.0-100.0)
     """
-    datas_recarga = await extract_datas_recharge(printer_id, session, limit)
-    trash_datas = await extract_trash_datas(printer_id, session, limit)
+    datas_recarga = await extract_datas_recharge(printer_id, session, filters)
+    trash_datas = await extract_trash_datas(printer_id, session, filters)
 
     if datas_recarga:
         next_recharge_date = calculate_next_recharge(datas_recarga, "media")
