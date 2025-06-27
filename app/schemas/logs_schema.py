@@ -50,7 +50,7 @@ class SystemLogSchema(LogSchema):
     pass
 
 
-class ApiKeyLogSchema(LogSchema):
+class ApiKeyLogSchema(BaseModel):
     api_key_id: int
     user_id: int
     action: ApiKeyActionSchema
