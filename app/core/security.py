@@ -125,7 +125,7 @@ def has_access(
                 user_id = payload.get("sub")
 
                 if not user_id:
-                    raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid token")
+                    raise error_auth
 
                 result = await session.execute(select(User).where(User.id == int(user_id)))
                 user = result.scalar_one_or_none()
