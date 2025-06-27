@@ -52,13 +52,13 @@ lint = "uv run ruff format && uv run ruff check --fix"
 check = "uv run ruff check"
 
 migrations = "uv run alembic -c alembic.ini init migrations"
-upgrade_db = "uv run alembic -c alembic.ini upgrade head"
-update_db = "uv run alembic -c alembic.ini revision --autogenerate -m"
+upgrade = "uv run alembic -c alembic.ini upgrade head"
+update = "uv run alembic -c alembic.ini revision --autogenerate -m"
 
 migrations_logs = "uv run alembic -c alembic_logs.ini init migrations_logs"
-upgrade_db_logs = "uv run alembic -c alembic_logs.ini upgrade head"
-update_db_logs = "uv run alembic -c alembic_logs.ini revision --autogenerate -m"
+upgradelogs = "uv run alembic -c alembic_logs.ini upgrade head"
+updatelogs = "uv run alembic -c alembic_logs.ini revision --autogenerate -m"
 
 build = "docker build --no-cache -t fastprinterapi:latest ."
-run_build = "docker compose up -d"
+rundocker = "docker compose up -d"
 docker = "docker build --no-cache -t fastprinterapi:latest . && docker compose up -d"
