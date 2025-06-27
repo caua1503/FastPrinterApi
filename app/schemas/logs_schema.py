@@ -12,6 +12,10 @@ class LogLevelSchema(str, Enum):
     ERROR = "error"
     CRITICAL = "critical"
 
+class ServiceSchema(str, Enum):
+    REDIS = "redis"
+    POSTGRES = "postgres"
+    OTHER = "other"
 
 class LogDescriptionSchema(str, Enum):
     DEBUG = "Details for development and debugging"
@@ -25,7 +29,7 @@ class LogSchema(BaseModel):
     message: str
     description: Optional[str] = None
     level: LogLevelSchema
-    service: str
+    service: ServiceSchema
     timestamp: date
 
 
@@ -34,4 +38,4 @@ class UserLogSchema(LogSchema):
 
 
 class SystemLogSchema(LogSchema):
-    service: str
+    pass
