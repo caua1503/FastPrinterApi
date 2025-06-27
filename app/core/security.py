@@ -114,7 +114,9 @@ def has_access(
     ):
         user: Optional[User] = None
         auth_type: Optional[str] = None
-
+        error_auth = HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED,
+                    detail="Invalid or expired token",)
         if token:
             auth_type = "bearer"
             try:
@@ -127,11 +129,10 @@ def has_access(
                 result = await session.execute(select(User).where(User.id == int(user_id)))
                 user = result.scalar_one_or_none()
 
-            except jwt.PyJWTError:
-                raise HTTPException(
-                    status_code=HTTPStatus.UNAUTHORIZED,
-                    detail="Invalid or expired token",
-                )
+            except jwt.DecodeError:
+                raise error_auth
+            except jwt.ExpiredSignatureError:
+                raise error_auth
 
         elif api_key:
             auth_type = "apikey"
@@ -140,23 +141,17 @@ def has_access(
             user = result.scalar_one_or_none()
 
         if not auth_type:
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED,
-                detail="Not authenticated",
-            )
+            raise error_auth
 
         if not user:
-            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid credentials")
+            raise error_auth
 
         # Authorization checks
         if user.role == UsersRoleSchema.admin:
             return user  # Admins can do anything
 
         if user.role != role:
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN,
-                detail=f"User role '{user.role.value}' not allowed for this resource",
-            )
+            raise error_auth
 
         # Permission checks based on authentication method
         if auth_type == "bearer" and required_user_code:
@@ -164,20 +159,14 @@ def has_access(
             permissions_result = await session.execute(stmt)
             user_permissions = {code for (code,) in permissions_result}
             if required_user_code not in user_permissions:
-                raise HTTPException(
-                    status_code=HTTPStatus.FORBIDDEN,
-                    detail=f"Missing required permission: {required_user_code}",
-                )
+                raise error_auth
 
         if auth_type == "apikey" and required_api_scope:
             stmt = select(PermissionApiKey.code).join(UserApiKey).where(UserApiKey.user_id == user.id)
             permissions_result = await session.execute(stmt)
             api_permissions = {code for (code,) in permissions_result}
             if required_api_scope not in api_permissions:
-                raise HTTPException(
-                    status_code=HTTPStatus.FORBIDDEN,
-                    detail=f"Missing required API permission: {required_api_scope}",
-                )
+                raise error_auth
 
         return user
 
