@@ -67,7 +67,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql+psycopg://postgres_user:postgres_password@fastprinterapi_database:5432/app_db
-      DATABASE_LOGS_URL: postgresql+psycopg://postgres_user:postgres_password@fastprinterapi_logs_database:5433/app_logs_db
+      DATABASE_LOGS_URL: postgresql+psycopg://postgres_user:postgres_password@fastprinterapi_logs_database:5432/app_logs_db
       REDIS_HOST: fastprinterapi_redis
       REDIS_PORT: 6379
       REDIS_DB: 0
