@@ -17,10 +17,23 @@ async def get_token_jwt(form_data: OAuth2PasswordRequestForm, session: AsyncSess
         raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="invalid credencials")
 
     if not verify_password(form_data.password, user.password_hash):
-        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="invalid credencials")    
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="invalid credencials")
 
     data = {
         "sub": str(user.id),
+    }
+
+    token = TokenSchema(
+        access_token=create_access_token(data),
+        token_type="bearer",
+    )
+
+    return token
+
+
+async def refresh_token(current_user: User):
+    data = {
+        "sub": str(current_user.id),
     }
 
     token = TokenSchema(
