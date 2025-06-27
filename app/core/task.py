@@ -3,7 +3,6 @@ import asyncio
 from celery import Celery
 
 from app.config import Config
-from app.core import get_all_printers_maintenance_info
 from app.helpers.database_helper import get_session
 from app.schemas.filter_schema import FilterBase
 from app.schemas.logs_schema import SystemLogSchema, UserLogSchema
@@ -19,6 +18,8 @@ celery_app = Celery(
 
 @celery_app.task
 def task_get_all_printers_maintenance_info():
+    from app.core import get_all_printers_maintenance_info  # noqa: PLC0415
+
     async def __execute():
         async for session in get_session():
             printers_maintenance_info = await get_all_printers_maintenance_info(session, filters=FilterBase())
