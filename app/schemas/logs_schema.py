@@ -12,10 +12,12 @@ class LogLevelSchema(str, Enum):
     ERROR = "error"
     CRITICAL = "critical"
 
+
 class ServiceSchema(str, Enum):
     REDIS = "redis"
     POSTGRES = "postgres"
     OTHER = "other"
+
 
 class LogDescriptionSchema(str, Enum):
     DEBUG = "Details for development and debugging"

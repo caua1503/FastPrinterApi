@@ -5,7 +5,7 @@ from http import HTTPStatus
 from typing import Optional
 
 import jwt
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from sqlalchemy import select
@@ -115,8 +115,9 @@ def has_access(
         user: Optional[User] = None
         auth_type: Optional[str] = None
         error_auth = HTTPException(
-                    status_code=HTTPStatus.UNAUTHORIZED,
-                    detail="Invalid or expired token",)
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
         if token:
             auth_type = "bearer"
             try:

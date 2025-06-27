@@ -33,4 +33,3 @@ class UserLog:
     description: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(default=func.now())
     updated_at: Mapped[datetime] = mapped_column(default=func.now())
-
