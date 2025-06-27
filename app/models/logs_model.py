@@ -18,7 +18,6 @@ class SystemLog:
     timestamp: Mapped[date]
     description: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(default=func.now())
 
 
 @table_registry_logs.mapped_as_dataclass
@@ -32,4 +31,3 @@ class UserLog:
     timestamp: Mapped[date]
     description: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(default=func.now())
