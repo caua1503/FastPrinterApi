@@ -26,7 +26,6 @@ def main():
         "SECRET_KEY": generate_random_code(256),
         "JWT_ALGORITHM": "HS256",
         "ACCESS_TOKEN_EXPIRE_MINUTES": "30",
-        "REDIS_URL": "redis://localhost:6379",
     }
 
     parser = argparse.ArgumentParser(
