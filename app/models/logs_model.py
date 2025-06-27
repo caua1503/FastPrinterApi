@@ -15,7 +15,7 @@ class SystemLog:
     message: Mapped[str]
     level: Mapped[LogLevelSchema]
     service: Mapped[ServiceSchema]
-    timestamp: Mapped[date]
+    timestamp: Mapped[datetime]
     description: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(default=func.now())
 
@@ -28,7 +28,7 @@ class UserLog:
     message: Mapped[str]
     level: Mapped[LogLevelSchema]
     service: Mapped[ServiceSchema]
-    timestamp: Mapped[date]
+    timestamp: Mapped[datetime]
     description: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(default=func.now())
 
@@ -42,5 +42,5 @@ class ApiKeyLog:
     action: Mapped[ApiKeyActionSchema]
     route: Mapped[Optional[str]]
     description: Mapped[Optional[str]]
-    timestamp: Mapped[date]
+    timestamp: Mapped[datetime]
     created_at: Mapped[datetime] = mapped_column(default=func.now())

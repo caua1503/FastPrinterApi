@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any, Callable
 
 from celery import Celery
 
@@ -30,27 +29,33 @@ def task_get_all_printers_maintenance_info():
 
 
 @celery_app.task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 6, "countdown": 15})
-def task_create_system_log(log: SystemLogSchema):
+def task_create_system_log(self, **log_data):
     from app.core.logs import create_system_log  # noqa: PLC0415
+
     try:
+        log = SystemLogSchema(**log_data)
         asyncio.run(create_system_log(log))
     except Exception as e:
         raise e
 
 
 @celery_app.task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 6, "countdown": 15})
-def task_create_user_log(log: UserLogSchema):
+def task_create_user_log(self, **log_data):
     from app.core.logs import create_user_log  # noqa: PLC0415
+
     try:
+        log = UserLogSchema(**log_data)
         asyncio.run(create_user_log(log))
     except Exception as e:
         raise e
 
 
 @celery_app.task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 6, "countdown": 15})
-def task_create_api_key_log(log: ApiKeyLogSchema):
+def task_create_api_key_log(self, **log_data):
     from app.core.logs import create_api_key_log  # noqa: PLC0415
+
     try:
+        log = ApiKeyLogSchema(**log_data)
         asyncio.run(create_api_key_log(log))
     except Exception as e:
         raise e

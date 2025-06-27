@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Config
+from app.core.task import task_create_api_key_log
 from app.helpers.database_helper import get_redis_client, get_session
 from app.helpers.redis_helper import (
     redis_get_value,
@@ -25,6 +26,7 @@ from app.models.user_model import (
     UserPermission,
     UsersRoleSchema,
 )
+from app.schemas.logs_schema import ApiKeyActionSchema, ApiKeyLogSchema
 
 config = Config()  # pyright: ignore
 
@@ -93,6 +95,37 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
+async def log_api_key_usage(
+    session: AsyncSession,
+    api_key: str,
+    user_id: int,
+    action: ApiKeyActionSchema = ApiKeyActionSchema.READ,
+    route: Optional[str] = None,
+) -> None:
+    """
+    Função auxiliar para registrar logs de uso da API Key.
+    
+    Args:
+        session: Sessão do banco de dados
+        api_key: Chave da API utilizada
+        user_id: ID do usuário que utilizou a API Key
+        action: Ação realizada (padrão: READ)
+        route: Rota acessada (opcional)
+    """
+    stmt_api_key = select(UserApiKey).where(UserApiKey.api_key == api_key)
+    result_api_key = await session.execute(stmt_api_key)
+    api_key_obj = result_api_key.scalar_one()
+    
+    log_api_key = ApiKeyLogSchema(
+        user_id=user_id,
+        api_key_id=api_key_obj.id,
+        action=action,
+        route=route,
+        timestamp=datetime.now(),
+    )
+    task_create_api_key_log.delay(**log_api_key.model_dump())
+
+
 def has_access(
     role: UsersRoleSchema = UsersRoleSchema.member,
     required_user_code: Optional[str] = None,
@@ -141,6 +174,9 @@ def has_access(
             result = await session.execute(stmt)
             user = result.scalar_one_or_none()
 
+            if user:
+                await log_api_key_usage(session, api_key, user.id)
+
         if not auth_type:
             raise error_auth
 
@@ -166,9 +202,13 @@ def has_access(
             stmt = select(PermissionApiKey.code).join(UserApiKey).where(UserApiKey.user_id == user.id)
             permissions_result = await session.execute(stmt)
             api_permissions = {code for (code,) in permissions_result}
+
             if required_api_scope not in api_permissions:
                 raise error_auth
 
+            if api_key:  # Verificação adicional para o tipo checker
+                await log_api_key_usage(session, api_key, user.id)
+            
         return user
 
     return Depends(dependency)

@@ -21,7 +21,7 @@ async def create_user_log(log: UserLogSchema):
         )
         session.add(log_db)
         await session.commit()
-
+        await session.refresh(log_db)
 
 async def create_system_log(log: SystemLogSchema):
     async for session in get_session_logs():
@@ -34,6 +34,7 @@ async def create_system_log(log: SystemLogSchema):
         )
         session.add(log_db)
         await session.commit()
+        await session.refresh(log_db)
 
 
 async def create_api_key_log(log: ApiKeyLogSchema):
@@ -48,6 +49,8 @@ async def create_api_key_log(log: ApiKeyLogSchema):
         )
         session.add(log_db)
         await session.commit()
+        await session.refresh(log_db)
+
 
 async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] = None):
     if isinstance(erro, ConnectionError):
@@ -58,7 +61,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
-        task_create_system_log.delay(erro_log)
+        task_create_system_log.delay(**erro_log.model_dump())
 
     elif isinstance(erro, TimeoutError):
         erro_log = SystemLogSchema(
@@ -68,7 +71,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
-        task_create_system_log.delay(erro_log)
+        task_create_system_log.delay(**erro_log.model_dump())
 
     elif isinstance(erro, AuthenticationError):
         erro_log = SystemLogSchema(
@@ -78,7 +81,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
-        task_create_system_log.delay(erro_log)
+        task_create_system_log.delay(**erro_log.model_dump())
 
     else:
         erro_log = SystemLogSchema(
@@ -88,4 +91,4 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
-        task_create_system_log.delay(erro_log)
+        task_create_system_log.delay(**erro_log.model_dump())

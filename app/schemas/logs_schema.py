@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
@@ -39,7 +39,7 @@ class LogSchema(BaseModel):
     description: Optional[str] = None
     level: LogLevelSchema
     service: ServiceSchema
-    timestamp: date
+    timestamp: datetime 
 
 
 class UserLogSchema(LogSchema):
@@ -54,6 +54,6 @@ class ApiKeyLogSchema(BaseModel):
     api_key_id: int
     user_id: int
     action: ApiKeyActionSchema
-    timestamp: date
+    timestamp: datetime
     route: Optional[str] = None
     description: Optional[str] = None
