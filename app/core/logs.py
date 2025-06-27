@@ -6,7 +6,7 @@ from redis.exceptions import AuthenticationError, ConnectionError, TimeoutError
 from app.core.task import task_create_system_log
 from app.helpers.database_helper import get_session_logs
 from app.models.logs_model import SystemLog, UserLog
-from app.schemas.logs_schema import LogLevelSchema, SystemLogSchema, UserLogSchema
+from app.schemas.logs_schema import LogLevelSchema, ServiceSchema, SystemLogSchema, UserLogSchema
 
 
 async def create_user_log(log: UserLogSchema):
@@ -42,7 +42,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             message=str(erro),
             description="Connection error",
             level=LogLevelSchema.CRITICAL,
-            service="Redis",
+            service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
         await task_create_system_log.delay(erro_log)
@@ -52,7 +52,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             message=str(erro),
             description="Timeout error",
             level=LogLevelSchema.CRITICAL,
-            service="Redis",
+            service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
         await task_create_system_log.delay(erro_log)
@@ -62,7 +62,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             message=str(erro),
             description="Authentication error",
             level=LogLevelSchema.CRITICAL,
-            service="Redis",
+            service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
         await task_create_system_log.delay(erro_log)
@@ -72,7 +72,7 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             message=str(erro),
             description="Unknown Redis error",
             level=LogLevelSchema.WARNING if level_log is None else level_log,
-            service="Redis",
+            service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
         await task_create_system_log.delay(erro_log)
