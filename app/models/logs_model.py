@@ -36,10 +36,11 @@ class UserLog:
 @table_registry_logs.mapped_as_dataclass
 class ApiKeyLog:
     __tablename__ = "api_key_log"
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     api_key_id: Mapped[int]
     user_id: Mapped[int]
     action: Mapped[ApiKeyActionSchema]
     route: Mapped[Optional[str]]
     description: Mapped[Optional[str]]
+    timestamp: Mapped[date]
     created_at: Mapped[datetime] = mapped_column(default=func.now())

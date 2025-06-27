@@ -48,3 +48,12 @@ class UserLogSchema(LogSchema):
 
 class SystemLogSchema(LogSchema):
     pass
+
+
+class ApiKeyLogSchema(LogSchema):
+    api_key_id: int
+    user_id: int
+    action: ApiKeyActionSchema
+    timestamp: date
+    route: Optional[str] = None
+    description: Optional[str] = None
