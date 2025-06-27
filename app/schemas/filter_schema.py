@@ -19,7 +19,7 @@ class FilterPrinter(FilterBase):
 class FilterLog(FilterBase):
     service: Optional[ServiceSchema] = Field(default=None)
     level: Optional[LogLevelSchema] = Field(default=None)
-    time_start: Optional[datetime] = Field(default=datetime.now() - timedelta(days=30))
+    time_start: Optional[datetime] = Field(default=datetime.now() - timedelta(days=7))
     time_end: Optional[datetime] = Field(default=datetime.now())
 
 class FilterLogUser(FilterLog):
