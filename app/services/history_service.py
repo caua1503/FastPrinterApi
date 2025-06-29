@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.history_model import (
@@ -16,6 +16,11 @@ from app.models.supply_model import Supply
 from app.schemas.filter_schema import FilterPrinter
 from app.schemas.history_schema import (
     AlertHistorySchema,
+    ListAlertHistorySchema,
+    ListMaintenanceHistorySchema,
+    ListPrinterTrashHistorySchema,
+    ListRefillHistorySchema,
+    ListStatusHistorySchema,
     MaintenanceHistorySchema,
     PrinterTrashHistorySchema,
     RefillHistorySchema,
@@ -56,13 +61,17 @@ async def create_history_recharge(history: RefillHistorySchema, session: AsyncSe
 
 async def get_history_recharge(session: AsyncSession, filters: FilterPrinter):
     query = select(RefillHistory)
+    total = await session.scalar(select(func.count()).select_from(query.subquery()))
+
+    if not total:
+        return ListRefillHistorySchema(total=0, count=0, historys=[])
 
     if filters.printer_id:
         query = query.filter(RefillHistory.printer_id == filters.printer_id)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
 
-    return historys if historys else []
+    return ListRefillHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
 
 async def get_history_recharge_id(id: int, session: AsyncSession):
@@ -118,13 +127,17 @@ async def create_history_maintenance(history: MaintenanceHistorySchema, session:
 
 async def get_history_maintenance(session: AsyncSession, filters: FilterPrinter):
     query = select(MaintenanceHistory)
+    total = await session.scalar(select(func.count()).select_from(query.subquery()))
+
+    if not total:
+        return ListMaintenanceHistorySchema(total=0, count=0, historys=[])
 
     if filters.printer_id:
         query = query.filter(MaintenanceHistory.printer_id == filters.printer_id)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
 
-    return historys if historys else []
+    return ListMaintenanceHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
 
 async def get_history_maintenance_id(id: int, session: AsyncSession):
@@ -181,12 +194,16 @@ async def create_history_trash(history: PrinterTrashHistorySchema, session: Asyn
 
 async def get_history_trash(session: AsyncSession, filters: FilterPrinter):
     query = select(PrinterTrashHistory)
+    total = await session.scalar(select(func.count()).select_from(query.subquery()))
+
+    if not total:
+        return ListPrinterTrashHistorySchema(total=0, count=0, historys=[])
 
     if filters.printer_id:
         query = query.filter(PrinterTrashHistory.printer_id == filters.printer_id)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
-    return historys if historys else []
+    return ListPrinterTrashHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
 
 async def update_history_trash(id: int, history: PrinterTrashHistorySchema, session: AsyncSession):
@@ -243,12 +260,16 @@ async def create_history_alert(history: AlertHistorySchema, session: AsyncSessio
 
 async def get_history_alerts(session: AsyncSession, filters: FilterPrinter):
     query = select(AlertHistory)
+    total = await session.scalar(select(func.count()).select_from(query.subquery()))
+
+    if not total:
+        return ListAlertHistorySchema(total=0, count=0, historys=[])
 
     if filters.printer_id:
         query = query.filter(AlertHistory.printer_id == filters.printer_id)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
-    return historys if historys else []
+    return ListAlertHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
 
 async def update_history_alert(id: int, history: AlertHistorySchema, session: AsyncSession):
@@ -296,12 +317,16 @@ async def create_history_status(history: StatusHistorySchema, session: AsyncSess
 
 async def get_history_status(session: AsyncSession, filters: FilterPrinter):
     query = select(StatusHistory)
+    total = await session.scalar(select(func.count()).select_from(query.subquery()))
+
+    if not total:
+        return ListStatusHistorySchema(total=0, count=0, historys=[])
 
     if filters.printer_id:
         query = query.filter(StatusHistory.printer_id == filters.printer_id)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
-    return historys if historys else []
+    return ListStatusHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
 
 async def get_history_status_id(id: int, session: AsyncSession):
