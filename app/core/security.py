@@ -5,7 +5,7 @@ from http import HTTPStatus
 from typing import Optional
 
 import jwt
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from sqlalchemy import select
@@ -67,7 +67,6 @@ async def verify_api_key_db(session: AsyncSession, api_key: str) -> bool:
 async def get_api_key(session: AsyncSession) -> str:
     while True:
         api_key = generate_api_key()
-        print(api_key)
         existing_api_key = await verify_api_key_db(session, api_key)
         if not existing_api_key:
             return api_key
@@ -99,28 +98,32 @@ async def log_api_key_usage(
     session: AsyncSession,
     api_key: str,
     user_id: int,
-    action: ApiKeyActionSchema = ApiKeyActionSchema.READ,
-    route: Optional[str] = None,
+    request: Request,
 ) -> None:
     """
-    Função auxiliar para registrar logs de uso da API Key.
-    
+    Helper function to record API Key usage logs.
+
     Args:
-        session: Sessão do banco de dados
-        api_key: Chave da API utilizada
-        user_id: ID do usuário que utilizou a API Key
-        action: Ação realizada (padrão: READ)
-        route: Rota acessada (opcional)
+        session: Database session (logs_database)
+        api_key: API Key used
+        user_id: User ID that used the API Key
+        request: FastAPI Request object to capture the route
+        action: Action performed (default: GET)
     """
     stmt_api_key = select(UserApiKey).where(UserApiKey.api_key == api_key)
     result_api_key = await session.execute(stmt_api_key)
     api_key_obj = result_api_key.scalar_one()
-    
+    user_action = (
+        ApiKeyActionSchema(request.method.lower())
+        if request.method.lower() in [action.value for action in ApiKeyActionSchema]
+        else ApiKeyActionSchema.GET
+    )
+    print(user_action)
     log_api_key = ApiKeyLogSchema(
         user_id=user_id,
         api_key_id=api_key_obj.id,
-        action=action,
-        route=route,
+        action=user_action,
+        route=str(request.url.path),
         timestamp=datetime.now(),
     )
     task_create_api_key_log.delay(**log_api_key.model_dump())
@@ -141,6 +144,7 @@ def has_access(
     """
 
     async def dependency(  # noqa: PLR0912
+        request: Request,
         token: Optional[str] = Depends(oauth2_scheme),
         api_key: Optional[str] = Depends(api_key_scheme),
         session: AsyncSession = Depends(get_session),
@@ -175,7 +179,7 @@ def has_access(
             user = result.scalar_one_or_none()
 
             if user:
-                await log_api_key_usage(session, api_key, user.id)
+                await log_api_key_usage(session, api_key, user.id, request)
 
         if not auth_type:
             raise error_auth
@@ -207,8 +211,8 @@ def has_access(
                 raise error_auth
 
             if api_key:  # Verificação adicional para o tipo checker
-                await log_api_key_usage(session, api_key, user.id)
-            
+                await log_api_key_usage(session, api_key, user.id, request)
+
         return user
 
     return Depends(dependency)
