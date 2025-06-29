@@ -43,6 +43,7 @@ class StatusHistorySchema(BaseModel):
     date: date
     description: Optional[str] = None
 
+
 class RefillHistorySchemaDB(RefillHistorySchema):
     id: int
 
@@ -61,6 +62,7 @@ class AlertHistorySchemaDB(AlertHistorySchema):
 
 class StatusHistorySchemaDB(StatusHistorySchema):
     id: int
+
 
 class ListRefillHistorySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
