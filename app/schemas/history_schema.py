@@ -43,42 +43,6 @@ class StatusHistorySchema(BaseModel):
     date: date
     description: Optional[str] = None
 
-
-class ListRefillHistorySchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    total: int
-    count: int
-    historys: List[RefillHistorySchema]
-
-
-class ListMaintenanceHistorySchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    total: int
-    count: int
-    historys: List[MaintenanceHistorySchema]
-
-
-class ListStatusHistorySchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    total: int
-    count: int
-    historys: List[StatusHistorySchema]
-
-
-class ListAlertHistorySchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    total: int
-    count: int
-    historys: List[AlertHistorySchema]
-
-
-class ListPrinterTrashHistorySchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    total: int
-    count: int
-    historys: List[PrinterTrashHistorySchema]
-
-
 class RefillHistorySchemaDB(RefillHistorySchema):
     id: int
 
@@ -97,3 +61,37 @@ class AlertHistorySchemaDB(AlertHistorySchema):
 
 class StatusHistorySchemaDB(StatusHistorySchema):
     id: int
+
+class ListRefillHistorySchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    total: int
+    count: int
+    historys: List[RefillHistorySchemaDB]
+
+
+class ListMaintenanceHistorySchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    total: int
+    count: int
+    historys: List[MaintenanceHistorySchemaDB]
+
+
+class ListStatusHistorySchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    total: int
+    count: int
+    historys: List[StatusHistorySchemaDB]
+
+
+class ListAlertHistorySchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    total: int
+    count: int
+    historys: List[AlertHistorySchemaDB]
+
+
+class ListPrinterTrashHistorySchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    total: int
+    count: int
+    historys: List[PrinterTrashHistorySchemaDB]
