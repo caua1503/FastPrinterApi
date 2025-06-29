@@ -13,7 +13,7 @@ from app.models.history_model import (
 )
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply
-from app.schemas.filter_schema import FilterPrinter
+from app.schemas.filter_schema import FilterPrinter, FilterPrinterHistory
 from app.schemas.history_schema import (
     AlertHistorySchema,
     ListAlertHistorySchema,
@@ -59,7 +59,7 @@ async def create_history_recharge(history: RefillHistorySchema, session: AsyncSe
     return history_db
 
 
-async def get_history_recharge(session: AsyncSession, filters: FilterPrinter):
+async def get_history_recharge(session: AsyncSession, filters: FilterPrinterHistory):
     query = select(RefillHistory)
     total = await session.scalar(select(func.count()).select_from(query.subquery()))
 
@@ -68,6 +68,12 @@ async def get_history_recharge(session: AsyncSession, filters: FilterPrinter):
 
     if filters.printer_id:
         query = query.filter(RefillHistory.printer_id == filters.printer_id)
+
+    if filters.time_start:
+        query = query.filter(RefillHistory.date >= filters.time_start)
+
+    if filters.time_end:
+        query = query.filter(RefillHistory.date <= filters.time_end)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
 
