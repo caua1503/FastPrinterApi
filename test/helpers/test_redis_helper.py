@@ -1,6 +1,7 @@
 from datetime import date
 
 import pytest
+import redis.asyncio as redis
 
 from app.helpers.redis_helper import (
     redis_get_value,
@@ -12,16 +13,16 @@ from app.schemas.printer_schema import FullPrinterSchema, PrinterSchema
 
 
 @pytest.mark.asyncio
-async def test_set_and_get_value(session_redis):
+async def test_set_and_get_value(session_redis: redis.Redis):
     key = "test"
     value = "123"
-    await redis_set_value(key, value, session_redis)
-    result = await redis_get_value(key, session_redis)
+    await redis_set_value(key, value, redis_client=session_redis)
+    result = await redis_get_value(key, redis_client=session_redis)
     assert result == value
 
 
 @pytest.mark.asyncio
-async def test_set_and_get_value_pydantic(session_redis):
+async def test_set_and_get_value_pydantic(session_redis: redis.Redis):
     key = "test"
     printer = FullPrinterSchema(
         name="Printer 1",
@@ -37,13 +38,13 @@ async def test_set_and_get_value_pydantic(session_redis):
         last_maintenance=date.today(),
         last_check=date.today(),
     )
-    await redis_set_value_pydantic(key, printer, session_redis)
+    await redis_set_value_pydantic(key, printer, redis_client=session_redis)
     result = await redis_get_value_pydantic(key, FullPrinterSchema, redis_client=session_redis)
     assert result == printer
 
 
 @pytest.mark.asyncio
-async def test_set_and_get_list_value_pydantic(session_redis):
+async def test_set_and_get_list_value_pydantic(session_redis: redis.Redis):
     key = "test"
     printer = PrinterSchema(
         name="Printer 1",
@@ -52,13 +53,13 @@ async def test_set_and_get_list_value_pydantic(session_redis):
         brand="Brand 1",
     )
     list_pydantic = [printer, printer]
-    await redis_set_value_pydantic(key, list_pydantic, session_redis)
-    result = await redis_get_value_pydantic(key, PrinterSchema, True, session_redis)
+    await redis_set_value_pydantic(key, list_pydantic, redis_client=session_redis)
+    result = await redis_get_value_pydantic(key, PrinterSchema, True, redis_client=session_redis)
     assert result == list_pydantic
 
 
 @pytest.mark.asyncio
-async def test_set_and_get_list_value_pydantic_with_date(session_redis):
+async def test_set_and_get_list_value_pydantic_with_date(session_redis: redis.Redis):
     key = "test"
     printer = FullPrinterSchema(
         name="Printer 1",
@@ -75,6 +76,6 @@ async def test_set_and_get_list_value_pydantic_with_date(session_redis):
         last_check=date.today(),
     )
     list_pydantic = [printer, printer]
-    await redis_set_value_pydantic(key, list_pydantic, session_redis, valid_json=False)
-    result = await redis_get_value_pydantic(key, FullPrinterSchema, True, session_redis, valid_json=False)
+    await redis_set_value_pydantic(key, list_pydantic, redis_client=session_redis, valid_json=False)
+    result = await redis_get_value_pydantic(key, FullPrinterSchema, True, redis_client=session_redis, valid_json=False)
     assert result == list_pydantic
