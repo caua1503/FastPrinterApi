@@ -42,6 +42,10 @@ async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
 
 async def get_printers(session: AsyncSession, filters: FilterPrinterDefault):
     query = select(Printer)
+    total = await session.scalar(select(func.count()).select_from(query.subquery()))
+
+    if not total:
+        return ListFullPrinterSchema(total=0, count=0, printers=[])
 
     if filters.status_id:
         query = query.filter(Printer.status_id == filters.status_id)
@@ -50,14 +54,7 @@ async def get_printers(session: AsyncSession, filters: FilterPrinterDefault):
     if filters.department_id:
         query = query.filter(Printer.department_id == filters.department_id)
 
-    count_query = select(func.count()).select_from(query.subquery())
-    total = await session.scalar(count_query)
-
-    if not total:
-        return ListFullPrinterSchema(total=0, count=0, printers=[])
-
-    printers_query = query.limit(filters.limit).offset(filters.offset)
-    printers = (await session.scalars(printers_query)).all()
+    printers = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
 
     return ListFullPrinterSchema(total=total, count=len(printers), printers=printers)  # type: ignore
 
