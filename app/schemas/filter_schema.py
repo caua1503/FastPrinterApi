@@ -11,11 +11,14 @@ class FilterBase(BaseModel):
     offset: int = Field(default=0, ge=0)
 
 
-class FilterPrinter(FilterBase):
-    printer_id: Optional[int] = Field(default=None)
+class FilterPrinterDefault(FilterBase):
     status_id: Optional[int] = Field(default=None)
     supply_id: Optional[int] = Field(default=None)
     department_id: Optional[int] = Field(default=None)
+
+
+class FilterPrinter(FilterPrinterDefault):
+    printer_id: Optional[int] = Field(default=None)
 
 
 class FilterLog(FilterBase):

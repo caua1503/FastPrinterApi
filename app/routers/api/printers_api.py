@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import has_access
 from app.helpers.database_helper import get_session
-from app.schemas.filter_schema import FilterPrinter
-from app.schemas.printer_schema import FullPrinterSchema
+from app.schemas.filter_schema import FilterPrinterDefault
+from app.schemas.printer_schema import FullPrinterSchema, ListFullPrinterSchema
 from app.services.printer_service import (
     create_printer,
     delete_printer,
@@ -19,14 +19,16 @@ from app.services.printer_service import (
 printer_router = APIRouter()
 
 
-@printer_router.get("/", status_code=HTTPStatus.OK, description="Get all printers")
+@printer_router.get(
+    "/", status_code=HTTPStatus.OK, description="Get all printers", response_model=ListFullPrinterSchema
+)
 async def api_get_printers(
     session: Annotated[AsyncSession, Depends(get_session)],
-    filters: Annotated[FilterPrinter, Query()],
+    filters: Annotated[FilterPrinterDefault, Query()],
     current_user=has_access(),
 ):
     printers = await get_printers(session, filters)
-    return {"printers": printers}
+    return printers
 
 
 @printer_router.post(
