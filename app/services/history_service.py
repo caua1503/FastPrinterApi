@@ -13,7 +13,7 @@ from app.models.history_model import (
 )
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply
-from app.schemas.filter_schema import FilterPrinter, FilterPrinterHistory
+from app.schemas.filter_schema import FilterPrinterHistory
 from app.schemas.history_schema import (
     AlertHistorySchema,
     ListAlertHistorySchema,
