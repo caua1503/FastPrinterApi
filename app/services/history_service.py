@@ -131,7 +131,7 @@ async def create_history_maintenance(history: MaintenanceHistorySchema, session:
     return history_db
 
 
-async def get_history_maintenance(session: AsyncSession, filters: FilterPrinter):
+async def get_history_maintenance(session: AsyncSession, filters: FilterPrinterHistory):
     query = select(MaintenanceHistory)
     total = await session.scalar(select(func.count()).select_from(query.subquery()))
 
@@ -140,6 +140,12 @@ async def get_history_maintenance(session: AsyncSession, filters: FilterPrinter)
 
     if filters.printer_id:
         query = query.filter(MaintenanceHistory.printer_id == filters.printer_id)
+
+    if filters.time_start:
+        query = query.filter(MaintenanceHistory.date >= filters.time_start)
+
+    if filters.time_end:
+        query = query.filter(MaintenanceHistory.date <= filters.time_end)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
 
@@ -198,7 +204,7 @@ async def create_history_trash(history: PrinterTrashHistorySchema, session: Asyn
     return history_db
 
 
-async def get_history_trash(session: AsyncSession, filters: FilterPrinter):
+async def get_history_trash(session: AsyncSession, filters: FilterPrinterHistory):
     query = select(PrinterTrashHistory)
     total = await session.scalar(select(func.count()).select_from(query.subquery()))
 
@@ -207,6 +213,12 @@ async def get_history_trash(session: AsyncSession, filters: FilterPrinter):
 
     if filters.printer_id:
         query = query.filter(PrinterTrashHistory.printer_id == filters.printer_id)
+
+    if filters.time_start:
+        query = query.filter(PrinterTrashHistory.date >= filters.time_start)
+
+    if filters.time_end:
+        query = query.filter(PrinterTrashHistory.date <= filters.time_end)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
     return ListPrinterTrashHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
@@ -264,7 +276,7 @@ async def create_history_alert(history: AlertHistorySchema, session: AsyncSessio
     )
 
 
-async def get_history_alerts(session: AsyncSession, filters: FilterPrinter):
+async def get_history_alerts(session: AsyncSession, filters: FilterPrinterHistory):
     query = select(AlertHistory)
     total = await session.scalar(select(func.count()).select_from(query.subquery()))
 
@@ -273,6 +285,12 @@ async def get_history_alerts(session: AsyncSession, filters: FilterPrinter):
 
     if filters.printer_id:
         query = query.filter(AlertHistory.printer_id == filters.printer_id)
+
+    if filters.time_start:
+        query = query.filter(AlertHistory.date >= filters.time_start)
+
+    if filters.time_end:
+        query = query.filter(AlertHistory.date <= filters.time_end)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
     return ListAlertHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
@@ -321,7 +339,7 @@ async def create_history_status(history: StatusHistorySchema, session: AsyncSess
     return history_db
 
 
-async def get_history_status(session: AsyncSession, filters: FilterPrinter):
+async def get_history_status(session: AsyncSession, filters: FilterPrinterHistory):
     query = select(StatusHistory)
     total = await session.scalar(select(func.count()).select_from(query.subquery()))
 
@@ -330,6 +348,12 @@ async def get_history_status(session: AsyncSession, filters: FilterPrinter):
 
     if filters.printer_id:
         query = query.filter(StatusHistory.printer_id == filters.printer_id)
+
+    if filters.time_start:
+        query = query.filter(StatusHistory.date >= filters.time_start)
+
+    if filters.time_end:
+        query = query.filter(StatusHistory.date <= filters.time_end)
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
     return ListStatusHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore

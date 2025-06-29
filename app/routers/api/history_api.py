@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import has_access
 from app.helpers.database_helper import get_session
-from app.schemas.filter_schema import FilterPrinter, FilterPrinterHistory
+from app.schemas.filter_schema import FilterPrinterHistory
 from app.schemas.history_schema import (
     AlertHistorySchema,
     AlertHistorySchemaDB,
@@ -134,7 +134,7 @@ async def api_create_history_maintenance(
 @history_router.get("/maintenance", status_code=HTTPStatus.OK, response_model=ListMaintenanceHistorySchema)
 async def api_get_history_maintenance(
     session: Annotated[AsyncSession, Depends(get_session)],
-    filters: Annotated[FilterPrinter, Query()],
+    filters: Annotated[FilterPrinterHistory, Query()],
     current_user=has_access(),
 ):
     """
@@ -187,7 +187,7 @@ async def api_delete_history_maintenance(
 @history_router.get("/trash", status_code=HTTPStatus.OK, response_model=ListPrinterTrashHistorySchema)
 async def api_get_history_trash(
     session: Annotated[AsyncSession, Depends(get_session)],
-    filters: Annotated[FilterPrinter, Query()],
+    filters: Annotated[FilterPrinterHistory, Query()],
     current_user=has_access(),
 ):
     """
@@ -235,7 +235,7 @@ async def api_create_history_trash(
 @history_router.get("/alert", status_code=HTTPStatus.OK, response_model=ListAlertHistorySchema)
 async def api_get_history_alerts(
     session: Annotated[AsyncSession, Depends(get_session)],
-    filters: Annotated[FilterPrinter, Query()],
+    filters: Annotated[FilterPrinterHistory, Query()],
     current_user=has_access(),
 ):
     """
@@ -278,7 +278,7 @@ async def api_delete_history_alert(
 @history_router.get("/status", status_code=HTTPStatus.OK, response_model=ListStatusHistorySchema)
 async def api_get_history_status(
     session: Annotated[AsyncSession, Depends(get_session)],
-    filters: Annotated[FilterPrinter, Query()],
+    filters: Annotated[FilterPrinterHistory, Query()],
     current_user=has_access(),
 ):
     """
