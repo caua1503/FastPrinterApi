@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -19,6 +19,12 @@ class FilterPrinterDefault(FilterBase):
 
 class FilterPrinter(FilterPrinterDefault):
     printer_id: Optional[int] = Field(default=None)
+
+
+class FilterPrinterHistory(FilterBase):
+    printer_id: Optional[int] = Field(default=None)
+    time_start: Optional[date] = Field(default=date.today() - timedelta(days=7))
+    time_end: Optional[date] = Field(default=date.today())
 
 
 class FilterLog(FilterBase):
