@@ -10,7 +10,7 @@ from app.models.history_model import StatusHistory
 async def test_get_history_status_empty(client, token):
     response = client.get("/api/v1/history/status", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {"historys": []}
+    assert response.json() == {"historys": [], "total": 0, "count": 0}
 
 
 @pytest.mark.asyncio
@@ -18,6 +18,8 @@ async def test_get_history_status(client, status_history: StatusHistory, token):
     response = client.get("/api/v1/history/status", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
+    assert response_json["total"] == 1
+    assert response_json["count"] == 1
     assert len(response_json["historys"]) > 0
     assert response_json["historys"][0]["id"] == status_history.id
     assert response_json["historys"][0]["printer_id"] == status_history.printer_id
