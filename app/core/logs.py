@@ -23,6 +23,7 @@ async def create_user_log(log: UserLogSchema):
         await session.commit()
         await session.refresh(log_db)
 
+
 async def create_system_log(log: SystemLogSchema):
     async for session in get_session_logs():
         log_db = SystemLog(
