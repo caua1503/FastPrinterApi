@@ -1,5 +1,23 @@
 # FastPrinterAPI
 
+<p align="center">
+  <a href="https://www.python.org" target="_blank">
+    <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  </a>
+  <a href="https://fastapi.tiangolo.com/" target="_blank">
+    <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
+  </a>
+  <a href="https://www.postgresql.org" target="_blank">
+    <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+  </a>
+  <a href="https://redis.io" target="_blank">
+    <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
+  </a>
+  <a href="https://www.docker.com/" target="_blank">
+    <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+  </a>
+</p>
+
 Uma API assíncrona desenvolvida em FastAPI para o gerenciamento centralizado de múltiplas impressoras, com foco em estatísticas, previsões e histórico detalhado de manutenção.
 
 Embora o núcleo do projeto seja a API RESTful, ele também irá incluir uma interface gráfica intuitiva para facilitar a interação e o gerenciamento (em breve).
