@@ -21,5 +21,5 @@ async def api_get_token_jwt(
 
 
 @auth_router.get("/refresh-token", response_model=TokenSchema)
-async def api_refresh_token(current_user=has_access()):
+async def api_refresh_token(current_user=has_access(usage_api_key=False)):
     return await refresh_token(current_user)
