@@ -129,10 +129,12 @@ async def log_api_key_usage(
     task_create_api_key_log.delay(**log_api_key.model_dump())
 
 
-def has_access(
+def has_access(  # noqa: PLR0915
     role: UsersRoleSchema = UsersRoleSchema.member,
     required_user_code: Optional[str] = None,
     required_api_scope: Optional[str] = None,
+    usage_bearer: bool = True,
+    usage_api_key: bool = True,
 ) -> User:
     """
     Dependency to handle user access control.
@@ -141,6 +143,8 @@ def has_access(
     - Admins bypass all role and permission checks.
     - `required_user_code` is checked for JWT authenticated sessions.
     - `required_api_scope` is checked for API Key authenticated sessions.
+    - `usage_bearer` is used to block bearer token authentication for a route.
+    - `usage_api_key` is used to block API Key authentication for a route.
     """
 
     async def dependency(  # noqa: PLR0912
@@ -155,6 +159,19 @@ def has_access(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Invalid or expired token",
         )
+
+        if token and not usage_bearer:
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED,
+                detail="Bearer token authentication not allowed for this route",
+            )
+
+        if api_key and not usage_api_key:
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED,
+                detail="API Key authentication not allowed for this route",
+            )
+
         if token:
             auth_type = "bearer"
             try:
