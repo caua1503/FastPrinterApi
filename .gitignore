@@ -5,7 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
-docs/
+mydocs/
 .env
 .env.local
 .env.development.local
@@ -48,9 +48,8 @@ MANIFEST
 setup.py
 llm_tool_fusion.egg-info
 llm_tool_fusion.egg-info/
-docs
-docs.md
-docs/
+mydocs
+mydocs/
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
