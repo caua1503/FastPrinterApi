@@ -61,6 +61,8 @@ To facilitate the control, monitoring, and maintenance of printer fleets by prov
 - Linter and code formatter (Ruff)
 - Complementary task runner (Taskipy)
 
+📖 Read the documentation to run in [development](docs/en/development.md) mode 
+
 ## Application Architecture
 
 The FastPrinterAPI architecture was designed to be modular, scalable, and easy to maintain, following the best practices for API development with FastAPI. The directory structure reflects a clear separation of responsibilities:

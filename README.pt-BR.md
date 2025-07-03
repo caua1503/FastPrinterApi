@@ -60,6 +60,8 @@ Facilitar o controle, monitoramento e manutenção de parques de impressoras, fo
 - Linter e padronizador de código (Ruff)
 - executor de tarefas complementar (Taskipy)
 
+📖 Leia a documentação para executar no modo [desenvolvimento](docs/pt-br/desenvolvimento.md)
+
 ## Arquitetura da Aplicação
 
 A arquitetura do FastPrinterAPI foi projetada para ser modular, escalável e de fácil manutenção, seguindo as melhores práticas de desenvolvimento de APIs com FastAPI. A estrutura de diretórios reflete uma clara separação de responsabilidades:
