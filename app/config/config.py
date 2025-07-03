@@ -7,7 +7,6 @@ class Config(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: str
     REDIS_DB: int
-    REDIS_URL: str
     DATABASE_URL: str
     DATABASE_LOGS_URL: str
     JWT_ALGORITHM: str

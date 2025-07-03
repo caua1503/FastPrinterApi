@@ -29,7 +29,7 @@ check_error "Logs database migrations failed"
 
 # Initialize database
 log "Initializing database..."
-uv run --no-dev init_db.py -p  #use -p para inicializar em portugues
+uv run --no-dev init_db.py  #use -p para inicializar em portugues
 
 # Start Celery worker in background
 log "Starting Celery worker..."
@@ -38,4 +38,4 @@ uv run --no-dev celery -A celery_worker beat --loglevel=info &
 
 # Start FastAPI server
 log "Starting FastAPI server..."
-uv run --no-dev granian --interface asgi --host 0.0.0.0 --workers 3 --port 8000 app.main:app
+uv run --no-dev granian --interface asgi --host 0.0.0.0 --workers 1 --port 8000 app.main:app

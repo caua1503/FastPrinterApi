@@ -1,10 +1,11 @@
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class PrinterSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     name: str
     model: str
     ip: str
@@ -16,13 +17,14 @@ class PrinterSchemaDB(PrinterSchema):
 
 
 class FullPrinterSchema(BaseModel):
-    supply_id: int
-    status_id: int
+    model_config = ConfigDict(from_attributes=True)
+    supply_id: int = 1
+    status_id: int = 1
     name: str
     brand: str
     model: str
     ip: str
-    department_id: int
+    department_id: int = 1
     description: Optional[str] = None
     forecast: Optional[date] = None
     last_refill: Optional[date] = None
@@ -32,3 +34,10 @@ class FullPrinterSchema(BaseModel):
 
 class FullPrinterSchemaDB(FullPrinterSchema):
     id: int
+
+
+class ListFullPrinterSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    total: int
+    count: int
+    printers: List[FullPrinterSchemaDB]

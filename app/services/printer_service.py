@@ -1,12 +1,12 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.printer_model import Printer
-from app.schemas.filter_schema import FilterPrinter
-from app.schemas.printer_schema import FullPrinterSchema
+from app.schemas.filter_schema import FilterPrinterDefault
+from app.schemas.printer_schema import FullPrinterSchema, ListFullPrinterSchema
 
 
 async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
@@ -40,8 +40,12 @@ async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
     return db_printer
 
 
-async def get_printers(session: AsyncSession, filters: FilterPrinter):
+async def get_printers(session: AsyncSession, filters: FilterPrinterDefault):
     query = select(Printer)
+    total = await session.scalar(select(func.count()).select_from(query.subquery()))
+
+    if not total:
+        return ListFullPrinterSchema(total=0, count=0, printers=[])
 
     if filters.status_id:
         query = query.filter(Printer.status_id == filters.status_id)
@@ -52,7 +56,7 @@ async def get_printers(session: AsyncSession, filters: FilterPrinter):
 
     printers = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
 
-    return printers if printers else []
+    return ListFullPrinterSchema(total=total, count=len(printers), printers=printers)  # type: ignore
 
 
 async def get_printer_id(session: AsyncSession, id: int):

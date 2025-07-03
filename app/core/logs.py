@@ -5,8 +5,8 @@ from redis.exceptions import AuthenticationError, ConnectionError, TimeoutError
 
 from app.core.task import task_create_system_log
 from app.helpers.database_helper import get_session_logs
-from app.models.logs_model import SystemLog, UserLog
-from app.schemas.logs_schema import LogLevelSchema, SystemLogSchema, UserLogSchema
+from app.models.logs_model import ApiKeyLog, SystemLog, UserLog
+from app.schemas.logs_schema import ApiKeyLogSchema, LogLevelSchema, ServiceSchema, SystemLogSchema, UserLogSchema
 
 
 async def create_user_log(log: UserLogSchema):
@@ -21,6 +21,7 @@ async def create_user_log(log: UserLogSchema):
         )
         session.add(log_db)
         await session.commit()
+        await session.refresh(log_db)
 
 
 async def create_system_log(log: SystemLogSchema):
@@ -34,6 +35,22 @@ async def create_system_log(log: SystemLogSchema):
         )
         session.add(log_db)
         await session.commit()
+        await session.refresh(log_db)
+
+
+async def create_api_key_log(log: ApiKeyLogSchema):
+    async for session in get_session_logs():
+        log_db = ApiKeyLog(
+            api_key_id=log.api_key_id,
+            user_id=log.user_id,
+            action=log.action,
+            route=log.route,
+            timestamp=log.timestamp,
+            description=log.description,
+        )
+        session.add(log_db)
+        await session.commit()
+        await session.refresh(log_db)
 
 
 async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] = None):
@@ -42,37 +59,37 @@ async def create_redis_log(erro: Exception, level_log: Optional[LogLevelSchema] 
             message=str(erro),
             description="Connection error",
             level=LogLevelSchema.CRITICAL,
-            service="Redis",
+            service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
-        await task_create_system_log.delay(erro_log)
+        task_create_system_log.delay(**erro_log.model_dump())
 
     elif isinstance(erro, TimeoutError):
         erro_log = SystemLogSchema(
             message=str(erro),
             description="Timeout error",
             level=LogLevelSchema.CRITICAL,
-            service="Redis",
+            service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
-        await task_create_system_log.delay(erro_log)
+        task_create_system_log.delay(**erro_log.model_dump())
 
     elif isinstance(erro, AuthenticationError):
         erro_log = SystemLogSchema(
             message=str(erro),
             description="Authentication error",
             level=LogLevelSchema.CRITICAL,
-            service="Redis",
+            service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
-        await task_create_system_log.delay(erro_log)
+        task_create_system_log.delay(**erro_log.model_dump())
 
     else:
         erro_log = SystemLogSchema(
             message=str(erro),
             description="Unknown Redis error",
             level=LogLevelSchema.WARNING if level_log is None else level_log,
-            service="Redis",
+            service=ServiceSchema.REDIS,
             timestamp=datetime.now(),
         )
-        await task_create_system_log.delay(erro_log)
+        task_create_system_log.delay(**erro_log.model_dump())

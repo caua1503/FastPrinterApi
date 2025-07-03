@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Config
+from app.core.task import task_create_api_key_log
 from app.helpers.database_helper import get_redis_client, get_session
 from app.helpers.redis_helper import (
     redis_get_value,
@@ -25,6 +26,7 @@ from app.models.user_model import (
     UserPermission,
     UsersRoleSchema,
 )
+from app.schemas.logs_schema import ApiKeyActionSchema, ApiKeyLogSchema
 
 config = Config()  # pyright: ignore
 
@@ -65,7 +67,6 @@ async def verify_api_key_db(session: AsyncSession, api_key: str) -> bool:
 async def get_api_key(session: AsyncSession) -> str:
     while True:
         api_key = generate_api_key()
-        print(api_key)
         existing_api_key = await verify_api_key_db(session, api_key)
         if not existing_api_key:
             return api_key
@@ -93,6 +94,41 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
+async def log_api_key_usage(
+    session: AsyncSession,
+    api_key: str,
+    user_id: int,
+    request: Request,
+) -> None:
+    """
+    Helper function to record API Key usage logs.
+
+    Args:
+        session: Database session (logs_database)
+        api_key: API Key used
+        user_id: User ID that used the API Key
+        request: FastAPI Request object to capture the route
+        action: Action performed (default: GET)
+    """
+    stmt_api_key = select(UserApiKey).where(UserApiKey.api_key == api_key)
+    result_api_key = await session.execute(stmt_api_key)
+    api_key_obj = result_api_key.scalar_one()
+    user_action = (
+        ApiKeyActionSchema(request.method.lower())
+        if request.method.lower() in [action.value for action in ApiKeyActionSchema]
+        else ApiKeyActionSchema.GET
+    )
+    print(user_action)
+    log_api_key = ApiKeyLogSchema(
+        user_id=user_id,
+        api_key_id=api_key_obj.id,
+        action=user_action,
+        route=str(request.url.path),
+        timestamp=datetime.now(),
+    )
+    task_create_api_key_log.delay(**log_api_key.model_dump())
+
+
 def has_access(
     role: UsersRoleSchema = UsersRoleSchema.member,
     required_user_code: Optional[str] = None,
@@ -108,13 +144,17 @@ def has_access(
     """
 
     async def dependency(  # noqa: PLR0912
+        request: Request,
         token: Optional[str] = Depends(oauth2_scheme),
         api_key: Optional[str] = Depends(api_key_scheme),
         session: AsyncSession = Depends(get_session),
     ):
         user: Optional[User] = None
         auth_type: Optional[str] = None
-
+        error_auth = HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
         if token:
             auth_type = "bearer"
             try:
@@ -122,16 +162,15 @@ def has_access(
                 user_id = payload.get("sub")
 
                 if not user_id:
-                    raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid token")
+                    raise error_auth
 
                 result = await session.execute(select(User).where(User.id == int(user_id)))
                 user = result.scalar_one_or_none()
 
-            except jwt.PyJWTError:
-                raise HTTPException(
-                    status_code=HTTPStatus.UNAUTHORIZED,
-                    detail="Invalid or expired token",
-                )
+            except jwt.DecodeError:
+                raise error_auth
+            except jwt.ExpiredSignatureError:
+                raise error_auth
 
         elif api_key:
             auth_type = "apikey"
@@ -139,24 +178,21 @@ def has_access(
             result = await session.execute(stmt)
             user = result.scalar_one_or_none()
 
+            if user:
+                await log_api_key_usage(session, api_key, user.id, request)
+
         if not auth_type:
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED,
-                detail="Not authenticated",
-            )
+            raise error_auth
 
         if not user:
-            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid credentials")
+            raise error_auth
 
         # Authorization checks
         if user.role == UsersRoleSchema.admin:
             return user  # Admins can do anything
 
         if user.role != role:
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN,
-                detail=f"User role '{user.role.value}' not allowed for this resource",
-            )
+            raise error_auth
 
         # Permission checks based on authentication method
         if auth_type == "bearer" and required_user_code:
@@ -164,20 +200,18 @@ def has_access(
             permissions_result = await session.execute(stmt)
             user_permissions = {code for (code,) in permissions_result}
             if required_user_code not in user_permissions:
-                raise HTTPException(
-                    status_code=HTTPStatus.FORBIDDEN,
-                    detail=f"Missing required permission: {required_user_code}",
-                )
+                raise error_auth
 
         if auth_type == "apikey" and required_api_scope:
             stmt = select(PermissionApiKey.code).join(UserApiKey).where(UserApiKey.user_id == user.id)
             permissions_result = await session.execute(stmt)
             api_permissions = {code for (code,) in permissions_result}
+
             if required_api_scope not in api_permissions:
-                raise HTTPException(
-                    status_code=HTTPStatus.FORBIDDEN,
-                    detail=f"Missing required API permission: {required_api_scope}",
-                )
+                raise error_auth
+
+            if api_key:  # Verificação adicional para o tipo checker
+                await log_api_key_usage(session, api_key, user.id, request)
 
         return user
 

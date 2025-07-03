@@ -26,13 +26,34 @@ from app.helpers.utils_helper import (
 
 
 async def verify_redis_value(key: str, redis_client: Optional[redis.Redis] = None) -> bool:
-    if redis_client is None:
-        redis_client = await get_redis_client()
-    exists = await redis_client.exists(key)
-    return True if exists == 1 else False
+    """
+    Verify if a value exists in Redis
+    Args:
+        key: Redis key to verify
+        redis_client: Optional Redis client
+    return:
+        True (bool): If the value exists or False if not
+    """
 
+    try:
+        if redis_client is None:
+            redis_client = await get_redis_client()
+        exists = await redis_client.exists(key)
+        return True if exists == 1 else False
+    except Exception as error:
+        asyncio.create_task(create_redis_log(error))
+        raise error
 
 async def redis_set_value(key: str, value: Any, redis_client: Optional[redis.Redis] = None, **kwargs):
+    """
+    Args:
+        key: Redis key to save
+        value: The value to save
+        redis_client: Optional Redis client
+        **kwargs : accept all redis.set() functions
+    return:
+        True (bool): Opicional, indicates that it was successfully saved
+    """
     try:
         if redis_client is None:
             redis_client = await get_redis_client()
@@ -45,6 +66,14 @@ async def redis_set_value(key: str, value: Any, redis_client: Optional[redis.Red
 
 
 async def redis_get_value(key: str, redis_client: Optional[redis.Redis] = None):
+    """
+    Get a value from Redis
+    Args:
+        key: Redis key to get
+        redis_client: Optional Redis client
+    return:
+        The value from Redis or None if not found
+    """
     try:
         if redis_client is None:
             redis_client = await get_redis_client()

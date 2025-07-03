@@ -1,6 +1,6 @@
 import json
 from datetime import date, datetime
-from typing import Any, List, Type, TypeVar, Union
+from typing import Any, List, Literal, Type, TypeVar, Union
 
 from pydantic import BaseModel, TypeAdapter
 
@@ -67,3 +67,48 @@ def deserialize_from_json(data: dict, model: Type[ModelType]) -> ModelType:
     """
     processed_data = _decode_data(data)
     return model.model_validate(processed_data)
+
+
+def convert_time(
+    time: int,
+    mode: Literal["milliseconds", "seconds", "minutes", "hours", "days"] = "minutes",
+    output: Literal["milliseconds", "seconds", "minutes", "hours", "days"] = "milliseconds",
+) -> int:
+    """
+    This function is for time conversions for functions that need it.
+    Args:
+        time: the integer value to convert
+        mode: defines the type of time (input)
+        output: sets the output type after conversion
+    
+    Returns:
+        int: the converted time value as integer
+    """
+    
+    if mode == "milliseconds":
+        time_in_seconds = time / 1000
+    elif mode == "seconds":
+        time_in_seconds = time
+    elif mode == "minutes":
+        time_in_seconds = time * 60
+    elif mode == "hours":
+        time_in_seconds = time * 3600
+    elif mode == "days":
+        time_in_seconds = time * 86400
+    else:
+        raise ValueError("Invalid mode: use milliseconds, seconds, minutes, hours, days")
+  
+    if output == "milliseconds":
+        result = time_in_seconds * 1000
+    elif output == "seconds":
+        result = time_in_seconds
+    elif output == "minutes":
+        result = time_in_seconds / 60
+    elif output == "hours":
+        result = time_in_seconds / 3600
+    elif output == "days":
+        result = time_in_seconds / 86400
+    else:
+        raise ValueError("Invalid output: use milliseconds, seconds, minutes, hours, days")
+    
+    return int(result)

@@ -11,7 +11,7 @@ from app.models.printer_model import Printer
 async def test_get_history_maintenance_empty(client, token):
     response = client.get("/api/v1/history/maintenance", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {"historys": []}
+    assert response.json() == {"historys": [], "total": 0, "count": 0}
 
 
 @pytest.mark.asyncio
@@ -19,6 +19,8 @@ async def test_get_history_maintenance(client, maintenance_history: MaintenanceH
     response = client.get("/api/v1/history/maintenance", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
+    assert response_json["total"] == 1
+    assert response_json["count"] == 1
     assert response_json["historys"][0]["id"] == maintenance_history.id
     assert response_json["historys"][0]["printer_id"] == maintenance_history.printer_id
     assert response_json["historys"][0]["date"] == maintenance_history.date.strftime("%Y-%m-%d")
@@ -89,6 +91,8 @@ async def test_get_history_maintenance_by_printer_id(
     )
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
+    assert response_json["total"] == 1
+    assert response_json["count"] == 1
     assert len(response_json["historys"]) > 0
     assert response_json["historys"][0]["printer_id"] == printer.id
     assert response_json["historys"][0]["id"] == maintenance_history.id
