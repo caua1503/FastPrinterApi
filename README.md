@@ -55,6 +55,8 @@ To facilitate the control, monitoring, and maintenance of printer fleets by prov
 - Alembic (migrations)
 - Docker (optional)
 
+📖 Read the documentation to run in [production](docs/en/production.md) mode 
+
 ## Technologies Used (Development)
 
 - Automated tests (pytest)

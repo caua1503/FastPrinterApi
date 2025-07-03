@@ -53,6 +53,7 @@ Facilitar o controle, monitoramento e manutenção de parques de impressoras, fo
 - Alembic (migrações)
 - Docker (opcional)
 
+📖 Leia a documentação para executar no modo de [producao](docs/pt-br/producao.md)
 
 ## Tecnologias Utilizadas (Desenvolvimento)
 
@@ -60,7 +61,7 @@ Facilitar o controle, monitoramento e manutenção de parques de impressoras, fo
 - Linter e padronizador de código (Ruff)
 - executor de tarefas complementar (Taskipy)
 
-📖 Leia a documentação para executar no modo [desenvolvimento](docs/pt-br/desenvolvimento.md)
+📖 Leia a documentação para executar no modo de [desenvolvimento](docs/pt-br/desenvolvimento.md)
 
 ## Arquitetura da Aplicação
 
