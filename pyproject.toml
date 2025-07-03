@@ -47,6 +47,8 @@ pythonpath= "."
 
 [tool.taskipy.tasks]
 run = "uv run fastapi dev ./app"
+dev = "bash development.sh"
+windev = "uv run python create_env.py --no_interative && docker build --no-cache -t fastprinterapi:latest . && docker compose up -d"
 test = "uv run ruff format && uv run ruff check && uv run pytest"
 lint = "uv run ruff format && uv run ruff check --fix"
 check = "uv run ruff check"
