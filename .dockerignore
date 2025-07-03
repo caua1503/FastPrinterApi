@@ -10,3 +10,4 @@ venv/
 docs/
 docs.md
 *.log
+development.sh
