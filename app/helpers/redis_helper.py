@@ -44,6 +44,7 @@ async def verify_redis_value(key: str, redis_client: Optional[redis.Redis] = Non
         asyncio.create_task(create_redis_log(error))
         raise error
 
+
 async def redis_set_value(key: str, value: Any, redis_client: Optional[redis.Redis] = None, **kwargs):
     """
     Args:
