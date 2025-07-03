@@ -86,3 +86,5 @@ FastPrinterAPi/
   init_db.py          # Script para inicializar o banco de dados com dados padrão
   ...
 ```
+
+📖 Leia o [guia de desenvolvimento](docs/pt-br/guia_dev.md) para entender decisões de arquitetura

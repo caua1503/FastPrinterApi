@@ -88,3 +88,5 @@ FastPrinterAPi/
   init_db.py          # Script to initialize the database with default data
   ...
 ```
+
+📖 Read the [development guide](docs/en/guide_dev.md) to understand architectural decisions
