@@ -147,7 +147,7 @@ def has_access(  # noqa: PLR0915
     - `usage_api_key` is used to block API Key authentication for a route.
     """
 
-    async def dependency(  # noqa: PLR0912
+    async def dependency(  # noqa: PLR0912, PLR0915
         request: Request,
         token: Optional[str] = Depends(oauth2_scheme),
         api_key: Optional[str] = Depends(api_key_scheme),
@@ -188,6 +188,8 @@ def has_access(  # noqa: PLR0915
                 raise error_auth
             except jwt.ExpiredSignatureError:
                 raise error_auth
+            except Exception:
+                raise error_auth
 
         elif api_key:
             auth_type = "apikey"
@@ -227,7 +229,7 @@ def has_access(  # noqa: PLR0915
             if required_api_scope not in api_permissions:
                 raise error_auth
 
-            if api_key:  # Verificação adicional para o tipo checker
+            if api_key:
                 await log_api_key_usage(session, api_key, user.id, request)
 
         return user
