@@ -31,14 +31,16 @@ async def api_create_user(session: Annotated[AsyncSession, Depends(get_session)]
     return await create_user(session, user)
 
 
-@user_router.delete("/{id}", status_code=HTTPStatus.NO_CONTENT)
-async def api_delete_user(session: Annotated[AsyncSession, Depends(get_session)], id: int):
-    await delete_user(session, id)
+@user_router.delete("/", status_code=HTTPStatus.NO_CONTENT)
+async def api_delete_user(session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
+    await delete_user(session, current_user.id)
 
 
-@user_router.put("/{id}", response_model=UserPublicSchema, status_code=HTTPStatus.OK)
-async def api_update_user(session: Annotated[AsyncSession, Depends(get_session)], id: int, user: UserUpdateSchema):
-    return await update_user(session, id, user)
+@user_router.put("/", response_model=UserPublicSchema, status_code=HTTPStatus.OK)
+async def api_update_user(
+    session: Annotated[AsyncSession, Depends(get_session)], user: UserUpdateSchema, current_user=has_access()
+):
+    return await update_user(session, current_user.id, user)
 
 
 @user_router.put("/change-password/", status_code=HTTPStatus.NO_CONTENT)
@@ -57,6 +59,6 @@ async def api_get_api_key_from_user_id(
     return await get_api_key_from_user_id(session, current_user.id)
 
 
-@user_router.get("/new-api-key/", response_model=UserApiKeySchema, status_code=HTTPStatus.OK)
+@user_router.post("/new-api-key/", response_model=UserApiKeySchema, status_code=HTTPStatus.CREATED)
 async def api_get_api_key(session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
     return await create_api_key(session, current_user.id)
