@@ -13,11 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Config
 from app.core.task import task_create_api_key_log
-from app.helpers.database_helper import get_redis_client, get_session
-from app.helpers.redis_helper import (
-    redis_get_value,
-    # redis_set_value,
-)
+from app.helpers.database_helper import get_session
 from app.models.user_model import (
     PermissionApiKey,
     PermissionUser,
@@ -70,18 +66,6 @@ async def get_api_key(session: AsyncSession) -> str:
         existing_api_key = await verify_api_key_db(session, api_key)
         if not existing_api_key:
             return api_key
-
-
-async def get_jtw_code() -> str:
-    redis_client = await get_redis_client()
-
-    while True:
-        jwt_code = generate_random_code(32)
-        existing_jwt_code = await redis_get_value(jwt_code, redis_client)
-
-        if not existing_jwt_code:
-            # await redis_set_value(jwt_code, jwt_code, redis_client)
-            return jwt_code
 
 
 def create_access_token(data: dict) -> str:
