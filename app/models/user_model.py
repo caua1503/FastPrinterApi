@@ -110,6 +110,7 @@ class UserConfiguration:
     webhook_enabled: Mapped[bool] = mapped_column(default=False)
     webhook_url: Mapped[Optional[str]] = mapped_column(default=None)
     first_access: Mapped[bool] = mapped_column(default=True)  # logica para o usuario trocar a senha assim que entrar
+    created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now(), onupdate=func.now())
 
     user: Mapped["User"] = relationship(back_populates="configuration", init=False)
