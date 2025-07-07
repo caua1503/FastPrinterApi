@@ -15,7 +15,7 @@ async def get_printers(session: AsyncSession):
     return printers_database
 
 
-async def extract_datas_recharge(printer_id: int, session: AsyncSession, filters: FilterBase) -> List:
+async def extract_dates_recharge(printer_id: int, session: AsyncSession, filters: FilterBase) -> List:
     history_recharge = (
         await session.scalars(
             select(RefillHistory)
@@ -25,12 +25,12 @@ async def extract_datas_recharge(printer_id: int, session: AsyncSession, filters
         )
     ).all()
     if history_recharge:
-        return [recharge.data for recharge in history_recharge]
+        return [recharge.date for recharge in history_recharge]
     else:
         return []
 
 
-async def extract_trash_datas(printer_id: int, session: AsyncSession, filters: FilterBase) -> List:
+async def extract_trash_dates(printer_id: int, session: AsyncSession, filters: FilterBase) -> List:
     history_trash = (
         await session.scalars(
             select(PrinterTrashHistory)
@@ -40,7 +40,7 @@ async def extract_trash_datas(printer_id: int, session: AsyncSession, filters: F
         )
     ).all()
     if history_trash:
-        return [trash.data for trash in history_trash]
+        return [trash.date for trash in history_trash]
     else:
         return []
 

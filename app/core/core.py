@@ -7,8 +7,8 @@ from app.helpers.core_helper import (
     calculate_recharge_percentage,
     calculate_trash_cleaning_next_time,
     calculate_trash_cleaning_percentage,
-    extract_datas_recharge,
-    extract_trash_datas,
+    extract_dates_recharge,
+    extract_trash_dates,
     get_printers,
 )
 from app.schemas.filter_schema import FilterBase
@@ -34,8 +34,8 @@ async def get_all_printers_maintenance_info(session: AsyncSession, filters: Filt
     result = []
 
     for printer in printers:
-        datas_recarga = await extract_datas_recharge(printer.id, session, filters)
-        trash_datas = await extract_trash_datas(printer.id, session, filters)
+        datas_recarga = await extract_dates_recharge(printer.id, session, filters)
+        trash_datas = await extract_trash_dates(printer.id, session, filters)
 
         if datas_recarga:
             next_recharge_date = calculate_next_recharge(datas_recarga, "media")
@@ -92,8 +92,8 @@ async def get_printer_maintenance_info(printer_id: int, session: AsyncSession, f
             - trash_cleaning_next_time (date | None): Próxima data de limpeza da lixeira como objeto date ou None
             - trash_cleaning_percentage (float): Percentual de necessidade de limpeza da lixeira (0.0-100.0)
     """
-    datas_recarga = await extract_datas_recharge(printer_id, session, filters)
-    trash_datas = await extract_trash_datas(printer_id, session, filters)
+    datas_recarga = await extract_dates_recharge(printer_id, session, filters)
+    trash_datas = await extract_trash_dates(printer_id, session, filters)
 
     if datas_recarga:
         next_recharge_date = calculate_next_recharge(datas_recarga, "media")
