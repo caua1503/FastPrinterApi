@@ -15,3 +15,9 @@ class PrinterMaintenanceInfoSchema(BaseModel):
 
 class PrinterMaintenanceInfoSchemaDB(PrinterMaintenanceInfoSchema):
     id: int
+
+
+class ListPrinterMaintenanceInfoSchema(BaseModel):
+    total: int
+    count: int
+    list: list[PrinterMaintenanceInfoSchemaDB]
