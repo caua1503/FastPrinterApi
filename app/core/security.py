@@ -1,3 +1,4 @@
+import asyncio
 import random
 import string
 from datetime import datetime, timedelta, timezone
@@ -12,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Config
-from app.core.task import task_create_api_key_log
+from app.core.task import task_create_api_key_log, task_create_system_log
 from app.helpers.database_helper import get_session
 from app.models.user_model import (
     PermissionApiKey,
@@ -22,7 +23,7 @@ from app.models.user_model import (
     UserPermission,
     UsersRoleSchema,
 )
-from app.schemas.logs_schema import ApiKeyActionSchema, ApiKeyLogSchema
+from app.schemas.logs_schema import ApiKeyActionSchema, ApiKeyLogSchema, LogLevelSchema, ServiceSchema, SystemLogSchema
 
 config = Config()  # pyright: ignore
 
@@ -94,23 +95,32 @@ async def log_api_key_usage(
         request: FastAPI Request object to capture the route
         action: Action performed (default: GET)
     """
-    stmt_api_key = select(UserApiKey).where(UserApiKey.api_key == api_key)
-    result_api_key = await session.execute(stmt_api_key)
-    api_key_obj = result_api_key.scalar_one()
-    user_action = (
-        ApiKeyActionSchema(request.method.lower())
-        if request.method.lower() in [action.value for action in ApiKeyActionSchema]
-        else ApiKeyActionSchema.GET
-    )
-    print(user_action)
-    log_api_key = ApiKeyLogSchema(
-        user_id=user_id,
-        api_key_id=api_key_obj.id,
-        action=user_action,
-        route=str(request.url.path),
-        timestamp=datetime.now(),
-    )
-    task_create_api_key_log.delay(**log_api_key.model_dump())
+    try:
+        stmt_api_key = select(UserApiKey).where(UserApiKey.api_key == api_key)
+        result_api_key = await session.execute(stmt_api_key)
+        api_key_obj = result_api_key.scalar_one()
+        user_action = (
+            ApiKeyActionSchema(request.method.lower())
+            if request.method.lower() in [action.value for action in ApiKeyActionSchema]
+            else ApiKeyActionSchema.GET
+        )
+
+        log_api_key = ApiKeyLogSchema(
+            user_id=user_id,
+            api_key_id=api_key_obj.id,
+            action=user_action,
+            route=str(request.url.path),
+            timestamp=datetime.now(),
+        )
+        task_create_api_key_log.delay(**log_api_key.model_dump())
+    except Exception as e:
+        system_log = SystemLogSchema(
+            message=f"Error logging API Key usage: {e}",
+            service=ServiceSchema.OTHER,
+            level=LogLevelSchema.ERROR,
+            timestamp=datetime.now(),
+        )
+        task_create_system_log.delay(**system_log.model_dump())
 
 
 def has_access(  # noqa: PLR0915
@@ -182,7 +192,7 @@ def has_access(  # noqa: PLR0915
             user = result.scalar_one_or_none()
 
             if user:
-                await log_api_key_usage(session, api_key, user.id, request)
+                asyncio.create_task(log_api_key_usage(session, api_key, user.id, request))
 
         if not auth_type:
             raise error_auth
@@ -214,7 +224,7 @@ def has_access(  # noqa: PLR0915
                 raise error_auth
 
             if api_key:
-                await log_api_key_usage(session, api_key, user.id, request)
+                asyncio.create_task(log_api_key_usage(session, api_key, user.id, request))
 
         return user
 
