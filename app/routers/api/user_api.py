@@ -28,7 +28,12 @@ user_router = APIRouter()
 
 @user_router.post("/", response_model=UserPublicSchema, status_code=HTTPStatus.CREATED)
 async def api_create_user(session: Annotated[AsyncSession, Depends(get_session)], user: UserCreateSchema):
-    return await create_user(session, user)
+    new_user = await create_user(session, user)
+    return UserPublicSchema(
+        id=new_user.id,
+        login=new_user.login,
+        name=new_user.name,
+    )
 
 
 @user_router.delete("/", status_code=HTTPStatus.NO_CONTENT)
