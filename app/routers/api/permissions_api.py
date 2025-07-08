@@ -29,7 +29,7 @@ permissions_router = APIRouter()
 @permissions_router.get("/user")
 async def api_get_all_permissions_user(
     session: Annotated[AsyncSession, Depends(get_session)],
-    current_user=has_access(role=UsersRoleSchema.admin),
+    current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
 ):
     result = await get_all_permissions_user(session)
     return result
@@ -38,7 +38,7 @@ async def api_get_all_permissions_user(
 @permissions_router.get("/api_key")
 async def api_get_all_permissions_api_key(
     session: Annotated[AsyncSession, Depends(get_session)],
-    current_user=has_access(role=UsersRoleSchema.admin),
+    current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
 ):
     result = await get_all_permissions_api_key(session)
     return result
@@ -48,7 +48,7 @@ async def api_get_all_permissions_api_key(
 async def api_create_permission_user(
     permission: PermissionUserSchema,
     session: Annotated[AsyncSession, Depends(get_session)],
-    current_user=has_access(role=UsersRoleSchema.admin),
+    current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
 ):
     result = await create_permission_user(permission, session)
     return result
@@ -58,7 +58,7 @@ async def api_create_permission_user(
 async def api_create_permission_api_key(
     permission: PermissionApiKeySchema,
     session: Annotated[AsyncSession, Depends(get_session)],
-    current_user=has_access(role=UsersRoleSchema.admin),
+    current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
 ):
     result = await create_permission_api_key(permission, session)
     return result
@@ -69,7 +69,7 @@ async def api_update_permission_user(
     permission_id: int,
     permission: PermissionUserUpdateSchema,
     session: Annotated[AsyncSession, Depends(get_session)],
-    current_user=has_access(role=UsersRoleSchema.admin),
+    current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
 ):
     result = await update_permission_user(permission_id, permission, session)
     return result
@@ -80,7 +80,7 @@ async def api_update_permission_api_key(
     permission_id: int,
     permission: PermissionApiKeyUpdateSchema,
     session: Annotated[AsyncSession, Depends(get_session)],
-    current_user=has_access(role=UsersRoleSchema.admin),
+    current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
 ):
     result = await update_permission_api_key(permission_id, permission, session)
     return result
@@ -90,7 +90,7 @@ async def api_update_permission_api_key(
 async def api_delete_permission_user(
     permission_id: int,
     session: Annotated[AsyncSession, Depends(get_session)],
-    current_user=has_access(role=UsersRoleSchema.admin),
+    current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
 ):
     result = await delete_permission_user(permission_id, session)
     return result
@@ -100,7 +100,7 @@ async def api_delete_permission_user(
 async def api_delete_permission_api_key(
     permission_id: int,
     session: Annotated[AsyncSession, Depends(get_session)],
-    current_user=has_access(role=UsersRoleSchema.admin),
+    current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
 ):
     result = await delete_permission_api_key(permission_id, session)
     return result
