@@ -12,6 +12,18 @@ class OrderBy(str, Enum):
     desc = "desc"
 
 
+class OrderByField(str, Enum):
+    date = "date"
+
+
+class OrderByFieldPrinter(str, Enum):
+    created_at = "created_at"
+    forecast = "forecast"
+    last_refill = "last_refill"
+    last_maintenance = "last_maintenance"
+    last_check = "last_check"
+
+
 class FilterBase(BaseModel):
     limit: int = Field(default=10, ge=1, le=100)
     offset: int = Field(default=0, ge=0)
@@ -21,6 +33,8 @@ class FilterPrinterDefault(FilterBase):
     status_id: Optional[int] = Field(default=None)
     supply_id: Optional[int] = Field(default=None)
     department_id: Optional[int] = Field(default=None)
+    order_by: Optional[OrderBy] = Field(default=OrderBy.desc)
+    order_by_field: Optional[OrderByFieldPrinter] = Field(default=OrderByFieldPrinter.created_at)
 
 
 class FilterPrinter(FilterPrinterDefault):
@@ -47,4 +61,8 @@ class FilterLogUser(FilterLog):
 
 
 class FilterLogSystem(FilterLog):
+    pass
+
+
+class FilterLogApiKey(FilterLog):
     pass

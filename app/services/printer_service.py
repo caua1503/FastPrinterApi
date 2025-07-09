@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.printer_model import Printer
-from app.schemas.filter_schema import FilterPrinterDefault
+from app.schemas.filter_schema import FilterPrinterDefault, OrderBy, OrderByFieldPrinter
 from app.schemas.printer_schema import (
     DepartmentIdSchema,
     FullPrinterPublicSchema,
@@ -63,6 +63,21 @@ async def get_printers(session: AsyncSession, filters: FilterPrinterDefault):
         query = query.filter(Printer.supply_id == filters.supply_id)
     if filters.department_id:
         query = query.filter(Printer.department_id == filters.department_id)
+
+    if filters.order_by_field:
+        order_by_mapping = {
+            OrderByFieldPrinter.created_at: Printer.created_at,
+            OrderByFieldPrinter.forecast: Printer.forecast,
+            OrderByFieldPrinter.last_refill: Printer.last_refill,
+            OrderByFieldPrinter.last_maintenance: Printer.last_maintenance,
+            OrderByFieldPrinter.last_check: Printer.last_check,
+        }
+        column = order_by_mapping[filters.order_by_field]
+        query = query.order_by(column.desc() if filters.order_by == OrderBy.desc else column.asc())
+    else:
+        query = query.order_by(
+            Printer.created_at.desc() if filters.order_by == OrderBy.desc else Printer.created_at.asc()
+        )
 
     query = (
         query.options(
