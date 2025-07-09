@@ -46,8 +46,9 @@ class FullPrinterSchema(BaseModel):
     last_maintenance: Optional[date] = None
     last_check: Optional[date] = None
 
+
 class FullPrinterSchemaDB(BaseModel):
-    # FullPrintSchemaDB was previously an extension of FullPrintSchema, 
+    # FullPrintSchemaDB was previously an extension of FullPrintSchema,
     # like this: (FullPrinterSchemaDB(FullPrinterSchema)), but for json aesthetics it was duplicated
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -63,6 +64,7 @@ class FullPrinterSchemaDB(BaseModel):
     last_refill: Optional[date] = None
     last_maintenance: Optional[date] = None
     last_check: Optional[date] = None
+
 
 class FullPrinterPublicSchema(FullPrinterSchemaDB):
     supply_id: SupplyIdSchema  # type: ignore
