@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -6,8 +7,13 @@ from pydantic import BaseModel, Field
 from app.schemas.logs_schema import LogLevelSchema, ServiceSchema
 
 
+class OrderBy(str, Enum):
+    asc = "asc"
+    desc = "desc"
+
+
 class FilterBase(BaseModel):
-    limit: int = Field(default=10, ge=1)
+    limit: int = Field(default=10, ge=1, le=100)
     offset: int = Field(default=0, ge=0)
 
 
@@ -25,6 +31,7 @@ class FilterPrinterHistory(FilterBase):
     printer_id: Optional[int] = Field(default=None)
     time_start: Optional[date] = Field(default=date.today() - timedelta(days=7))
     time_end: Optional[date] = Field(default=date.today())
+    order_by: Optional[OrderBy] = Field(default=OrderBy.desc)
 
 
 class FilterLog(FilterBase):
@@ -32,6 +39,7 @@ class FilterLog(FilterBase):
     level: Optional[LogLevelSchema] = Field(default=None)
     time_start: Optional[datetime] = Field(default=datetime.now() - timedelta(days=7))
     time_end: Optional[datetime] = Field(default=datetime.now())
+    order_by: Optional[OrderBy] = Field(default=OrderBy.desc)
 
 
 class FilterLogUser(FilterLog):
