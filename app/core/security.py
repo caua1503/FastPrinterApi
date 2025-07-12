@@ -10,6 +10,7 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Config
@@ -99,10 +100,11 @@ async def log_api_key_usage(
         stmt_api_key = select(UserApiKey).where(UserApiKey.api_key == api_key)
         result_api_key = await session.execute(stmt_api_key)
         api_key_obj = result_api_key.scalar_one()
+        http_method = request.method.upper()
         user_action = (
-            ApiKeyActionSchema(request.method.lower())
-            if request.method.lower() in [action.value for action in ApiKeyActionSchema]
-            else ApiKeyActionSchema.GET
+            ApiKeyActionSchema(http_method)
+            if http_method in [action.value for action in ApiKeyActionSchema]
+            else ApiKeyActionSchema.ANY
         )
 
         log_api_key = ApiKeyLogSchema(
@@ -182,6 +184,21 @@ def has_access(  # noqa: PLR0915
                 raise error_auth
             except jwt.ExpiredSignatureError:
                 raise error_auth
+            except OperationalError as erro:
+                from app.core.task import task_create_system_log  # noqa: PLC0415
+
+                log = SystemLogSchema(
+                    message="Error connecting to database",
+                    description=str(erro),
+                    level=LogLevelSchema.CRITICAL,
+                    service=ServiceSchema.POSTGRES,
+                    timestamp=datetime.now(),
+                )
+                task_create_system_log.delay(**log.model_dump())
+                raise HTTPException(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    detail="Error connecting to database",
+                )
             except Exception:
                 raise error_auth
 

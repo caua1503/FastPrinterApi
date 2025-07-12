@@ -6,25 +6,30 @@ from pydantic import BaseModel, ConfigDict
 
 
 class LogLevelSchema(str, Enum):
-    DEBUG = "debug"
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
-    CRITICAL = "critical"
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
 
 
 class ServiceSchema(str, Enum):
-    REDIS = "redis"
-    POSTGRES = "postgres"
-    OTHER = "other"
+    REDIS = "REDIS"
+    POSTGRES = "POSTGRES"
+    OTHER = "OTHER"
 
 
 class ApiKeyActionSchema(str, Enum):
-    GET = "get"
-    POST = "post"
-    PUT = "put"
-    DELETE = "delete"
-    PATCH = "patch"
+    GET = "GET"
+    POST = "POST"
+    PUT = "PUT"
+    DELETE = "DELETE"
+    PATCH = "PATCH"
+    HEAD = "HEAD"
+    OPTIONS = "OPTIONS"
+    TRACE = "TRACE"
+    CONNECT = "CONNECT"
+    ANY = "ANY"
 
 
 class LogDescriptionSchema(str, Enum):

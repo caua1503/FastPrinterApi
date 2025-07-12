@@ -1,12 +1,14 @@
 import asyncio
+from datetime import datetime
 from http import HTTPStatus
 
 import redis.asyncio as redis
 from fastapi import HTTPException
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app.config import Config
-from app.schemas.logs_schema import LogLevelSchema
+from app.schemas.logs_schema import LogLevelSchema, ServiceSchema, SystemLogSchema
 
 config = Config()  # pyright: ignore
 
@@ -22,13 +24,29 @@ pool = redis.ConnectionPool(
 
 
 async def get_session():
-    async with AsyncSession(engine) as session:
-        yield session
+    try:
+        async with AsyncSession(engine) as session:
+            yield session
+    except OperationalError as erro:
+        log = SystemLogSchema(
+            message="Error connecting to database",
+            description=str(erro),
+            level=LogLevelSchema.CRITICAL,
+            service=ServiceSchema.POSTGRES,
+            timestamp=datetime.now(),
+        )
+        from app.core.task import task_create_system_log  # noqa: PLC0415
+
+        task_create_system_log(log)
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to database")
 
 
 async def get_session_logs():
-    async with AsyncSession(engine_logs) as session_logs:
-        yield session_logs
+    try:
+        async with AsyncSession(engine_logs) as session_logs:
+            yield session_logs
+    except OperationalError:
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to database")
 
 
 async def get_redis_client() -> redis.Redis:
