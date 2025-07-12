@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply, SupplyType
 from app.schemas.filter_schema import FilterBase
-from app.schemas.supply_schema import SupplySchema, SupplyTypeSchema
+from app.schemas.supply_schema import SupplySchema, SupplySchemaDB, SupplyTypeSchema, SupplyTypeSchemaDB
 
 
 async def create_supply(supply: SupplySchema, session: AsyncSession):
@@ -21,7 +21,14 @@ async def create_supply(supply: SupplySchema, session: AsyncSession):
     session.add(supply_db)
     await session.commit()
     await session.refresh(supply_db)
-    return supply_db
+    
+    return SupplySchemaDB(
+        id=supply_db.id,
+        name=supply_db.name,
+        description=supply_db.description,
+        supply_type_id=supply_db.supply_type_id,
+        brand=supply_db.brand,
+    )
 
 
 async def get_supply(session: AsyncSession, filters: FilterBase):
@@ -30,7 +37,16 @@ async def get_supply(session: AsyncSession, filters: FilterBase):
     if not supplys:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply not found")
 
-    return supplys
+    return [
+        SupplySchemaDB(
+            id=supply.id,
+            name=supply.name,
+            description=supply.description,
+            supply_type_id=supply.supply_type_id,
+            brand=supply.brand,
+        )
+        for supply in supplys
+    ]
 
 
 async def get_supply_id(id: int, session: AsyncSession):
@@ -39,7 +55,13 @@ async def get_supply_id(id: int, session: AsyncSession):
     if not supply:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply not found")
 
-    return supply
+    return SupplySchemaDB(
+        id=supply.id,
+        name=supply.name,
+        description=supply.description,
+        supply_type_id=supply.supply_type_id,
+        brand=supply.brand,
+    )
 
 
 async def update_supply(id: int, supply: SupplySchema, session: AsyncSession):
@@ -55,7 +77,14 @@ async def update_supply(id: int, supply: SupplySchema, session: AsyncSession):
 
     await session.commit()
     await session.refresh(supply_db)
-    return supply_db
+    
+    return SupplySchemaDB(
+        id=supply_db.id,
+        name=supply_db.name,
+        description=supply_db.description,
+        supply_type_id=supply_db.supply_type_id,
+        brand=supply_db.brand,
+    )
 
 
 async def delete_supply(id: int, session: AsyncSession):
@@ -70,7 +99,14 @@ async def delete_supply(id: int, session: AsyncSession):
 
     await session.delete(supply_db)
     await session.commit()
-    return supply_db
+    
+    return SupplySchemaDB(
+        id=supply_db.id,
+        name=supply_db.name,
+        description=supply_db.description,
+        supply_type_id=supply_db.supply_type_id,
+        brand=supply_db.brand,
+    )
 
 
 async def get_supply_type(session: AsyncSession, filters: FilterBase):
@@ -79,7 +115,13 @@ async def get_supply_type(session: AsyncSession, filters: FilterBase):
     if not supply_types:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply type not found")
 
-    return supply_types
+    return [
+        SupplyTypeSchemaDB(
+            id=supply_type.id,
+            name=supply_type.name,
+        )
+        for supply_type in supply_types
+    ]
 
 
 async def create_supply_type(supply_type: SupplyTypeSchema, session: AsyncSession):
@@ -88,7 +130,10 @@ async def create_supply_type(supply_type: SupplyTypeSchema, session: AsyncSessio
     await session.commit()
     await session.refresh(supply_type_db)
 
-    return supply_type_db
+    return SupplyTypeSchemaDB(
+        id=supply_type_db.id,
+        name=supply_type_db.name,
+    )
 
 
 async def update_supply_type(id: int, supply_type: SupplyTypeSchema, session: AsyncSession):
@@ -101,7 +146,10 @@ async def update_supply_type(id: int, supply_type: SupplyTypeSchema, session: As
     await session.commit()
     await session.refresh(supply_type_db)
 
-    return supply_type_db
+    return SupplyTypeSchemaDB(
+        id=supply_type_db.id,
+        name=supply_type_db.name,
+    )
 
 
 async def delete_supply_type(id: int, session: AsyncSession):
@@ -116,6 +164,11 @@ async def delete_supply_type(id: int, session: AsyncSession):
 
     await session.delete(supply_type_db)
     await session.commit()
+    
+    return SupplyTypeSchemaDB(
+        id=supply_type_db.id,
+        name=supply_type_db.name,
+    )
 
 
 async def get_supply_type_id(id: int, session: AsyncSession):
@@ -124,4 +177,7 @@ async def get_supply_type_id(id: int, session: AsyncSession):
     if not supply_type:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="supply type not found")
 
-    return supply_type
+    return SupplyTypeSchemaDB(
+        id=supply_type.id,
+        name=supply_type.name,
+    )
