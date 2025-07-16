@@ -21,7 +21,7 @@ async def create_supply(supply: SupplySchema, session: AsyncSession):
     session.add(supply_db)
     await session.commit()
     await session.refresh(supply_db)
-    
+
     return SupplySchemaDB(
         id=supply_db.id,
         name=supply_db.name,
@@ -77,7 +77,7 @@ async def update_supply(id: int, supply: SupplySchema, session: AsyncSession):
 
     await session.commit()
     await session.refresh(supply_db)
-    
+
     return SupplySchemaDB(
         id=supply_db.id,
         name=supply_db.name,
@@ -99,7 +99,7 @@ async def delete_supply(id: int, session: AsyncSession):
 
     await session.delete(supply_db)
     await session.commit()
-    
+
     return SupplySchemaDB(
         id=supply_db.id,
         name=supply_db.name,
@@ -164,7 +164,7 @@ async def delete_supply_type(id: int, session: AsyncSession):
 
     await session.delete(supply_type_db)
     await session.commit()
-    
+
     return SupplyTypeSchemaDB(
         id=supply_type_db.id,
         name=supply_type_db.name,
