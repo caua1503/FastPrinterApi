@@ -15,7 +15,7 @@ from app.models.history_model import (
 )
 from app.models.printer_model import Printer, Status
 from app.models.supply_model import Supply, SupplyType
-from app.models.user_model import User
+from app.models.user_model import User, UserConfiguration
 from app.schemas.user_schema import UsersRoleSchema
 
 
@@ -41,6 +41,14 @@ async def user(session: AsyncSession):
     )
 
     session.add(user)
+    await session.flush()
+
+    user_configuration = UserConfiguration(
+        user_id=user.id,
+        username=user.name,
+    )
+
+    session.add(user_configuration)
     await session.commit()
     await session.refresh(user)
 
@@ -59,6 +67,14 @@ async def admin_user(session: AsyncSession):
     )
 
     session.add(user)
+    await session.flush()
+
+    user_configuration = UserConfiguration(
+        user_id=user.id,
+        username=user.name,
+    )
+
+    session.add(user_configuration)
     await session.commit()
     await session.refresh(user)
 

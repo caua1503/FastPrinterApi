@@ -17,6 +17,8 @@ async def test_get_printers(client, token):
     response = client.get("/api/v1/printer/", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
+    assert response_json["total"] == 0
+    assert response_json["count"] == 0
     assert response_json["printers"] == []
 
 
@@ -25,15 +27,16 @@ async def test_get_printers_with_printers(client, printer: Printer, token):
     response = client.get("/api/v1/printer/", headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
+    assert response_json["total"] == 1
+    assert response_json["count"] == 1
     assert response_json["printers"][0]["id"] == printer.id
     assert response_json["printers"][0]["name"] == printer.name
     assert response_json["printers"][0]["brand"] == printer.brand
     assert response_json["printers"][0]["model"] == printer.model
     assert response_json["printers"][0]["ip"] == printer.ip
-    assert response_json["printers"][0]["department_id"] == printer.department_id
-    assert response_json["printers"][0]["supply_id"] == printer.supply_id
-    assert response_json["printers"][0]["status_id"] == printer.status_id
-    assert response_json["printers"][0]["description"] == printer.description
+    assert response_json["printers"][0]["department_id"]["id"] == printer.department_id
+    assert response_json["printers"][0]["supply_id"]["id"] == printer.supply_id
+    assert response_json["printers"][0]["status_id"]["id"] == printer.status_id
 
 
 @pytest.mark.asyncio
@@ -45,10 +48,18 @@ async def test_get_printer_by_id(client, printer: Printer, token):
     assert response_json["brand"] == printer.brand
     assert response_json["model"] == printer.model
     assert response_json["ip"] == printer.ip
-    assert response_json["department_id"] == printer.department_id
-    assert response_json["supply_id"] == printer.supply_id
-    assert response_json["status_id"] == printer.status_id
+    assert response_json["department_id"]["id"] == printer.department_id
+    assert response_json["supply_id"]["id"] == printer.supply_id
+    assert response_json["status_id"]["id"] == printer.status_id
     assert response_json["description"] == printer.description
+    assert response_json["forecast"] == printer.forecast.strftime("%Y-%m-%d") if printer.forecast else None
+    assert response_json["last_refill"] == printer.last_refill.strftime("%Y-%m-%d") if printer.last_refill else None
+    assert (
+        response_json["last_maintenance"] == printer.last_maintenance.strftime("%Y-%m-%d")
+        if printer.last_maintenance
+        else None
+    )
+    assert response_json["last_check"] == printer.last_check.strftime("%Y-%m-%d") if printer.last_check else None
 
 
 @pytest.mark.asyncio
@@ -162,19 +173,16 @@ async def test_get_printers_by_department_id(client, printer: Printer, token):
     response_json = response.json()
     print(response_json)
     assert response.status_code == HTTPStatus.OK
+    assert response_json["total"] == 1
+    assert response_json["count"] == 1
     assert response_json["printers"][0]["id"] == printer.id
     assert response_json["printers"][0]["name"] == printer.name
     assert response_json["printers"][0]["brand"] == printer.brand
     assert response_json["printers"][0]["model"] == printer.model
     assert response_json["printers"][0]["ip"] == printer.ip
-    assert response_json["printers"][0]["department_id"] == printer.department_id
-    assert response_json["printers"][0]["supply_id"] == printer.supply_id
-    assert response_json["printers"][0]["status_id"] == printer.status_id
-    assert response_json["printers"][0]["description"] == printer.description
-    assert response_json["printers"][0]["forecast"] == printer.forecast.strftime("%Y-%m-%d")  # type: ignore
-    assert response_json["printers"][0]["last_refill"] == printer.last_refill.strftime("%Y-%m-%d")  # type: ignore
-    assert response_json["printers"][0]["last_maintenance"] == printer.last_maintenance.strftime("%Y-%m-%d")  # type: ignore
-    assert response_json["printers"][0]["last_check"] == (printer.last_check).strftime("%Y-%m-%d")  # type: ignore
+    assert response_json["printers"][0]["department_id"]["id"] == printer.department_id
+    assert response_json["printers"][0]["supply_id"]["id"] == printer.supply_id
+    assert response_json["printers"][0]["status_id"]["id"] == printer.status_id
 
 
 @pytest.mark.asyncio
@@ -185,12 +193,14 @@ async def test_get_printers_by_supply_id(client, printer: Printer, token):
     response_json = response.json()
     print(response_json)
     assert response.status_code == HTTPStatus.OK
+    assert response_json["total"] == 1
+    assert response_json["count"] == 1
     assert response_json["printers"][0]["id"] == printer.id
     assert response_json["printers"][0]["name"] == printer.name
     assert response_json["printers"][0]["brand"] == printer.brand
     assert response_json["printers"][0]["model"] == printer.model
     assert response_json["printers"][0]["ip"] == printer.ip
-    assert response_json["printers"][0]["supply_id"] == printer.supply_id
+    assert response_json["printers"][0]["supply_id"]["id"] == printer.supply_id
 
 
 @pytest.mark.asyncio
@@ -201,12 +211,14 @@ async def test_get_printers_by_status_id(client, printer: Printer, token):
     response_json = response.json()
     print(response_json)
     assert response.status_code == HTTPStatus.OK
+    assert response_json["total"] == 1
+    assert response_json["count"] == 1
     assert response_json["printers"][0]["id"] == printer.id
     assert response_json["printers"][0]["name"] == printer.name
     assert response_json["printers"][0]["brand"] == printer.brand
     assert response_json["printers"][0]["model"] == printer.model
     assert response_json["printers"][0]["ip"] == printer.ip
-    assert response_json["printers"][0]["status_id"] == printer.status_id
+    assert response_json["printers"][0]["status_id"]["id"] == printer.status_id
 
 
 @pytest.mark.asyncio
@@ -219,9 +231,11 @@ async def test_get_printers_by_multiple_filters(client, printer: Printer, token)
     response = client.get(url, headers={"Authorization": f"Bearer {token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
+    assert response_json["total"] == 1
+    assert response_json["count"] == 1
     assert len(response_json["printers"]) == 1
     printer_json = response_json["printers"][0]
     assert printer_json["id"] == printer.id
-    assert printer_json["department_id"] == printer.department_id
-    assert printer_json["supply_id"] == printer.supply_id
-    assert printer_json["status_id"] == printer.status_id
+    assert printer_json["department_id"]["id"] == printer.department_id
+    assert printer_json["supply_id"]["id"] == printer.supply_id
+    assert printer_json["status_id"]["id"] == printer.status_id
