@@ -47,7 +47,7 @@ async def create_printer(session: AsyncSession, printer: FullPrinterSchema):
     await session.commit()
     await session.refresh(db_printer)
 
-    return db_printer
+    return FullPrinterSchemaDB.model_validate(db_printer)
 
 
 async def get_printers(session: AsyncSession, filters: FilterPrinterDefault):
