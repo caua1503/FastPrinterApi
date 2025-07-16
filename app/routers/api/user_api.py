@@ -37,13 +37,17 @@ async def api_create_user(session: Annotated[AsyncSession, Depends(get_session)]
 
 
 @user_router.delete("/", status_code=HTTPStatus.NO_CONTENT)
-async def api_delete_user(session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
+async def api_delete_user(
+    session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access(usage_api_key=False)
+):
     await delete_user(session, current_user.id)
 
 
 @user_router.put("/", response_model=UserPublicSchema, status_code=HTTPStatus.OK)
 async def api_update_user(
-    session: Annotated[AsyncSession, Depends(get_session)], user: UserUpdateSchema, current_user=has_access()
+    session: Annotated[AsyncSession, Depends(get_session)],
+    user: UserUpdateSchema,
+    current_user=has_access(usage_api_key=False),
 ):
     return await update_user(session, current_user.id, user)
 
@@ -52,18 +56,21 @@ async def api_update_user(
 async def api_update_user_password(
     session: Annotated[AsyncSession, Depends(get_session)],
     password: UserNewPasswordSchema,
-    current_user=has_access(),
+    current_user=has_access(usage_api_key=False),
 ):
     return await update_user_password(session, current_user.id, password)
 
 
 @user_router.get("/api-key", response_model=List[UserApiKeySchema], status_code=HTTPStatus.OK)
 async def api_get_api_key_from_user_id(
-    session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access(UsersRoleSchema.member)
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user=has_access(UsersRoleSchema.member, usage_api_key=False),
 ):
     return await get_api_key_from_user_id(session, current_user.id)
 
 
 @user_router.post("/new-api-key/", response_model=UserApiKeySchema, status_code=HTTPStatus.CREATED)
-async def api_get_api_key(session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
+async def api_get_api_key(
+    session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access(usage_api_key=False)
+):
     return await create_api_key(session, current_user.id)
