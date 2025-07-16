@@ -353,6 +353,7 @@ async def create_history_status(history: StatusHistorySchema, session: AsyncSess
     history_db = StatusHistory(
         printer_id=history.printer_id, status_id=history.status_id, date=history.date, description=history.description
     )
+
     session.add(history_db)
     await session.commit()
     await session.refresh(history_db)
