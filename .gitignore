@@ -18,6 +18,8 @@ mydocs/
 *.db
 .db
 
+#migration
+frontend/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
