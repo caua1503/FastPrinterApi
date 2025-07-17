@@ -1,3 +1,4 @@
+import asyncio
 import random
 import string
 from datetime import datetime, timedelta, timezone
@@ -9,15 +10,12 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Config
-from app.core.task import task_create_api_key_log
-from app.helpers.database_helper import get_redis_client, get_session
-from app.helpers.redis_helper import (
-    redis_get_value,
-    # redis_set_value,
-)
+from app.core.task import task_create_api_key_log, task_create_system_log
+from app.helpers.database_helper import get_session
 from app.models.user_model import (
     PermissionApiKey,
     PermissionUser,
@@ -26,7 +24,7 @@ from app.models.user_model import (
     UserPermission,
     UsersRoleSchema,
 )
-from app.schemas.logs_schema import ApiKeyActionSchema, ApiKeyLogSchema
+from app.schemas.logs_schema import ApiKeyActionSchema, ApiKeyLogSchema, LogLevelSchema, ServiceSchema, SystemLogSchema
 
 config = Config()  # pyright: ignore
 
@@ -72,18 +70,6 @@ async def get_api_key(session: AsyncSession) -> str:
             return api_key
 
 
-async def get_jtw_code() -> str:
-    redis_client = await get_redis_client()
-
-    while True:
-        jwt_code = generate_random_code(32)
-        existing_jwt_code = await redis_get_value(jwt_code, redis_client)
-
-        if not existing_jwt_code:
-            # await redis_set_value(jwt_code, jwt_code, redis_client)
-            return jwt_code
-
-
 def create_access_token(data: dict) -> str:
     expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
 
@@ -110,29 +96,41 @@ async def log_api_key_usage(
         request: FastAPI Request object to capture the route
         action: Action performed (default: GET)
     """
-    stmt_api_key = select(UserApiKey).where(UserApiKey.api_key == api_key)
-    result_api_key = await session.execute(stmt_api_key)
-    api_key_obj = result_api_key.scalar_one()
-    user_action = (
-        ApiKeyActionSchema(request.method.lower())
-        if request.method.lower() in [action.value for action in ApiKeyActionSchema]
-        else ApiKeyActionSchema.GET
-    )
-    print(user_action)
-    log_api_key = ApiKeyLogSchema(
-        user_id=user_id,
-        api_key_id=api_key_obj.id,
-        action=user_action,
-        route=str(request.url.path),
-        timestamp=datetime.now(),
-    )
-    task_create_api_key_log.delay(**log_api_key.model_dump())
+    try:
+        stmt_api_key = select(UserApiKey).where(UserApiKey.api_key == api_key)
+        result_api_key = await session.execute(stmt_api_key)
+        api_key_obj = result_api_key.scalar_one()
+        http_method = request.method.upper()
+        user_action = (
+            ApiKeyActionSchema(http_method)
+            if http_method in [action.value for action in ApiKeyActionSchema]
+            else ApiKeyActionSchema.ANY
+        )
+
+        log_api_key = ApiKeyLogSchema(
+            user_id=user_id,
+            api_key_id=api_key_obj.id,
+            action=user_action,
+            route=str(request.url.path),
+            timestamp=datetime.now(),
+        )
+        task_create_api_key_log.delay(**log_api_key.model_dump())
+    except Exception as e:
+        system_log = SystemLogSchema(
+            message=f"Error logging API Key usage: {e}",
+            service=ServiceSchema.OTHER,
+            level=LogLevelSchema.ERROR,
+            timestamp=datetime.now(),
+        )
+        task_create_system_log.delay(**system_log.model_dump())
 
 
-def has_access(
+def has_access(  # noqa: PLR0915
     role: UsersRoleSchema = UsersRoleSchema.member,
     required_user_code: Optional[str] = None,
     required_api_scope: Optional[str] = None,
+    usage_bearer: bool = True,
+    usage_api_key: bool = True,
 ) -> User:
     """
     Dependency to handle user access control.
@@ -141,9 +139,11 @@ def has_access(
     - Admins bypass all role and permission checks.
     - `required_user_code` is checked for JWT authenticated sessions.
     - `required_api_scope` is checked for API Key authenticated sessions.
+    - `usage_bearer` is used to block bearer token authentication for a route.
+    - `usage_api_key` is used to block API Key authentication for a route.
     """
 
-    async def dependency(  # noqa: PLR0912
+    async def dependency(  # noqa: PLR0912, PLR0915
         request: Request,
         token: Optional[str] = Depends(oauth2_scheme),
         api_key: Optional[str] = Depends(api_key_scheme),
@@ -155,6 +155,19 @@ def has_access(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Invalid or expired token",
         )
+
+        if token and not usage_bearer:
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED,
+                detail="Bearer token authentication not allowed for this route",
+            )
+
+        if api_key and not usage_api_key:
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED,
+                detail="API Key authentication not allowed for this route",
+            )
+
         if token:
             auth_type = "bearer"
             try:
@@ -171,6 +184,23 @@ def has_access(
                 raise error_auth
             except jwt.ExpiredSignatureError:
                 raise error_auth
+            except OperationalError as erro:
+                from app.core.task import task_create_system_log  # noqa: PLC0415
+
+                log = SystemLogSchema(
+                    message="Error connecting to database",
+                    description=str(erro),
+                    level=LogLevelSchema.CRITICAL,
+                    service=ServiceSchema.POSTGRES,
+                    timestamp=datetime.now(),
+                )
+                task_create_system_log.delay(**log.model_dump())
+                raise HTTPException(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    detail="Error connecting to database",
+                )
+            except Exception:
+                raise error_auth
 
         elif api_key:
             auth_type = "apikey"
@@ -179,7 +209,7 @@ def has_access(
             user = result.scalar_one_or_none()
 
             if user:
-                await log_api_key_usage(session, api_key, user.id, request)
+                asyncio.create_task(log_api_key_usage(session, api_key, user.id, request))
 
         if not auth_type:
             raise error_auth
@@ -210,8 +240,8 @@ def has_access(
             if required_api_scope not in api_permissions:
                 raise error_auth
 
-            if api_key:  # Verificação adicional para o tipo checker
-                await log_api_key_usage(session, api_key, user.id, request)
+            if api_key:
+                asyncio.create_task(log_api_key_usage(session, api_key, user.id, request))
 
         return user
 

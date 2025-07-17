@@ -13,7 +13,7 @@ from app.models.history_model import (
 )
 from app.models.printer_model import Printer
 from app.models.supply_model import Supply
-from app.schemas.filter_schema import FilterPrinterHistory
+from app.schemas.filter_schema import FilterPrinterHistory, OrderBy
 from app.schemas.history_schema import (
     AlertHistorySchema,
     ListAlertHistorySchema,
@@ -74,6 +74,11 @@ async def get_history_recharge(session: AsyncSession, filters: FilterPrinterHist
 
     if filters.time_end:
         query = query.filter(RefillHistory.date <= filters.time_end)
+
+    if filters.order_by:
+        query = query.order_by(
+            RefillHistory.date.desc() if filters.order_by == OrderBy.desc else RefillHistory.date.asc()
+        )
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
 
@@ -146,6 +151,11 @@ async def get_history_maintenance(session: AsyncSession, filters: FilterPrinterH
 
     if filters.time_end:
         query = query.filter(MaintenanceHistory.date <= filters.time_end)
+
+    if filters.order_by:
+        query = query.order_by(
+            MaintenanceHistory.date.desc() if filters.order_by == OrderBy.desc else MaintenanceHistory.date.asc()
+        )
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
 
@@ -220,6 +230,11 @@ async def get_history_trash(session: AsyncSession, filters: FilterPrinterHistory
     if filters.time_end:
         query = query.filter(PrinterTrashHistory.date <= filters.time_end)
 
+    if filters.order_by:
+        query = query.order_by(
+            PrinterTrashHistory.date.desc() if filters.order_by == OrderBy.desc else PrinterTrashHistory.date.asc()
+        )
+
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
     return ListPrinterTrashHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
@@ -292,6 +307,11 @@ async def get_history_alerts(session: AsyncSession, filters: FilterPrinterHistor
     if filters.time_end:
         query = query.filter(AlertHistory.date <= filters.time_end)
 
+    if filters.order_by:
+        query = query.order_by(
+            AlertHistory.date.desc() if filters.order_by == OrderBy.desc else AlertHistory.date.asc()
+        )
+
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
     return ListAlertHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
@@ -333,6 +353,7 @@ async def create_history_status(history: StatusHistorySchema, session: AsyncSess
     history_db = StatusHistory(
         printer_id=history.printer_id, status_id=history.status_id, date=history.date, description=history.description
     )
+
     session.add(history_db)
     await session.commit()
     await session.refresh(history_db)
@@ -354,6 +375,11 @@ async def get_history_status(session: AsyncSession, filters: FilterPrinterHistor
 
     if filters.time_end:
         query = query.filter(StatusHistory.date <= filters.time_end)
+
+    if filters.order_by:
+        query = query.order_by(
+            StatusHistory.date.desc() if filters.order_by == OrderBy.desc else StatusHistory.date.asc()
+        )
 
     historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
     return ListStatusHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore

@@ -1,10 +1,14 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy import ForeignKey, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base_model import table_registry
+
+if TYPE_CHECKING:
+    from app.models.department_model import Department
+    from app.models.supply_model import Supply
 
 
 @table_registry.mapped_as_dataclass
@@ -13,6 +17,7 @@ class Status:
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     status: Mapped[str]
     description: Mapped[Optional[str]]
+    printers: Mapped[List["Printer"]] = relationship(back_populates="status", init=False)
 
 
 @table_registry.mapped_as_dataclass
@@ -32,3 +37,7 @@ class Printer:
     last_maintenance: Mapped[Optional[date]]
     last_check: Mapped[Optional[date]]
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
+
+    department: Mapped["Department"] = relationship(back_populates="printers", init=False)
+    supply: Mapped["Supply"] = relationship(back_populates="printers", init=False)
+    status: Mapped["Status"] = relationship(back_populates="printers", init=False)

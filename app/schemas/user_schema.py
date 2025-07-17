@@ -35,7 +35,6 @@ class UserPublicSchema(BaseModel):
     id: int
     login: str
     name: str
-    role: UsersRoleSchema
 
 
 class UserSchema(UserCreateSchema):
@@ -47,6 +46,8 @@ class UserSchemaDB(UserSchema):
 
 
 class UserConfigurationSchema(BaseModel):
+    user_id: int
     username: str
     webhook_enabled: bool = False
     webhook_url: Optional[str] = None
+    first_access: bool = True

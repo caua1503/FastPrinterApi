@@ -1,5 +1,7 @@
 # FastPrinterAPI
 
+📖 Read this documentation in [Portuguese](README.pt-BR.md)
+
 <p align="center">
   <a href="https://www.python.org" target="_blank">
     <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
@@ -18,68 +20,73 @@
   </a>
 </p>
 
-Uma API assíncrona desenvolvida em FastAPI para o gerenciamento centralizado de múltiplas impressoras, com foco em estatísticas, previsões e histórico detalhado de manutenção.
+An asynchronous API developed in FastAPI for centralized management of multiple printers, focusing on statistics, forecasts, and detailed maintenance history.
 
-Embora o núcleo do projeto seja a API RESTful, ele também irá incluir uma interface gráfica intuitiva para facilitar a interação e o gerenciamento (em breve).
+Although the core of the project is the RESTful API, it will also include an intuitive graphical interface to facilitate interaction and management (coming soon).
 
-## Objetivo
+## Objective
 
-Facilitar o controle, monitoramento e manutenção de parques de impressoras, fornecendo:
-- Estatísticas em tempo real de uso e status
-- Previsão de próximas recargas e limpezas
-- Histórico completo de manutenções, recargas e eventos
-- Gestão de departamentos, suprimentos e usuários
+To facilitate the control, monitoring, and maintenance of printer fleets by providing:
+- Real-time usage and status statistics
+- Forecast of upcoming refills and cleanings
+- Complete history of maintenance, refills, and events
+- Management of departments, supplies, and users
 
-## Principais Funcionalidades
+## Key Features
 
-- **Gestão de Impressoras:** Cadastro, atualização, consulta e remoção de impressoras.
-- **Histórico de Manutenção:** Registro e consulta de manutenções, recargas e limpezas.
-- **Previsão Inteligente:** Cálculo da próxima recarga/limpeza com base no histórico.
-- **Departamentos:** Organização de impressoras por setores.
-- **Sistema multi-usuários:** Com níveis de controle e permissões de acesso.
-- **Autenticação Segura:** Endpoints protegidos para operações sensíveis utilizando JWT.
-- **Sistema de APIs:** Sistema de API flexível, permitindo a criação de chaves para uma ou várias funções com diferentes níveis de acesso.
-- **Sistema de permissões:** Sistema de permissões flexível (RBAC e ABAC) tanto para usuários quanto para APIs.
+- **Printer Management:** Register, update, query, and remove printers.
+- **Maintenance History:** Record and consult maintenance, refills, and cleanings.
+- **Intelligent Forecasting:** Calculation of the next refill/cleaning based on history.
+- **Departments:** Organization of printers by sectors.
+- **Multi-user System:** With control levels and access permissions.
+- **Secure Authentication:** Protected endpoints for sensitive operations using JWT.
+- **API System:** Flexible API system, allowing the creation of keys for one or multiple functions with different access levels.
+- **Permission System:** Flexible permission system (RBAC and ABAC) for both users and APIs.
 
-## Tecnologias Utilizadas (Produção)
+## Technologies Used (Production)
 
 - Python 3.12+
-- FastAPI (assíncrono)
-- Postgres 17 (Banco de dados)
-- Redis 8.0 (Banco de cache)
-- Pydantic (validação de dados)
-- Celery Python (Executor de tarefas e sistema de filas)
+- FastAPI (asynchronous)
+- Postgres 17 (Database)
+- Redis 8.0 (Cache database)
+- Pydantic (data validation)
+- Celery Python (Task executor and queue system)
 - SQLAlchemy (ORM)
-- Alembic (migrações)
-- Docker (opcional)
+- Alembic (migrations)
+- Docker (optional)
 
+📖 Read the documentation to run in [production](docs/en/production.md) mode 
 
-## Tecnologias Utilizadas (Desenvolvimento)
+## Technologies Used (Development)
 
-- Testes automatizados (pytest)
-- Linter e padronizador de código (Ruff)
-- executor de tarefas complementar (Taskipy)
+- Automated tests (pytest)
+- Linter and code formatter (Ruff)
+- Complementary task runner (Taskipy)
 
-## Arquitetura da Aplicação
+📖 Read the documentation to run in [development](docs/en/development.md) mode 
 
-A arquitetura do FastPrinterAPI foi projetada para ser modular, escalável e de fácil manutenção, seguindo as melhores práticas de desenvolvimento de APIs com FastAPI. A estrutura de diretórios reflete uma clara separação de responsabilidades:
+## Application Architecture
+
+The FastPrinterAPI architecture was designed to be modular, scalable, and easy to maintain, following the best practices for API development with FastAPI. The directory structure reflects a clear separation of responsibilities:
 
 ```
 FastPrinterAPi/
   app/
-    config/           # Configurações e variáveis de ambiente (via Pydantic)
-    core/             # Componentes centrais: segurança, tarefas em background (Celery)
-    helpers/          # Módulos de suporte (ex: conexão com Redis, utilitários)
-    models/           # Modelos de dados do ORM (SQLAlchemy)
-    routers/api/      # Endpoints da API, organizados por recurso
-    schemas/          # Schemas de validação de dados (Pydantic)
-    services/         # Lógica de negócio, desacoplada dos endpoints
-  migrations/         # Migrações do banco de dados principal (Alembic)
-  migrations_logs/    # Migrações do banco de dados de logs (Alembic)
-  test/               # Testes automatizados (Pytest)
-  celery_worker.py    # Definição do worker e agendamento de tarefas (Celery Beat)
-  compose.yaml        # Orquestração dos serviços com Docker
-  create_env.py       # Script para gerar o arquivo de ambiente .env
-  init_db.py          # Script para inicializar o banco de dados com dados padrão
+    config/           # Settings and environment variables (via Pydantic)
+    core/             # Core components: security, background tasks (Celery)
+    helpers/          # Helper modules (e.g., Redis connection, utilities)
+    models/           # ORM data models (SQLAlchemy)
+    routers/api/      # API endpoints, organized by resource
+    schemas/          # Data validation schemas (Pydantic)
+    services/         # Business logic, decoupled from endpoints
+  migrations/         # Main database migrations (Alembic)
+  migrations_logs/    # Log database migrations (Alembic)
+  test/               # Automated tests (Pytest)
+  celery_worker.py    # Worker definition and task scheduling (Celery Beat)
+  compose.yaml        # Service orchestration with Docker
+  create_env.py       # Script to generate the .env environment file
+  init_db.py          # Script to initialize the database with default data
   ...
 ```
+
+📖 Read the [development guide](docs/en/guide_dev.md) to understand architectural decisions

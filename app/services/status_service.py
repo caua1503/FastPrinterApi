@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.history_model import StatusHistory
 from app.models.printer_model import Printer, Status
 from app.schemas.filter_schema import FilterBase
-from app.schemas.status_schema import StatusSchema
+from app.schemas.status_schema import StatusSchema, StatusSchemaDB
 
 
 async def create_status(status: StatusSchema, session: AsyncSession):
@@ -15,14 +15,14 @@ async def create_status(status: StatusSchema, session: AsyncSession):
     session.add(status_db)
     await session.commit()
     await session.refresh(status_db)
-    return status_db
+    return StatusSchemaDB(id=status_db.id, status=status_db.status, description=status_db.description or "")
 
 
 async def get_status(session: AsyncSession, filters: FilterBase):
     status = (await session.scalars(select(Status).limit(filters.limit).offset(filters.offset))).all()
     if not status:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
-    return status
+    return [StatusSchemaDB(id=s.id, status=s.status, description=s.description or "") for s in status]
 
 
 async def get_status_id(id: int, session: AsyncSession):
@@ -30,7 +30,7 @@ async def get_status_id(id: int, session: AsyncSession):
     if not status:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Status not found")
 
-    return status
+    return StatusSchemaDB(id=status.id, status=status.status, description=status.description or "")
 
 
 async def update_status(id: int, status: StatusSchema, session: AsyncSession):
@@ -43,8 +43,7 @@ async def update_status(id: int, status: StatusSchema, session: AsyncSession):
 
     await session.commit()
     await session.refresh(status_db)
-
-    return status_db
+    return StatusSchemaDB(id=status_db.id, status=status_db.status, description=status_db.description or "")
 
 
 async def delete_status(id: int, session: AsyncSession):
@@ -63,4 +62,3 @@ async def delete_status(id: int, session: AsyncSession):
 
     await session.delete(status_db)
     await session.commit()
-    return status_db

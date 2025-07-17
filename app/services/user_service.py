@@ -14,7 +14,7 @@ from app.helpers.redis_helper import (
     redis_get_value_pydantic,
     redis_set_value_pydantic,
 )
-from app.models.user_model import User, UserApiKey
+from app.models.user_model import User, UserApiKey, UserConfiguration
 from app.schemas.user_schema import UserApiKeySchema, UserCreateSchema, UserNewPasswordSchema, UserUpdateSchema
 
 
@@ -31,8 +31,17 @@ async def create_user(session: AsyncSession, user: UserCreateSchema):
     )
 
     session.add(user_db)
+    await session.flush()
+
+    user_configuration = UserConfiguration(
+        user_id=user_db.id,
+        username=user.name,
+    )
+
+    session.add(user_configuration)
     await session.commit()
     await session.refresh(user_db)
+
     return user_db
 
 

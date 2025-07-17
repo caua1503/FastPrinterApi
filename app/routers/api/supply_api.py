@@ -25,7 +25,9 @@ supply_router = APIRouter()
 
 
 @supply_router.post("/", status_code=HTTPStatus.CREATED)
-async def api_create_supply(supply: SupplySchema, session: Annotated[AsyncSession, Depends(get_session)]):
+async def api_create_supply(
+    supply: SupplySchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
     return await create_supply(supply, session)
 
 

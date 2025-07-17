@@ -10,8 +10,12 @@ class SupplySchema(BaseModel):
     description: Optional[str] = None
 
 
-class SupplySchemaDB(SupplySchema):
+class SupplySchemaDB(BaseModel):
     id: int
+    supply_type_id: int
+    name: str
+    brand: str
+    description: Optional[str] = None
 
 
 class SupplyTypeSchema(BaseModel):

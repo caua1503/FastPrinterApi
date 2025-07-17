@@ -80,11 +80,11 @@ def convert_time(
         time: the integer value to convert
         mode: defines the type of time (input)
         output: sets the output type after conversion
-    
+
     Returns:
         int: the converted time value as integer
     """
-    
+
     if mode == "milliseconds":
         time_in_seconds = time / 1000
     elif mode == "seconds":
@@ -97,7 +97,7 @@ def convert_time(
         time_in_seconds = time * 86400
     else:
         raise ValueError("Invalid mode: use milliseconds, seconds, minutes, hours, days")
-  
+
     if output == "milliseconds":
         result = time_in_seconds * 1000
     elif output == "seconds":
@@ -110,5 +110,5 @@ def convert_time(
         result = time_in_seconds / 86400
     else:
         raise ValueError("Invalid output: use milliseconds, seconds, minutes, hours, days")
-    
+
     return int(result)

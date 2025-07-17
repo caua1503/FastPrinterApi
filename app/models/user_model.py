@@ -17,7 +17,7 @@ class User:
     name: Mapped[str]
     role: Mapped[UsersRoleSchema] = mapped_column(default=UsersRoleSchema.member)
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now(), onupdate=func.now())
 
     # Relationships
     api_keys: Mapped[List["UserApiKey"]] = relationship(back_populates="user", cascade="all, delete-orphan", init=False)
@@ -54,7 +54,7 @@ class PermissionApiKey:
     code: Mapped[str] = mapped_column(unique=True)  # read.all_printers_info, read.printers_info, read.supply
     description: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now(), onupdate=func.now())
 
 
 @table_registry.mapped_as_dataclass
@@ -69,7 +69,7 @@ class PermissionUser:
     code: Mapped[str] = mapped_column(unique=True)  # read.user, update.printer, read.supply
     description: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now(), onupdate=func.now())
 
 
 @table_registry.mapped_as_dataclass
@@ -109,7 +109,8 @@ class UserConfiguration:
     username: Mapped[str]
     webhook_enabled: Mapped[bool] = mapped_column(default=False)
     webhook_url: Mapped[Optional[str]] = mapped_column(default=None)
-    primeiro_acesso: Mapped[bool] = mapped_column(default=True)  # logica para o usuario trocar a senha assim que entrar
-    updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
+    first_access: Mapped[bool] = mapped_column(default=True)  # logica para o usuario trocar a senha assim que entrar
+    created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now(), onupdate=func.now())
 
     user: Mapped["User"] = relationship(back_populates="configuration", init=False)

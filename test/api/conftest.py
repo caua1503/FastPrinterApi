@@ -15,12 +15,19 @@ from app.models.history_model import (
 )
 from app.models.printer_model import Printer, Status
 from app.models.supply_model import Supply, SupplyType
-from app.models.user_model import User
+from app.models.user_model import User, UserConfiguration
+from app.schemas.user_schema import UsersRoleSchema
 
 
 @pytest_asyncio.fixture
 async def token(client: TestClient, user: User):
     response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})  # type: ignore
+    return response.json()["access_token"]
+
+
+@pytest_asyncio.fixture
+async def admin_token(client: TestClient, admin_user: User):
+    response = client.post("/api/v1/auth/token", data={"username": admin_user.login, "password": admin_user.password})  # type: ignore
     return response.json()["access_token"]
 
 
@@ -34,6 +41,40 @@ async def user(session: AsyncSession):
     )
 
     session.add(user)
+    await session.flush()
+
+    user_configuration = UserConfiguration(
+        user_id=user.id,
+        username=user.name,
+    )
+
+    session.add(user_configuration)
+    await session.commit()
+    await session.refresh(user)
+
+    user.password = password  # type: ignore
+    return user
+
+
+@pytest_asyncio.fixture
+async def admin_user(session: AsyncSession):
+    password = "fake_password"
+    user = User(
+        login="admin",
+        name="admin",
+        role=UsersRoleSchema.admin,
+        password_hash=get_password_hash(password),
+    )
+
+    session.add(user)
+    await session.flush()
+
+    user_configuration = UserConfiguration(
+        user_id=user.id,
+        username=user.name,
+    )
+
+    session.add(user_configuration)
     await session.commit()
     await session.refresh(user)
 

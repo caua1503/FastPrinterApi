@@ -1,9 +1,12 @@
-from typing import Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base_model import table_registry
+
+if TYPE_CHECKING:
+    from app.models.printer_model import Printer
 
 
 @table_registry.mapped_as_dataclass
@@ -21,3 +24,4 @@ class Supply:
     supply_type_id: Mapped[int] = mapped_column(ForeignKey("supply_type.id"))
     brand: Mapped[str]
     description: Mapped[Optional[str]]
+    printers: Mapped[List["Printer"]] = relationship(back_populates="supply", init=False)
