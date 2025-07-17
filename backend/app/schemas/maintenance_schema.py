@@ -1,11 +1,12 @@
 from datetime import date
 from typing import Optional
-
+from app.schemas.printer_schema import DepartmentIdSchema
 from pydantic import BaseModel
 
 
 class PrinterMaintenanceInfoSchema(BaseModel):
     printer_id: int
+    department_id: DepartmentIdSchema
     last_update: date
     next_refill: Optional[date] = None
     next_cleaning: Optional[date] = None
