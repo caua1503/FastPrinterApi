@@ -1,7 +1,9 @@
 from datetime import date
 from typing import Optional
-from app.schemas.printer_schema import DepartmentIdSchema
+
 from pydantic import BaseModel
+
+from app.schemas.printer_schema import DepartmentIdSchema
 
 
 class PrinterMaintenanceInfoSchema(BaseModel):
