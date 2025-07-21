@@ -4,6 +4,7 @@ from typing import List, Optional
 from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.models.auth_model import RefreshToken
 from app.models.base_model import table_registry
 from app.schemas.user_schema import UsersRoleSchema
 
@@ -26,6 +27,9 @@ class User:
     )
     permission_of_user: Mapped[List["UserPermission"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
+    )
+    refresh_token: Mapped[List["RefreshToken"]] = relationship(
+        "RefreshToken", back_populates="user", cascade="all, delete-orphan", init=False
     )
 
 
