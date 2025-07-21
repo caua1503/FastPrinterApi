@@ -25,7 +25,7 @@ from app.helpers.utils_helper import (
 """
 
 
-async def verify_redis_value(key: str, redis_client: Optional[redis.Redis] = None) -> bool:
+async def redis_verify_value(key: str, redis_client: Optional[redis.Redis] = None) -> bool:
     """
     Verify if a value exists in Redis
     Args:
@@ -60,6 +60,19 @@ async def redis_set_value(key: str, value: Any, redis_client: Optional[redis.Red
             redis_client = await get_redis_client()
 
         await redis_client.set(key, json.dumps(value), **kwargs)
+        return True
+    except Exception as erro:
+        asyncio.create_task(create_redis_log(erro))
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to Redis")
+
+
+async def redis_delete_value(key: str, redis_client: Optional[redis.Redis] = None):
+    try:
+        if redis_client is None:
+            redis_client = await get_redis_client()
+
+        await redis_client.delete(key)
+
         return True
     except Exception as erro:
         asyncio.create_task(create_redis_log(erro))
