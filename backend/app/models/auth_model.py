@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import func
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base_model import table_registry
@@ -15,7 +15,7 @@ class RefreshToken:
     __tablename__ = "refresh_token"
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     token: Mapped[str] = mapped_column(unique=True)
-    user_id: Mapped[int]
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     expires_at: Mapped[datetime]
     is_revoked: Mapped[bool] = mapped_column(default=False)
     ip_address: Mapped[str] = mapped_column(default="")
