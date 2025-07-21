@@ -8,7 +8,7 @@ from app.models.printer_model import Printer
 @pytest.mark.asyncio
 async def test_get_all_printers_maintenance_info(client, printer: Printer, token):
     response = client.get(
-        "/api/v1/core/current/info/printer/all",
+        "/api/v1/core/current/info/printer",
         params={"limit": 10, "offset": 0},
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -28,7 +28,7 @@ async def test_get_printer_maintenance_info(client, printer: Printer, token):
 @pytest.mark.asyncio
 async def test_get_all_printers_maintenance_info_admin(client, printer: Printer, admin_token):
     response = client.get(
-        "/api/v1/core/current/info/printer/all",
+        "/api/v1/core/current/info/printer",
         params={"limit": 10, "offset": 0},
         headers={"Authorization": f"Bearer {admin_token}"},
     )

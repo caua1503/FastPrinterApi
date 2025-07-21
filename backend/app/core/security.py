@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Config
 from app.core.task import task_create_api_key_log, task_create_system_log
 from app.helpers.database_helper import get_session
+from app.models.auth_model import RefreshToken
 from app.models.user_model import (
     PermissionApiKey,
     PermissionUser,
@@ -81,6 +82,25 @@ def create_access_token(data: dict) -> str:
     to_encode.update({"iat": issued_at})
     encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.JWT_ALGORITHM)
     return encoded_jwt
+
+
+async def create_refresh_token(session: AsyncSession):
+    max_attempts = 20
+    length_token = 128
+
+    for _ in range(max_attempts):
+        refresh_token = generate_random_code(length_token)
+        query = select(RefreshToken).where(RefreshToken.token == refresh_token)
+        result = await session.execute(query)
+        refresh_token_obj = result.scalar_one_or_none()
+
+        if not refresh_token_obj:
+            return refresh_token
+
+    raise HTTPException(
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        detail="Failed to generate unique refresh token after 20 attempts",
+    )
 
 
 async def log_api_key_usage(
