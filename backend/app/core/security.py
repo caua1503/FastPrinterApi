@@ -1,6 +1,7 @@
 import asyncio
-import random
+import secrets
 import string
+import time
 from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from typing import Optional
@@ -44,7 +45,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
 
 def generate_random_code(length: int = 8) -> str:
     characters = string.ascii_letters + string.digits
-    code = "".join(random.choice(characters) for _ in range(length))
+    code = "".join(secrets.choice(characters) for _ in range(length))
     return code
 
 
@@ -75,7 +76,9 @@ def create_access_token(data: dict) -> str:
 
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + expires_delta
+    issued_at = time.time()
     to_encode.update({"exp": expire})
+    to_encode.update({"iat": issued_at})
     encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.JWT_ALGORITHM)
     return encoded_jwt
 
