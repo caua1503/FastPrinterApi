@@ -19,6 +19,7 @@ from app.services.user_service import (
     create_user,
     delete_user,
     get_api_key_from_user_id,
+    update_first_access,
     update_user,
     update_user_password,
 )
@@ -52,7 +53,7 @@ async def api_update_user(
     return await update_user(session, current_user.id, user)
 
 
-@user_router.put("/change-password/", status_code=HTTPStatus.NO_CONTENT)
+@user_router.put("/change-password", status_code=HTTPStatus.NO_CONTENT)
 async def api_update_user_password(
     session: Annotated[AsyncSession, Depends(get_session)],
     password: UserNewPasswordSchema,
@@ -69,8 +70,15 @@ async def api_get_api_key_from_user_id(
     return await get_api_key_from_user_id(session, current_user.id)
 
 
-@user_router.post("/new-api-key/", response_model=UserApiKeySchema, status_code=HTTPStatus.CREATED)
+@user_router.post("/new-api-key", response_model=UserApiKeySchema, status_code=HTTPStatus.CREATED)
 async def api_get_api_key(
     session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access(usage_api_key=False)
 ):
     return await create_api_key(session, current_user.id)
+
+
+@user_router.post("/first-access", status_code=HTTPStatus.ACCEPTED)
+async def api_update_first_access(
+    session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access(usage_api_key=False)
+):
+    return await update_first_access(session, current_user.id)

@@ -3,6 +3,7 @@ from http import HTTPStatus
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.security import (
     get_api_key,
@@ -122,3 +123,13 @@ async def delete_user(session: AsyncSession, id: int):
 
     await session.delete(user)
     await session.commit()
+
+async def update_first_access(session: AsyncSession, id: int):
+    user = await session.scalar(select(User).options(selectinload(User.configuration)).where(User.id == id))
+
+    if user.configuration.first_access:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="User already has first registered access")
+
+    user.configuration.first_access = True
+    await session.commit()
+    await session.refresh(user.configuration)
