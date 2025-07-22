@@ -1,9 +1,12 @@
 import asyncio
+from datetime import datetime, timedelta
 
 from celery import Celery
+from sqlalchemy import select
 
 from app.config import get_config
 from app.helpers.database_helper import get_session
+from app.models.auth_model import RefreshToken
 from app.schemas.filter_schema import FilterBase
 from app.schemas.logs_schema import ApiKeyLogSchema, SystemLogSchema, UserLogSchema
 
@@ -59,3 +62,19 @@ def task_create_api_key_log(self, **log_data):
         asyncio.run(create_api_key_log(log))
     except Exception as e:
         raise e
+
+
+@celery_app.task()
+def task_clean_refresh_token_database():
+    async def __execute():
+        expiration_date = datetime.now() - timedelta(days=20)
+        async for session in get_session():
+            tokens = (
+                await session.scalars(select(RefreshToken).where((RefreshToken.expires_at < expiration_date)))
+            ).all()
+
+            for token in tokens:
+                await session.delete(token)
+            await session.commit()
+
+    return asyncio.run(__execute())
