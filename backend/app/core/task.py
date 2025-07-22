@@ -18,6 +18,10 @@ celery_app = Celery(
     backend=f"redis://{config.REDIS_HOST}:{config.REDIS_PORT}/1",
 )
 
+celery_app.conf.update(
+    broker_connection_retry_on_startup=True,
+)
+
 
 @celery_app.task
 def task_get_all_printers_maintenance_info():
