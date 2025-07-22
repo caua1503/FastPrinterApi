@@ -33,8 +33,8 @@ uv run --no-dev init_db.py  #use -p para inicializar em portugues
 
 # Start Celery worker in background
 log "Starting Celery worker..."
-uv run --no-dev celery -A celery_worker worker --loglevel=info &
-uv run --no-dev celery -A celery_worker beat --loglevel=info &
+uv run --no-dev celery -A celery_worker worker --loglevel=warning &
+uv run --no-dev celery -A celery_worker beat --loglevel=warning &
 
 # Start FastAPI server
 log "Starting FastAPI server..."
