@@ -94,13 +94,18 @@ async def get_printers(session: AsyncSession, filters: FilterPrinterDefault):
     printers_public = [
         FullPrinterPublicSchema(
             id=printer.id,
+            supply_id=SupplyIdSchema(id=printer.supply.id, name=printer.supply.name),  # type: ignore
+            status_id=StatusIdSchema(id=printer.status.id, name=printer.status.status),  # type: ignore
+            department_id=DepartmentIdSchema(id=printer.department.id, name=printer.department.name),  # type: ignore
             name=printer.name,
             brand=printer.brand,
             model=printer.model,
             ip=printer.ip,
-            supply_id=SupplyIdSchema(id=printer.supply.id, name=printer.supply.name),  # type: ignore
-            status_id=StatusIdSchema(id=printer.status.id, name=printer.status.status),  # type: ignore
-            department_id=DepartmentIdSchema(id=printer.department.id, name=printer.department.name),  # type: ignore
+            description=printer.description,
+            forecast=printer.forecast,
+            last_refill=printer.last_refill,
+            last_maintenance=printer.last_maintenance,
+            last_check=printer.last_check,
         )
         for printer in printers
     ]
