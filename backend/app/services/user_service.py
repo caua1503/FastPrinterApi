@@ -124,6 +124,7 @@ async def delete_user(session: AsyncSession, id: int):
     await session.delete(user)
     await session.commit()
 
+
 async def update_first_access(session: AsyncSession, id: int):
     user = await session.scalar(select(User).options(selectinload(User.configuration)).where(User.id == id))
 

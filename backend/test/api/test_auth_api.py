@@ -73,7 +73,6 @@ async def test_refresh_token_success(user: User, client: TestClient):
     auth_response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})
     refresh_token = auth_response.json()["refresh_token"]
 
-
     response = client.post("/api/v1/auth/refresh-token", json={"refresh_token_str": refresh_token})
 
     assert response.status_code == HTTPStatus.OK

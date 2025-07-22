@@ -2,12 +2,12 @@ import asyncio
 
 from celery import Celery
 
-from app.config import Config
+from app.config import get_config
 from app.helpers.database_helper import get_session
 from app.schemas.filter_schema import FilterBase
 from app.schemas.logs_schema import ApiKeyLogSchema, SystemLogSchema, UserLogSchema
 
-config = Config()  # pyright: ignore
+config = get_config()  # pyright: ignore
 
 celery_app = Celery(
     "celery_worker",

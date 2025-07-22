@@ -7,10 +7,10 @@ from fastapi import HTTPException
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
-from app.config import Config
+from app.config import get_config
 from app.schemas.logs_schema import LogLevelSchema, ServiceSchema, SystemLogSchema
 
-config = Config()  # pyright: ignore
+config = get_config()  # pyright: ignore
 
 engine = create_async_engine(config.DATABASE_URL)
 

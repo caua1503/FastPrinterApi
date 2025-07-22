@@ -6,13 +6,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.config.config import Config
+from app.config import get_config
 from app.core.security import create_access_token, create_refresh_token, verify_password
 from app.models.auth_model import RefreshToken
 from app.models.user_model import User
 from app.schemas.token_schema import OAuth2PasswordAndRefreshRequestForm, RefreshTokenSchema, TokenSchema
 
-config = Config()
+config = get_config()
 
 
 async def get_token_jwt(form_data: OAuth2PasswordAndRefreshRequestForm, request: Request, session: AsyncSession):

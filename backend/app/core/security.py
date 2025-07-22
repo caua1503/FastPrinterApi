@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import Config
+from app.config import get_config
 from app.core.task import task_create_api_key_log, task_create_system_log
 from app.helpers.database_helper import get_session
 from app.models.auth_model import RefreshToken
@@ -28,7 +28,7 @@ from app.models.user_model import (
 )
 from app.schemas.logs_schema import ApiKeyActionSchema, ApiKeyLogSchema, LogLevelSchema, ServiceSchema, SystemLogSchema
 
-config = Config()  # pyright: ignore
+config = get_config()  # pyright: ignore
 
 pwd_context = PasswordHash.recommended()
 
