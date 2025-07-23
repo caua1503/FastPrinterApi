@@ -38,6 +38,10 @@ class UserUpdateSchema(BaseModel):
     name: Optional[str] = None
 
 
+class UserUpdateAdminSchema(UserUpdateSchema):
+    role: Optional[UsersRoleSchema] = None
+
+
 class UserPublicSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

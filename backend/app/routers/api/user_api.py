@@ -14,6 +14,7 @@ from app.schemas.user_schema import (
     UserNewPasswordSchema,
     UserPublicSchema,
     UsersRoleSchema,
+    UserUpdateAdminSchema,
     UserUpdateSchema,
 )
 from app.services.user_service import (
@@ -119,7 +120,7 @@ async def api_delete_user_admin(
 @user_router.put("/admin", summary="Update a user (admin)", response_model=UserPublicSchema, status_code=HTTPStatus.OK)
 async def api_update_user_admin(
     session: Annotated[AsyncSession, Depends(get_session)],
-    user: UserUpdateSchema,
+    user: UserUpdateAdminSchema,
     id: int,
     current_user=has_access(UsersRoleSchema.admin, usage_api_key=False),
 ):

@@ -23,6 +23,7 @@ from app.schemas.user_schema import (
     UserNewPasswordAdminSchema,
     UserNewPasswordSchema,
     UsersRoleSchema,
+    UserUpdateAdminSchema,
     UserUpdateSchema,
 )
 
@@ -55,7 +56,7 @@ async def create_user(session: AsyncSession, user: UserCreateSchema | UserCreate
     return user_db
 
 
-async def update_user(session: AsyncSession, id: int, user: UserUpdateSchema):
+async def update_user(session: AsyncSession, id: int, user: UserUpdateSchema | UserUpdateAdminSchema):
     existing_user = await session.scalar(select(User).where(User.id == id))
     if not existing_user:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Usuário não encontrado")
@@ -68,6 +69,9 @@ async def update_user(session: AsyncSession, id: int, user: UserUpdateSchema):
 
     if user.name:
         existing_user.name = user.name
+
+    if isinstance(user, UserUpdateAdminSchema) and user.role:
+        existing_user.role = user.role
 
     await session.commit()
     await session.refresh(existing_user)
