@@ -18,7 +18,6 @@ async def api_get_token_jwt(
     request: Request,
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
-
     return await get_token_jwt(form_data, request, session)
 
 

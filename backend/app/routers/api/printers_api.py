@@ -20,7 +20,7 @@ printer_router = APIRouter()
 
 
 @printer_router.get(
-    "/", summary="Get all printers",status_code=HTTPStatus.OK, response_model=ListFullPrinterPublicSchema
+    "/", summary="Get all printers", status_code=HTTPStatus.OK, response_model=ListFullPrinterPublicSchema
 )
 async def api_get_printers(
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -31,9 +31,7 @@ async def api_get_printers(
     return printers
 
 
-@printer_router.post(
-    "/", summary="Create a printer", status_code=HTTPStatus.CREATED, response_model=FullPrinterSchema
-)
+@printer_router.post("/", summary="Create a printer", status_code=HTTPStatus.CREATED, response_model=FullPrinterSchema)
 async def api_create_printer(
     printer: FullPrinterSchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):

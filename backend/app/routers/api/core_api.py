@@ -35,7 +35,9 @@ async def api_current_get_printer_maintenance_info(
     return await get_printer_maintenance_info(printer_id, session, filters)
 
 
-@core_router.get("/info/printer", summary="Get all printers maintenance info", response_model=ListPrinterMaintenanceInfoSchema)
+@core_router.get(
+    "/info/printer", summary="Get all printers maintenance info", response_model=ListPrinterMaintenanceInfoSchema
+)
 async def api_get_all_printer_maintenance_info(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterBase, Query()],
