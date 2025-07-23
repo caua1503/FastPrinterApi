@@ -24,14 +24,14 @@ from app.services.supply_service import (
 supply_router = APIRouter()
 
 
-@supply_router.post("/", status_code=HTTPStatus.CREATED)
+@supply_router.post("/", summary="Create a new supply", status_code=HTTPStatus.CREATED)
 async def api_create_supply(
     supply: SupplySchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
     return await create_supply(supply, session)
 
 
-@supply_router.get("/", status_code=HTTPStatus.OK)
+@supply_router.get("/", summary="Get all supply", status_code=HTTPStatus.OK)
 async def api_get_supply(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterBase, Query()],
@@ -41,7 +41,7 @@ async def api_get_supply(
     return {"supplys": result}
 
 
-@supply_router.get("/type", status_code=HTTPStatus.OK)
+@supply_router.get("/type", summary="Get all supply type", status_code=HTTPStatus.OK)
 async def api_get_supply_type(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterBase, Query()],
@@ -51,21 +51,21 @@ async def api_get_supply_type(
     return {"supply_types": result}
 
 
-@supply_router.post("/type", status_code=HTTPStatus.CREATED)
+@supply_router.post("/type", summary="Create a new supply type", status_code=HTTPStatus.CREATED)
 async def api_create_supply_type(
     supply_type: SupplyTypeSchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
     return await create_supply_type(supply_type, session)
 
 
-@supply_router.get("/type/{id}", status_code=HTTPStatus.OK)
+@supply_router.get("/type/{id}", summary="Get a supply type by id", status_code=HTTPStatus.OK)
 async def api_get_supply_type_id(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
     return await get_supply_type_id(id, session)
 
 
-@supply_router.put("/type/{id}", status_code=HTTPStatus.OK)
+@supply_router.put("/type/{id}", summary="Update a supply type by id", status_code=HTTPStatus.OK)
 async def api_update_supply_type(
     id: int,
     supply_type: SupplyTypeSchema,
@@ -75,25 +75,25 @@ async def api_update_supply_type(
     return await update_supply_type(id, supply_type, session)
 
 
-@supply_router.delete("/type/{id}", status_code=HTTPStatus.NO_CONTENT)
+@supply_router.delete("/type/{id}", summary="Delete a supply type by id", status_code=HTTPStatus.NO_CONTENT)
 async def api_delete_supply_type(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
     return await delete_supply_type(id, session)
 
 
-@supply_router.get("/{id}", status_code=HTTPStatus.OK)
+@supply_router.get("/{id}", summary="Get a supply by id", status_code=HTTPStatus.OK)
 async def api_get_supply_id(id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
     return await get_supply_id(id, session)
 
 
-@supply_router.put("/{id}", status_code=HTTPStatus.OK)
+@supply_router.put("/{id}", summary="Update a supply by id", status_code=HTTPStatus.OK)
 async def api_update_supply(
     id: int, supply: SupplySchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
     return await update_supply(id, supply, session)
 
 
-@supply_router.delete("/{id}", status_code=HTTPStatus.NO_CONTENT)
+@supply_router.delete("/{id}", summary="Delete a supply by id", status_code=HTTPStatus.NO_CONTENT)
 async def api_delete_supply(id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
     return await delete_supply(id, session)

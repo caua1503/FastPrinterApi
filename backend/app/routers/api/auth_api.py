@@ -12,16 +12,17 @@ from app.services.auth_service import get_token_jwt, logout, refresh_token
 auth_router = APIRouter()
 
 
-@auth_router.post("/token", response_model=RefreshTokenSchema)
+@auth_router.post("/token", summary="Get a token", response_model=RefreshTokenSchema)
 async def api_get_token_jwt(
     form_data: Annotated[OAuth2PasswordAndRefreshRequestForm, Depends()],
     request: Request,
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
+
     return await get_token_jwt(form_data, request, session)
 
 
-@auth_router.post("/refresh-token", response_model=TokenSchema)
+@auth_router.post("/refresh-token", summary="Refresh a token", response_model=TokenSchema)
 async def api_refresh_token(
     session: Annotated[AsyncSession, Depends(get_session)],
     refresh_token_str: Annotated[str, Body(..., embed=True)],
@@ -29,7 +30,7 @@ async def api_refresh_token(
     return await refresh_token(refresh_token_str, session)
 
 
-@auth_router.get("/logout")
+@auth_router.get("/logout", summary="Logout")
 async def api_logout(
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user: Annotated[User, has_access(usage_api_key=False)],

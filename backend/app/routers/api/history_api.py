@@ -58,7 +58,7 @@ history_router = APIRouter()
 """
 
 
-@history_router.get("/recharge", status_code=HTTPStatus.OK, response_model=ListRefillHistorySchema)
+@history_router.get("/recharge", summary="Get all historys of recharge", status_code=HTTPStatus.OK, response_model=ListRefillHistorySchema)
 async def api_get_history_recharge(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterPrinterHistory, Query()],
@@ -71,7 +71,7 @@ async def api_get_history_recharge(
     return result
 
 
-@history_router.post("/recharge", status_code=HTTPStatus.CREATED, response_model=RefillHistorySchemaDB)
+@history_router.post("/recharge", summary="Create a new history of recharge", status_code=HTTPStatus.CREATED, response_model=RefillHistorySchemaDB)
 async def api_create_history_recharge(
     history: RefillHistorySchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -81,7 +81,7 @@ async def api_create_history_recharge(
     return await create_history_recharge(history, session)
 
 
-@history_router.put("/recharge/{id}", status_code=HTTPStatus.OK, response_model=RefillHistorySchemaDB)
+@history_router.put("/recharge/{id}", summary="Update a history of recharge by id", status_code=HTTPStatus.OK, response_model=RefillHistorySchemaDB)
 async def api_update_history_recharge(
     id: int,
     history: RefillHistorySchema,
@@ -94,7 +94,7 @@ async def api_update_history_recharge(
     return await update_history_recharge(id, history, session)
 
 
-@history_router.get("/recharge/{id}", status_code=HTTPStatus.OK, response_model=Optional[RefillHistorySchemaDB])
+@history_router.get("/recharge/{id}", summary="Get a history of recharge by id", status_code=HTTPStatus.OK, response_model=Optional[RefillHistorySchemaDB])
 async def api_get_history_recharge_id(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -104,7 +104,7 @@ async def api_get_history_recharge_id(
     return await get_history_recharge_id(id, session)
 
 
-@history_router.delete("/recharge/{id}", status_code=HTTPStatus.NO_CONTENT)
+@history_router.delete("/recharge/{id}", summary="Delete a history of recharge by id", status_code=HTTPStatus.NO_CONTENT)
 async def api_delete_history_recharge(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -121,7 +121,7 @@ async def api_delete_history_recharge(
 """
 
 
-@history_router.post("/maintenance", status_code=HTTPStatus.CREATED, response_model=MaintenanceHistorySchemaDB)
+@history_router.post("/maintenance", summary="Create a new history of maintenance", status_code=HTTPStatus.CREATED, response_model=MaintenanceHistorySchemaDB)
 async def api_create_history_maintenance(
     history: MaintenanceHistorySchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -131,7 +131,7 @@ async def api_create_history_maintenance(
     return await create_history_maintenance(history, session)
 
 
-@history_router.get("/maintenance", status_code=HTTPStatus.OK, response_model=ListMaintenanceHistorySchema)
+@history_router.get("/maintenance", summary="Get all historys of maintenance", status_code=HTTPStatus.OK, response_model=ListMaintenanceHistorySchema)
 async def api_get_history_maintenance(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterPrinterHistory, Query()],
@@ -144,7 +144,7 @@ async def api_get_history_maintenance(
     return result
 
 
-@history_router.get("/maintenance/{id}", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
+@history_router.get("/maintenance/{id}", summary="Get a history of maintenance by id", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
 async def api_get_history_maintenance_id(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -154,7 +154,7 @@ async def api_get_history_maintenance_id(
     return await get_history_maintenance_id(id, session)
 
 
-@history_router.put("/maintenance/{id}", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
+@history_router.put("/maintenance/{id}", summary="Update a history of maintenance by id", status_code=HTTPStatus.OK, response_model=MaintenanceHistorySchemaDB)
 async def api_update_history_maintenance(
     id: int,
     history: MaintenanceHistorySchema,
@@ -167,7 +167,7 @@ async def api_update_history_maintenance(
     return await update_history_maintenance(id, history, session)
 
 
-@history_router.delete("/maintenance/{id}", status_code=HTTPStatus.NO_CONTENT)
+@history_router.delete("/maintenance/{id}", summary="Delete a history of maintenance by id", status_code=HTTPStatus.NO_CONTENT)
 async def api_delete_history_maintenance(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -184,7 +184,7 @@ async def api_delete_history_maintenance(
 """
 
 
-@history_router.get("/trash", status_code=HTTPStatus.OK, response_model=ListPrinterTrashHistorySchema)
+@history_router.get("/trash", summary="Get all historys of trash", status_code=HTTPStatus.OK, response_model=ListPrinterTrashHistorySchema)
 async def api_get_history_trash(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterPrinterHistory, Query()],
@@ -197,7 +197,7 @@ async def api_get_history_trash(
     return result
 
 
-@history_router.put("/trash/{id}", status_code=HTTPStatus.OK, response_model=PrinterTrashHistorySchemaDB)
+@history_router.put("/trash/{id}", summary="Update a history of trash by id", status_code=HTTPStatus.OK, response_model=PrinterTrashHistorySchemaDB)
 async def api_update_history_trash(
     id: int,
     history: PrinterTrashHistorySchema,
@@ -210,7 +210,7 @@ async def api_update_history_trash(
     return await update_history_trash(id, history, session)
 
 
-@history_router.delete("/trash/{id}", status_code=HTTPStatus.NO_CONTENT)
+@history_router.delete("/trash/{id}", summary="Delete a history of trash by id", status_code=HTTPStatus.NO_CONTENT)
 async def api_delete_history_trash(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -220,7 +220,7 @@ async def api_delete_history_trash(
     return await delete_history_trash(id, session)
 
 
-@history_router.post("/trash", status_code=HTTPStatus.CREATED, response_model=PrinterTrashHistorySchemaDB)
+@history_router.post("/trash", summary="Create a new history of trash", status_code=HTTPStatus.CREATED, response_model=PrinterTrashHistorySchemaDB)
 async def api_create_history_trash(
     history: PrinterTrashHistorySchema,
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -232,7 +232,7 @@ async def api_create_history_trash(
     return await create_history_trash(history, session)
 
 
-@history_router.get("/alert", status_code=HTTPStatus.OK, response_model=ListAlertHistorySchema)
+@history_router.get("/alert", summary="Get all historys of alerts", status_code=HTTPStatus.OK, response_model=ListAlertHistorySchema)
 async def api_get_history_alerts(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterPrinterHistory, Query()],
@@ -245,7 +245,7 @@ async def api_get_history_alerts(
     return result
 
 
-@history_router.put("/alert/{id}", status_code=HTTPStatus.OK, response_model=AlertHistorySchemaDB)
+@history_router.put("/alert/{id}", summary="Update a history of alert by id", status_code=HTTPStatus.OK, response_model=AlertHistorySchemaDB)
 async def api_update_history_alert(
     id: int,
     history: AlertHistorySchema,
@@ -258,7 +258,7 @@ async def api_update_history_alert(
     return await update_history_alert(id, history, session)
 
 
-@history_router.delete("/alert/{id}", status_code=HTTPStatus.NO_CONTENT)
+@history_router.delete("/alert/{id}", summary="Delete a history of alert by id", status_code=HTTPStatus.NO_CONTENT)
 async def api_delete_history_alert(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -275,7 +275,7 @@ async def api_delete_history_alert(
 """
 
 
-@history_router.get("/status", status_code=HTTPStatus.OK, response_model=ListStatusHistorySchema)
+@history_router.get("/status", summary="Get all historys of status", status_code=HTTPStatus.OK, response_model=ListStatusHistorySchema)
 async def api_get_history_status(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterPrinterHistory, Query()],
@@ -288,7 +288,7 @@ async def api_get_history_status(
     return result
 
 
-@history_router.get("/status/{id}", status_code=HTTPStatus.OK, response_model=StatusHistorySchemaDB)
+@history_router.get("/status/{id}", summary="Get a history of status by id", status_code=HTTPStatus.OK, response_model=StatusHistorySchemaDB)
 async def api_get_history_status_id(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -298,7 +298,7 @@ async def api_get_history_status_id(
     return await get_history_status_id(id, session)
 
 
-@history_router.put("/status/{id}", status_code=HTTPStatus.OK, response_model=StatusHistorySchemaDB)
+@history_router.put("/status/{id}", summary="Update a history of status by id", status_code=HTTPStatus.OK, response_model=StatusHistorySchemaDB)
 async def api_update_history_status(
     id: int, history: StatusHistorySchema, session: Annotated[AsyncSession, Depends(get_session)]
 ):
@@ -308,7 +308,7 @@ async def api_update_history_status(
     return await update_history_status(id, history, session)
 
 
-@history_router.delete("/status/{id}", status_code=HTTPStatus.NO_CONTENT)
+@history_router.delete("/status/{id}", summary="Delete a history of status by id", status_code=HTTPStatus.NO_CONTENT)
 async def api_delete_history_status(id: int, session: Annotated[AsyncSession, Depends(get_session)]):
     """
     Delete a history of status by id

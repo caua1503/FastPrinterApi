@@ -18,7 +18,7 @@ from app.services.department_service import (
 department_router = APIRouter()
 
 
-@department_router.get("/", description="Get all departments")
+@department_router.get("/", summary="Get all departments")
 async def api_get_departments(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterBase, Query()],
@@ -28,7 +28,7 @@ async def api_get_departments(
     return {"departments": departments}
 
 
-@department_router.post("/", description="Create a department")
+@department_router.post("/", summary="Create a department")
 async def api_create_department(
     department: DepartmentSchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -36,7 +36,7 @@ async def api_create_department(
     return department_db
 
 
-@department_router.get("/{id}", description="Get a department by id")
+@department_router.get("/{id}", summary="Get a department by id")
 async def api_get_department_id(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -44,7 +44,7 @@ async def api_get_department_id(
     return department
 
 
-@department_router.put("/{id}", description="Update a department by id")
+@department_router.put("/{id}", summary="Update a department by id")
 async def api_update_department(
     id: int,
     department: DepartmentSchema,
@@ -55,7 +55,7 @@ async def api_update_department(
     return department_db
 
 
-@department_router.delete("/{id}", description="Delete a department by id")
+@department_router.delete("/{id}", summary="Delete a department by id")
 async def api_delete_department(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):

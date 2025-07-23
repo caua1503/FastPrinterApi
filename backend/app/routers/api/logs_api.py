@@ -17,7 +17,7 @@ from app.services.logs_service import get_api_key_logs, get_system_logs, get_use
 log_router = APIRouter()
 
 
-@log_router.get("/system", response_model=ListSystemLogSchema)
+@log_router.get("/system", summary="Get all historys of system", response_model=ListSystemLogSchema)
 async def api_get_system_log(
     session: Annotated[AsyncSession, Depends(get_session_logs)],
     filters: Annotated[FilterLogSystem, Query()],
@@ -26,7 +26,7 @@ async def api_get_system_log(
     return await get_system_logs(session, filters)
 
 
-@log_router.get("/user", response_model=ListUserLogSchema)
+@log_router.get("/user", summary="Get all historys of user", response_model=ListUserLogSchema)
 async def api_get_user_log(
     session: Annotated[AsyncSession, Depends(get_session_logs)],
     filters: Annotated[FilterLogUser, Query()],
@@ -35,7 +35,7 @@ async def api_get_user_log(
     return await get_user_logs(session, filters)
 
 
-@log_router.get("/api", response_model=ListApiKeyLogSchema)
+@log_router.get("/api", summary="Get all historys of api", response_model=ListApiKeyLogSchema)
 async def api_get_api_log(
     session: Annotated[AsyncSession, Depends(get_session_logs)],
     filters: Annotated[FilterLogApiKey, Query()],
@@ -44,7 +44,7 @@ async def api_get_api_log(
     return await get_api_key_logs(session, filters, current_user.id)
 
 
-@log_router.get("/api/admin", response_model=ListApiKeyLogSchema)
+@log_router.get("/api/admin", summary="Get all historys of api (admin)", response_model=ListApiKeyLogSchema)
 async def api_get_api_log_admin(
     session: Annotated[AsyncSession, Depends(get_session_logs)],
     filters: Annotated[FilterLogApiKeyAdmin, Query()],

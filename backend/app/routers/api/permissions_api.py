@@ -26,7 +26,7 @@ from app.services.permissions_service import (
 permissions_router = APIRouter()
 
 
-@permissions_router.get("/user")
+@permissions_router.get("/user", summary="Get all permissions of user (admin)")
 async def api_get_all_permissions_user(
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
@@ -35,7 +35,7 @@ async def api_get_all_permissions_user(
     return result
 
 
-@permissions_router.get("/api_key")
+@permissions_router.get("/api_key", summary="Get all permissions of api key (admin)")
 async def api_get_all_permissions_api_key(
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user=has_access(role=UsersRoleSchema.admin, usage_api_key=False),
@@ -44,7 +44,7 @@ async def api_get_all_permissions_api_key(
     return result
 
 
-@permissions_router.post("/user")
+@permissions_router.post("/user", summary="Create a new permission of user (admin)")
 async def api_create_permission_user(
     permission: PermissionUserSchema,
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -54,7 +54,7 @@ async def api_create_permission_user(
     return result
 
 
-@permissions_router.post("/api_key")
+@permissions_router.post("/api_key", summary="Create a new permission of api key (admin)")
 async def api_create_permission_api_key(
     permission: PermissionApiKeySchema,
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -64,7 +64,7 @@ async def api_create_permission_api_key(
     return result
 
 
-@permissions_router.put("/user/{permission_id}")
+@permissions_router.put("/user/{permission_id}", summary="Update a permission of user (admin)")
 async def api_update_permission_user(
     permission_id: int,
     permission: PermissionUserUpdateSchema,
@@ -75,7 +75,7 @@ async def api_update_permission_user(
     return result
 
 
-@permissions_router.put("/api_key/{permission_id}")
+@permissions_router.put("/api_key/{permission_id}", summary="Update a permission of api key (admin)")
 async def api_update_permission_api_key(
     permission_id: int,
     permission: PermissionApiKeyUpdateSchema,
@@ -86,7 +86,7 @@ async def api_update_permission_api_key(
     return result
 
 
-@permissions_router.delete("/user/{permission_id}")
+@permissions_router.delete("/user/{permission_id}", summary="Delete a permission of user (admin)")
 async def api_delete_permission_user(
     permission_id: int,
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -96,7 +96,7 @@ async def api_delete_permission_user(
     return result
 
 
-@permissions_router.delete("/api_key/{permission_id}")
+@permissions_router.delete("/api_key/{permission_id}", summary="Delete a permission of api key (admin)")
 async def api_delete_permission_api_key(
     permission_id: int,
     session: Annotated[AsyncSession, Depends(get_session)],
