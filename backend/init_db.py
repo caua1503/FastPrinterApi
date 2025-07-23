@@ -5,60 +5,125 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app.config.config import Config
+from app.core.security import get_password_hash
 from app.models import table_registry
 from app.models.department_model import Department
 from app.models.printer_model import Status
 from app.models.supply_model import Supply, SupplyType
-from app.models.user_model import PermissionUser
+from app.models.user_model import PermissionApiKey, PermissionUser, User, UserConfiguration
+from app.schemas.permission_schema import (
+    DepartmentPermissionCatalog,
+    HistoryPermissionCatalog,
+    LogPermissionCatalog,
+    MaintenancePermissionCatalog,
+    PrinterPermissionCatalog,
+    SupplyPermissionCatalog,
+    UserPermissionCatalog,
+    UserRoleCatalog,
+)
+from app.schemas.user_schema import UsersRoleSchema
 
-# Configure your database
 engine = create_async_engine(Config().DATABASE_URL, echo=True)  # type: ignore
 
-# Initial Permissions (Always in English)
-initial_permissions = [
-    # System Roles
-    PermissionUser(name="Administrator", code="admin", description="Full administrative permissions."),
-    PermissionUser(name="Member", code="member", description="Basic user permissions."),
-    # User Permissions
-    PermissionUser(name="user.create", code="user.create", description="Allows creating new users."),
-    PermissionUser(name="user.read", code="user.read", description="Allows viewing user information."),
-    PermissionUser(name="user.update", code="user.update", description="Allows updating user information."),
-    PermissionUser(name="user.delete", code="user.delete", description="Allows deleting users."),
-    # Printer Permissions
-    PermissionUser(name="printer.create", code="printer.create", description="Allows adding new printers."),
-    PermissionUser(name="printer.read", code="printer.read", description="Allows viewing printer information."),
-    PermissionUser(name="printer.update", code="printer.update", description="Allows updating printer information."),
-    PermissionUser(name="printer.delete", code="printer.delete", description="Allows deleting printers."),
-    # Supply Permissions
-    PermissionUser(name="supply.create", code="supply.create", description="Allows adding new supplies."),
-    PermissionUser(name="supply.read", code="supply.read", description="Allows viewing supply information."),
-    PermissionUser(name="supply.update", code="supply.update", description="Allows updating supply information."),
-    PermissionUser(name="supply.delete", code="supply.delete", description="Allows deleting supplies."),
-    # Department Permissions
-    PermissionUser(name="department.create", code="department.create", description="Allows creating new departments."),
-    PermissionUser(
-        name="department.read", code="department.read", description="Allows viewing department information."
-    ),
-    PermissionUser(
-        name="department.update", code="department.update", description="Allows updating department information."
-    ),
-    PermissionUser(name="department.delete", code="department.delete", description="Allows deleting departments."),
-    # Maintenance Permissions
-    PermissionUser(
-        name="maintenance.create", code="maintenance.create", description="Allows creating maintenance records."
-    ),
-    PermissionUser(name="maintenance.read", code="maintenance.read", description="Allows viewing maintenance records."),
-    PermissionUser(
-        name="maintenance.update", code="maintenance.update", description="Allows updating maintenance records."
-    ),
-    PermissionUser(
-        name="maintenance.delete", code="maintenance.delete", description="Allows deleting maintenance records."
-    ),
-    # History Permissions
-    PermissionUser(name="history.read", code="history.read", description="Allows viewing history records."),
-    # Log Permissions
-    PermissionUser(name="log.read", code="log.read", description="Allows viewing system logs."),
-]
+
+def get_all_permissions(catalog_classes):
+    """
+    Extracts all permissions defined in catalog classes and returns a list of PermissionUsers.
+
+    Each catalog class groups together system-related packages
+    (e.g., UserPermissionCatalog, PrinterPermissionCatalog).
+
+    The function examines all attributes of these classes, verifies that the tasks are valid
+    (have 'name' and 'code' fields),
+
+    and creates a PermissionUser object for each.
+
+    Arguments:
+    catalog_classes(list): List of permission catalog classes.
+
+    Returns:
+    list: List of PermissionUsers, ready to be inserted into the database.
+
+    Example of use:
+        initial_permissions = get_all_permissions([
+            UserRoleCatalog,
+            UserPermissionCatalog,
+            PrinterPermissionCatalog,
+            ...
+        ])
+    """
+    permissions = []
+    for catalog in catalog_classes:
+        for attr in dir(catalog):
+            if not attr.startswith("__"):
+                perm = getattr(catalog, attr)
+                if hasattr(perm, "name") and hasattr(perm, "code"):
+                    permissions.append(
+                        PermissionUser(
+                            name=perm.name,
+                            code=perm.code,
+                            description=perm.description,
+                        )
+                    )
+    return permissions
+
+
+def get_all_api_permissions(catalog_classes):
+    """
+    Extracts all permissions defined in catalog classes and returns a list of PermissionApiKey.
+
+    Each catalog class groups together system-related packages
+    (e.g., UserPermissionCatalog, PrinterPermissionCatalog).
+
+    The function examines all attributes of these classes, verifies that the tasks are valid
+    (have 'name' and 'code' fields),
+
+    and creates a PermissionApiKey object for each.
+
+    Arguments:
+    catalog_classes(list): List of permission catalog classes.
+
+    Returns:
+    list: List of PermissionApiKey, ready to be inserted into the database.
+    """
+    permissions = []
+    for catalog in catalog_classes:
+        for attr in dir(catalog):
+            if not attr.startswith("__"):
+                perm = getattr(catalog, attr)
+                if hasattr(perm, "name") and hasattr(perm, "code"):
+                    permissions.append(
+                        PermissionApiKey(
+                            name=perm.name,
+                            code=perm.code,
+                            description=perm.description,
+                        )
+                    )
+    return permissions
+
+
+# Permissões para usuários do sistema (incluindo roles de sistema)
+initial_user_permissions = get_all_permissions([
+    UserRoleCatalog,
+    UserPermissionCatalog,
+    PrinterPermissionCatalog,
+    SupplyPermissionCatalog,
+    DepartmentPermissionCatalog,
+    MaintenancePermissionCatalog,
+    HistoryPermissionCatalog,
+    LogPermissionCatalog,
+])
+
+# Permissões para API keys (excluindo roles de sistema admin/member)
+initial_api_permissions = get_all_api_permissions([
+    UserPermissionCatalog,
+    PrinterPermissionCatalog,
+    SupplyPermissionCatalog,
+    DepartmentPermissionCatalog,
+    MaintenancePermissionCatalog,
+    HistoryPermissionCatalog,
+    LogPermissionCatalog,
+])
 
 # --- English Data ---
 initial_supply_types_en = [
@@ -125,6 +190,43 @@ initial_status_pt = [
 ]
 
 
+async def create_super_user(session: AsyncSession):
+    """Creates the super user and its configuration if it doesn't exist."""
+    super_user_login = "fastprinter_admin"
+
+    # Check if super user already exists
+    result = await session.execute(select(User).where(User.login == super_user_login))
+    existing_user = result.scalar_one_or_none()
+
+    if existing_user:
+        print("Super Admin user already exists. Skipping creation.")
+        return
+
+    # Create super user
+    print("Creating Super Admin user...")
+    super_user = User(
+        login=super_user_login,
+        name="Super Admin",
+        role=UsersRoleSchema.admin,
+        password_hash=get_password_hash("123456"),
+    )
+    session.add(super_user)
+    await session.flush()  # Flush to get the user ID
+
+    # Create user configuration
+    print("Creating Super Admin user configuration...")
+    user_config = UserConfiguration(
+        user_id=super_user.id,  # Use the dynamic ID
+        username=super_user_login,
+        webhook_enabled=False,
+        webhook_url=None,
+        first_access=False,
+    )
+    session.add(user_config)
+    await session.commit()
+    print("Super Admin user and configuration created successfully.")
+
+
 async def insert_with_check(session: AsyncSession, model, data, name: str):
     """Helper function to insert data with verification"""
     result = await session.execute(select(model).limit(1))
@@ -132,13 +234,11 @@ async def insert_with_check(session: AsyncSession, model, data, name: str):
         session.add_all(data)
         await session.commit()
         print(f"{name} added successfully.")
-        await asyncio.sleep(0.1)  # Wait for 0.1 second after each operation
     else:
         print(f"{name} already exist. None added.")
 
 
 async def initialize_database(use_portuguese: bool = False):
-    # Select data based on the flag
     if use_portuguese:
         initial_supply_types = initial_supply_types_pt
         initial_supplies = initial_supplies_pt
@@ -153,29 +253,24 @@ async def initialize_database(use_portuguese: bool = False):
         print("Initializing database in English...")
 
     try:
-        # Asynchronously create all tables
         async with engine.begin() as conn:
             await conn.run_sync(table_registry.metadata.create_all)
             print("Tables created/verified successfully.")
-            await asyncio.sleep(1)  # Wait for tables to be fully created
 
         async with AsyncSession(engine) as session:
-            # Sequential initialization with delays
+            await insert_with_check(session, PermissionUser, initial_user_permissions, "User permissions")
 
-            # 1. First, insert permissions
-            await insert_with_check(session, PermissionUser, initial_permissions, "User permissions")
+            await insert_with_check(session, PermissionApiKey, initial_api_permissions, "Api key permissions")
 
-            # 2. Then, insert supply types
             await insert_with_check(session, SupplyType, initial_supply_types, "Supply types")
 
-            # 3. After supply types are inserted, insert supplies
             await insert_with_check(session, Supply, initial_supplies, "Supplies")
 
-            # 4. Insert status
             await insert_with_check(session, Status, initial_status, "Statuses")
 
-            # 5. Finally, insert departments
             await insert_with_check(session, Department, initial_departments, "Departments")
+
+            await create_super_user(session)
 
         print("Database initialized successfully.")
 
