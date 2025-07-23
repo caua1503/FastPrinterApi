@@ -20,8 +20,14 @@ from app.schemas.user_schema import UsersRoleSchema
 
 
 @pytest_asyncio.fixture
-async def token(client: TestClient, user: User):
-    response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})  # type: ignore
+async def guest_token(client: TestClient, guest_user: User):
+    response = client.post("/api/v1/auth/token", data={"username": guest_user.login, "password": guest_user.password})  # type: ignore
+    return response.json()["access_token"]
+
+
+@pytest_asyncio.fixture
+async def member_token(client: TestClient, member_user: User):
+    response = client.post("/api/v1/auth/token", data={"username": member_user.login, "password": member_user.password})  # type: ignore
     return response.json()["access_token"]
 
 
@@ -32,12 +38,39 @@ async def admin_token(client: TestClient, admin_user: User):
 
 
 @pytest_asyncio.fixture
-async def user(session: AsyncSession):
+async def guest_user(session: AsyncSession):
     password = "fake_password"
     user = User(
-        login="testuser",
-        name="testuser",
+        login="guest_user",
+        name="guest_user",
         password_hash=get_password_hash(password),
+        role=UsersRoleSchema.guest,
+    )
+
+    session.add(user)
+    await session.flush()
+
+    user_configuration = UserConfiguration(
+        user_id=user.id,
+        username=user.name,
+    )
+
+    session.add(user_configuration)
+    await session.commit()
+    await session.refresh(user)
+
+    user.password = password  # type: ignore
+    return user
+
+
+@pytest_asyncio.fixture
+async def member_user(session: AsyncSession):
+    password = "fake_password"
+    user = User(
+        login="member_user",
+        name="member_user",
+        password_hash=get_password_hash(password),
+        role=UsersRoleSchema.member,
     )
 
     session.add(user)
@@ -60,8 +93,8 @@ async def user(session: AsyncSession):
 async def admin_user(session: AsyncSession):
     password = "fake_password"
     user = User(
-        login="admin",
-        name="admin",
+        login="admin_user",
+        name="admin_user",
         role=UsersRoleSchema.admin,
         password_hash=get_password_hash(password),
     )

@@ -8,15 +8,21 @@ from app.models.printer_model import Printer
 
 
 @pytest.mark.asyncio
-async def test_get_history_alert_empty(client, token):
-    response = client.get("/api/v1/history/alert", headers={"Authorization": f"Bearer {token}"})
+async def test_get_history_alert_guest(client, guest_token):
+    response = client.get("/api/v1/history/alert", headers={"Authorization": f"Bearer {guest_token}"})
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_get_history_alert_empty(client, member_token):
+    response = client.get("/api/v1/history/alert", headers={"Authorization": f"Bearer {member_token}"})
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {"historys": [], "total": 0, "count": 0}
 
 
 @pytest.mark.asyncio
-async def test_get_history_alert(client, alert_history: AlertHistory, token):
-    response = client.get("/api/v1/history/alert", headers={"Authorization": f"Bearer {token}"})
+async def test_get_history_alert(client, alert_history: AlertHistory, member_token):
+    response = client.get("/api/v1/history/alert", headers={"Authorization": f"Bearer {member_token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["total"] == 1
@@ -29,7 +35,7 @@ async def test_get_history_alert(client, alert_history: AlertHistory, token):
 
 
 @pytest.mark.asyncio
-async def test_update_history_alert(client, alert_history: AlertHistory, token):
+async def test_update_history_alert(client, alert_history: AlertHistory, member_token):
     new_description = "Updated description"
     new_alert_type = "Updated alert type"
     response = client.put(
@@ -40,7 +46,7 @@ async def test_update_history_alert(client, alert_history: AlertHistory, token):
             "alert_type": new_alert_type,
             "description": new_description,
         },
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {member_token}"},
     )
     assert response.status_code == HTTPStatus.OK
     response_json = response.json()
@@ -50,9 +56,9 @@ async def test_update_history_alert(client, alert_history: AlertHistory, token):
 
 
 @pytest.mark.asyncio
-async def test_get_history_alert_by_printer_id(client, alert_history: AlertHistory, printer: Printer, token):
+async def test_get_history_alert_by_printer_id(client, alert_history: AlertHistory, printer: Printer, member_token):
     response = client.get(
-        f"/api/v1/history/alert?printer_id={printer.id}", headers={"Authorization": f"Bearer {token}"}
+        f"/api/v1/history/alert?printer_id={printer.id}", headers={"Authorization": f"Bearer {member_token}"}
     )
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
@@ -64,12 +70,14 @@ async def test_get_history_alert_by_printer_id(client, alert_history: AlertHisto
 
 
 @pytest.mark.asyncio
-async def test_delete_history_alert(client, alert_history: AlertHistory, token):
-    response = client.delete(f"/api/v1/history/alert/{alert_history.id}", headers={"Authorization": f"Bearer {token}"})
+async def test_delete_history_alert(client, alert_history: AlertHistory, member_token):
+    response = client.delete(
+        f"/api/v1/history/alert/{alert_history.id}", headers={"Authorization": f"Bearer {member_token}"}
+    )
     assert response.status_code == HTTPStatus.NO_CONTENT
 
 
 @pytest.mark.asyncio
-async def test_delete_history_alert_not_found(client, token):
-    response = client.delete("/api/v1/history/alert/99999", headers={"Authorization": f"Bearer {token}"})
+async def test_delete_history_alert_not_found(client, member_token):
+    response = client.delete("/api/v1/history/alert/99999", headers={"Authorization": f"Bearer {member_token}"})
     assert response.status_code == HTTPStatus.NOT_FOUND

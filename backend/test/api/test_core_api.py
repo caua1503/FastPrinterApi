@@ -6,21 +6,41 @@ from app.models.printer_model import Printer
 
 
 @pytest.mark.asyncio
-async def test_get_all_printers_maintenance_info(client, printer: Printer, token):
+async def test_get_all_printers_maintenance_info_guest(client, printer: Printer, member_token):
     response = client.get(
         "/api/v1/core/current/info/printer",
         params={"limit": 10, "offset": 0},
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {member_token}"},
     )
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
 
 @pytest.mark.asyncio
-async def test_get_printer_maintenance_info(client, printer: Printer, token):
+async def test_get_printer_maintenance_info_guest(client, printer: Printer, member_token):
     response = client.get(
         f"/api/v1/core/current/info/printer/{printer.id}",
         params={"limit": 10, "offset": 0},
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {member_token}"},
+    )
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_get_all_printers_maintenance_info_member(client, printer: Printer, member_token):
+    response = client.get(
+        "/api/v1/core/current/info/printer",
+        params={"limit": 10, "offset": 0},
+        headers={"Authorization": f"Bearer {member_token}"},
+    )
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_get_printer_maintenance_info_member(client, printer: Printer, member_token):
+    response = client.get(
+        f"/api/v1/core/current/info/printer/{printer.id}",
+        params={"limit": 10, "offset": 0},
+        headers={"Authorization": f"Bearer {member_token}"},
     )
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
@@ -55,11 +75,11 @@ async def test_get_printer_maintenance_info_admin(client, printer: Printer, admi
 
 
 @pytest.mark.asyncio
-async def test_get_printer_maintenance_info_service(client, printer: Printer, token):
+async def test_get_printer_maintenance_info_service(client, printer: Printer, member_token):
     response = client.get(
         f"/api/v1/core/info/printer/{printer.id}",
         params={"limit": 10, "offset": 0},
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {member_token}"},
     )
     assert response.status_code == HTTPStatus.OK
     data = response.json()
@@ -71,10 +91,10 @@ async def test_get_printer_maintenance_info_service(client, printer: Printer, to
 
 
 @pytest.mark.asyncio
-async def test_get_printer_maintenance_info_not_found(client, token):
+async def test_get_printer_maintenance_info_not_found(client, member_token):
     response = client.get(
         "/api/v1/core/info/printer/99999",
         params={"limit": 10, "offset": 0},
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {member_token}"},
     )
     assert response.status_code == HTTPStatus.NOT_FOUND

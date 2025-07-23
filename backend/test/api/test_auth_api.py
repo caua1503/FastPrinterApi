@@ -7,9 +7,22 @@ from app.models.user_model import User
 
 
 @pytest.mark.asyncio
-async def test_auth_api_success(user: User, client: TestClient):
+async def test_auth_api_success_guest(guest_user: User, client: TestClient):
     """Testa autenticação com credenciais válidas"""
-    response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})
+    response = client.post("/api/v1/auth/token", data={"username": guest_user.login, "password": guest_user.password})
+
+    assert response.status_code == HTTPStatus.OK
+
+    data = response.json()
+    assert data["access_token"] is not None
+    assert data["token_type"] == "bearer"
+    assert data["refresh_token"] is not None
+
+
+@pytest.mark.asyncio
+async def test_auth_api_success_member(member_user: User, client: TestClient):
+    """Testa autenticação com credenciais válidas"""
+    response = client.post("/api/v1/auth/token", data={"username": member_user.login, "password": member_user.password})
 
     assert response.status_code == HTTPStatus.OK
     data = response.json()
@@ -28,9 +41,9 @@ async def test_auth_api_invalid_username(client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_auth_api_invalid_password(user: User, client: TestClient):
+async def test_auth_api_invalid_password(member_user: User, client: TestClient):
     """Testa autenticação com senha inválida"""
-    response = client.post("/api/v1/auth/token", data={"username": user.login, "password": "wrong_password"})
+    response = client.post("/api/v1/auth/token", data={"username": member_user.login, "password": "wrong_password"})
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json()["detail"] == "invalid credencials"
@@ -45,18 +58,18 @@ async def test_auth_api_missing_username(client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_auth_api_missing_password(user: User, client: TestClient):
+async def test_auth_api_missing_password(member_user: User, client: TestClient):
     """Testa autenticação sem fornecer password"""
-    response = client.post("/api/v1/auth/token", data={"username": user.login})
+    response = client.post("/api/v1/auth/token", data={"username": member_user.login})
 
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 @pytest.mark.asyncio
-async def test_auth_api_with_refresh_flag(user: User, client: TestClient):
+async def test_auth_api_with_refresh_flag(member_user: User, client: TestClient):
     """Testa autenticação com flag refresh ativada"""
     response = client.post(
-        "/api/v1/auth/token", data={"username": user.login, "password": user.password, "refresh": True}
+        "/api/v1/auth/token", data={"username": member_user.login, "password": member_user.password, "refresh": True}
     )
 
     assert response.status_code == HTTPStatus.OK
@@ -67,10 +80,12 @@ async def test_auth_api_with_refresh_flag(user: User, client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_refresh_token_success(user: User, client: TestClient):
+async def test_refresh_token_success(member_user: User, client: TestClient):
     """Testa renovação de token com refresh token válido"""
 
-    auth_response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})
+    auth_response = client.post(
+        "/api/v1/auth/token", data={"username": member_user.login, "password": member_user.password}
+    )
     refresh_token = auth_response.json()["refresh_token"]
 
     response = client.post("/api/v1/auth/refresh-token", json={"refresh_token_str": refresh_token})
@@ -100,9 +115,11 @@ async def test_refresh_token_missing(client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_logout_success(user: User, client: TestClient):
+async def test_logout_success(member_user: User, client: TestClient):
     """Testa logout com token válido"""
-    auth_response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})
+    auth_response = client.post(
+        "/api/v1/auth/token", data={"username": member_user.login, "password": member_user.password}
+    )
     access_token = auth_response.json()["access_token"]
     refresh_token = auth_response.json()["refresh_token"]
 
@@ -117,9 +134,11 @@ async def test_logout_success(user: User, client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_logout_invalid_refresh_token(user: User, client: TestClient):
+async def test_logout_invalid_refresh_token(member_user: User, client: TestClient):
     """Testa logout com refresh token inválido"""
-    auth_response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})
+    auth_response = client.post(
+        "/api/v1/auth/token", data={"username": member_user.login, "password": member_user.password}
+    )
     access_token = auth_response.json()["access_token"]
 
     response = client.request(
@@ -142,9 +161,11 @@ async def test_logout_missing_authorization(client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_logout_missing_refresh_token(user: User, client: TestClient):
+async def test_logout_missing_refresh_token(member_user: User, client: TestClient):
     """Testa logout sem fornecer refresh token"""
-    auth_response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})
+    auth_response = client.post(
+        "/api/v1/auth/token", data={"username": member_user.login, "password": member_user.password}
+    )
     access_token = auth_response.json()["access_token"]
 
     response = client.get("/api/v1/auth/logout", headers={"Authorization": f"Bearer {access_token}"})
@@ -153,9 +174,11 @@ async def test_logout_missing_refresh_token(user: User, client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_refresh_token_after_logout(user: User, client: TestClient):
+async def test_refresh_token_after_logout(member_user: User, client: TestClient):
     """Testa que refresh token não funciona após logout"""
-    auth_response = client.post("/api/v1/auth/token", data={"username": user.login, "password": user.password})
+    auth_response = client.post(
+        "/api/v1/auth/token", data={"username": member_user.login, "password": member_user.password}
+    )
     access_token = auth_response.json()["access_token"]
     refresh_token = auth_response.json()["refresh_token"]
 
