@@ -13,6 +13,10 @@ from app.routers.api.user_api import user_router
 
 api_router = APIRouter(prefix="/api/v1")
 
+api_router.include_router(user_router, prefix="/user", tags=["api - user"])
+
+api_router.include_router(auth_router, prefix="/auth", tags=["api - auth"])
+
 api_router.include_router(printer_router, prefix="/printer", tags=["api - printer"])
 
 api_router.include_router(history_router, prefix="/history", tags=["api - history"])
@@ -24,10 +28,6 @@ api_router.include_router(status_router, prefix="/status", tags=["api - status"]
 api_router.include_router(department_router, prefix="/department", tags=["api - department"])
 
 api_router.include_router(core_router, prefix="/core", tags=["api - core"])
-
-api_router.include_router(auth_router, prefix="/auth", tags=["api - auth"])
-
-api_router.include_router(user_router, prefix="/user", tags=["api - user"])
 
 api_router.include_router(permissions_router, prefix="/permissions", tags=["api - permissions"])
 
