@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 class UsersRoleSchema(Enum):
     admin = "admin"
     member = "member"
+    guest = "guest"
 
 
 class UserNewPasswordSchema(BaseModel):
@@ -22,6 +23,10 @@ class UserCreateSchema(BaseModel):
     login: str
     password: str
     name: str
+
+
+class UserCreateAdminSchema(UserCreateSchema):
+    role: UsersRoleSchema = UsersRoleSchema.member
 
 
 class UserUpdateSchema(BaseModel):

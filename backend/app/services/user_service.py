@@ -16,10 +16,17 @@ from app.helpers.redis_helper import (
     redis_set_value_pydantic,
 )
 from app.models.user_model import User, UserApiKey, UserConfiguration
-from app.schemas.user_schema import UserApiKeySchema, UserCreateSchema, UserNewPasswordSchema, UserUpdateSchema
+from app.schemas.user_schema import (
+    UserApiKeySchema,
+    UserCreateAdminSchema,
+    UserCreateSchema,
+    UserNewPasswordSchema,
+    UsersRoleSchema,
+    UserUpdateSchema,
+)
 
 
-async def create_user(session: AsyncSession, user: UserCreateSchema):
+async def create_user(session: AsyncSession, user: UserCreateSchema | UserCreateAdminSchema):
     existing_user = await session.scalar(select(User).where(User.login == user.login))
 
     if existing_user:
@@ -29,6 +36,7 @@ async def create_user(session: AsyncSession, user: UserCreateSchema):
         login=user.login,
         password_hash=get_password_hash(password=user.password),
         name=user.name,
+        role=user.role if isinstance(user, UserCreateAdminSchema) else UsersRoleSchema.guest,
     )
 
     session.add(user_db)
