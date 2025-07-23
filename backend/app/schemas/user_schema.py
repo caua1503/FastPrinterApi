@@ -15,6 +15,10 @@ class UserNewPasswordSchema(BaseModel):
     new_password: str
 
 
+class UserNewPasswordAdminSchema(BaseModel):
+    new_password: str
+
+
 class UserApiKeySchema(BaseModel):
     api_key: str
 
