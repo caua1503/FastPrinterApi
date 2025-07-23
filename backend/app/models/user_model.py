@@ -55,7 +55,7 @@ class PermissionApiKey:
     __tablename__ = "permission_of_api_key"
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     name: Mapped[str]
-    code: Mapped[str] = mapped_column(unique=True)  # read.all_printers_info, read.printers_info, read.supply
+    code: Mapped[str] = mapped_column(unique=True)
     description: Mapped[Optional[str]]
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now(), onupdate=func.now())
