@@ -27,17 +27,17 @@ async def get_session():
     try:
         async with AsyncSession(engine) as session:
             yield session
-    except OperationalError as erro:
+    except OperationalError as e:
         log = SystemLogSchema(
-            message="Error connecting to database",
-            description=str(erro),
+            message=f"Error connecting to database: {e}",
+            description="Database connection error",
             level=LogLevelSchema.CRITICAL,
             service=ServiceSchema.POSTGRES,
             timestamp=datetime.now(),
         )
-        from app.core.task import task_create_system_log  # noqa: PLC0415
+        from app.core.celery.tasks.logs import task_create_log  # noqa: PLC0415
 
-        task_create_system_log(log)
+        task_create_log.delay("system", **log.model_dump())
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to database")
 
 
@@ -53,7 +53,7 @@ async def get_redis_client() -> redis.Redis:
     try:
         return redis.Redis(connection_pool=pool, decode_responses=True)
     except Exception as erro:
-        from app.core.logs import create_redis_log  # noqa: PLC0415
+        from app.core.celery.tasks.logs import create_redis_log  # noqa: PLC0415
 
         asyncio.create_task(create_redis_log(erro, LogLevelSchema.CRITICAL))
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to Redis")

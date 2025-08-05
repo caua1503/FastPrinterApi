@@ -6,7 +6,7 @@ from typing import Any, List, Optional, Type, Union
 import redis.asyncio as redis
 from fastapi import HTTPException
 
-from app.core.logs import create_redis_log
+from app.core.celery.tasks.logs import create_redis_log
 from app.helpers.database_helper import get_redis_client
 from app.helpers.utils_helper import (
     ModelType,
