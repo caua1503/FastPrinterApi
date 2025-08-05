@@ -15,7 +15,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_config
-from app.core.task import task_create_api_key_log, task_create_system_log
+from app.core.celery.tasks.logs import task_create_log
 from app.helpers.database_helper import get_session
 from app.models.auth_model import RefreshToken
 from app.models.user_model import (
@@ -137,7 +137,7 @@ async def log_api_key_usage(
             route=str(request.url.path),
             timestamp=datetime.now(),
         )
-        task_create_api_key_log.delay(**log_api_key.model_dump())
+        task_create_log.delay("api_key", **log_api_key.model_dump())
     except Exception as e:
         system_log = SystemLogSchema(
             message=f"Error logging API Key usage: {e}",
@@ -145,7 +145,7 @@ async def log_api_key_usage(
             level=LogLevelSchema.ERROR,
             timestamp=datetime.now(),
         )
-        task_create_system_log.delay(**system_log.model_dump())
+        task_create_log.delay("system", **system_log.model_dump())
 
 
 def has_access(  # noqa: PLR0915
@@ -208,8 +208,6 @@ def has_access(  # noqa: PLR0915
             except jwt.ExpiredSignatureError:
                 raise error_auth
             except OperationalError as erro:
-                from app.core.task import task_create_system_log  # noqa: PLC0415
-
                 log = SystemLogSchema(
                     message="Error connecting to database",
                     description=str(erro),
@@ -217,7 +215,7 @@ def has_access(  # noqa: PLR0915
                     service=ServiceSchema.POSTGRES,
                     timestamp=datetime.now(),
                 )
-                task_create_system_log.delay(**log.model_dump())
+                task_create_log.delay("system", **log.model_dump())
                 raise HTTPException(
                     status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                     detail="Error connecting to database",

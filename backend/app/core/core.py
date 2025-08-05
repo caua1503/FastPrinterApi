@@ -7,6 +7,7 @@ from app.helpers.core_helper import (
     calculate_recharge_percentage,
     calculate_trash_cleaning_next_time,
     calculate_trash_cleaning_percentage,
+    create_history_alert_core,
     extract_dates_recharge,
     extract_trash_dates,
     get_printers,
@@ -54,9 +55,6 @@ async def get_all_printers_maintenance_info(session: AsyncSession, filters: Filt
         alert_cleaning_percentage = 10
 
         if trash_cleaning_percentage_value <= alert_cleaning_percentage:
-            # Import dinâmico para evitar circular import
-            from app.services.history_service import create_history_alert  # noqa: PLC0415
-
             alert_description = f"A limpeza da lixeira é urgente, percentual: {trash_cleaning_percentage_value}%"
             alert_history = AlertHistorySchema(
                 printer_id=printer.id,
@@ -64,7 +62,7 @@ async def get_all_printers_maintenance_info(session: AsyncSession, filters: Filt
                 alert_type="limpeza_urgente",
                 description=alert_description,
             )
-            await create_history_alert(alert_history, session)
+            await create_history_alert_core(alert_history, session)
 
         result.append({
             "id": printer.id,
