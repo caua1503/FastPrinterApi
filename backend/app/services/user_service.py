@@ -93,11 +93,16 @@ async def update_user_password(session: AsyncSession, id: int, user_password: Us
     await session.refresh(existing_user)
 
 
-async def update_user_password_admin(session: AsyncSession, id: int, user_password: UserNewPasswordAdminSchema):
+async def update_user_password_admin(
+    session: AsyncSession, admin_user: User, id: int, user_password: UserNewPasswordAdminSchema
+):
     existing_user = await session.scalar(select(User).where(User.id == id))
 
     if not existing_user:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="User not found")
+
+    if not verify_password(user_password.admin_password, admin_user.password_hash):
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Admin password is incorrect ")
 
     existing_user.password_hash = get_password_hash(user_password.new_password)
 
