@@ -5,14 +5,35 @@ from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.history_model import PrinterTrashHistory, RefillHistory
+from app.models.history_model import AlertHistory, PrinterTrashHistory, RefillHistory
 from app.models.printer_model import Printer
 from app.schemas.filter_schema import FilterBase
+from app.schemas.history_schema import AlertHistorySchema
 
 
 async def get_printers(session: AsyncSession):
     printers_database = (await session.scalars(select(Printer))).all()
     return printers_database
+
+
+async def create_history_alert_core(history: AlertHistorySchema, session: AsyncSession) -> AlertHistorySchema:
+    history_db = AlertHistory(
+        printer_id=history.printer_id,
+        date=history.date,
+        alert_type=history.alert_type,
+        description=history.description,
+    )
+
+    session.add(history_db)
+    await session.commit()
+    await session.refresh(history_db)
+
+    return AlertHistorySchema(
+        printer_id=history_db.printer_id,
+        date=history_db.date,
+        alert_type=history_db.alert_type,
+        description=history_db.description,
+    )
 
 
 async def extract_dates_recharge(printer_id: int, session: AsyncSession, filters: FilterBase) -> List:

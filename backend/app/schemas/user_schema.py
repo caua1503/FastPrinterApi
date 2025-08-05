@@ -16,6 +16,7 @@ class UserNewPasswordSchema(BaseModel):
 
 
 class UserNewPasswordAdminSchema(BaseModel):
+    admin_password: str
     new_password: str
 
 
