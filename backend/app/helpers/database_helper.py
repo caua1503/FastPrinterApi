@@ -20,6 +20,10 @@ pool = redis.ConnectionPool(
     host=config.REDIS_HOST,
     port=config.REDIS_PORT,
     db=config.REDIS_DB,
+    max_connections=10,
+    retry_on_timeout=True,
+    socket_keepalive=True,
+    socket_keepalive_options={},
 )
 
 
@@ -49,9 +53,16 @@ async def get_session_logs():
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to database")
 
 
+# Singleton global para reutilizar a mesma instância do Redis
+_redis_client = None
+
+
 async def get_redis_client() -> redis.Redis:
     try:
-        return redis.Redis(connection_pool=pool, decode_responses=True)
+        global _redis_client  # noqa: PLW0603
+        if _redis_client is None:
+            _redis_client = redis.Redis(connection_pool=pool, decode_responses=True)
+        return _redis_client
     except Exception as erro:
         from app.core.celery.tasks.logs import create_redis_log  # noqa: PLC0415
 
