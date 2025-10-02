@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import has_access
 from app.helpers.database_helper import get_session
-from app.models.user_model import User
 from app.schemas.token_schema import OAuth2PasswordAndRefreshRequestForm, RefreshTokenSchema, TokenSchema
 from app.services.auth_service import get_token_jwt, logout, refresh_token
 
@@ -29,10 +28,10 @@ async def api_refresh_token(
     return await refresh_token(refresh_token_str, session)
 
 
-@auth_router.get("/logout", summary="Logout")
+@auth_router.post("/logout", summary="Logout")
 async def api_logout(
-    session: Annotated[AsyncSession, Depends(get_session)],
-    current_user: Annotated[User, has_access(usage_api_key=False)],
     refresh_token_str: Annotated[str, Body(..., embed=True)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user=has_access(usage_api_key=False),
 ):
     return await logout(current_user.id, session, refresh_token_str)
