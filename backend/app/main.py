@@ -14,4 +14,4 @@ app.include_router(api_router)
 
 @app.get("/")
 async def hello():
-    return {"message": "Hello World"}
+    return {"message": "Hello From FastPrinterAPI, go to /docs to see the documentation"}
