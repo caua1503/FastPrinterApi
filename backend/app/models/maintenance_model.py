@@ -1,7 +1,7 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base_model import table_registry
@@ -17,3 +17,4 @@ class PrinterMaintenanceInfo:
     next_cleaning: Mapped[Optional[date]]
     refill_percentage: Mapped[float]
     cleaning_percentage: Mapped[float]
+    updated_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now(), onupdate=func.now())
