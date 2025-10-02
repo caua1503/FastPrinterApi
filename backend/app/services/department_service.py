@@ -1,8 +1,9 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.department_model import Department
 from app.models.printer_model import Printer
@@ -26,19 +27,29 @@ async def create_department(session: AsyncSession, department: DepartmentSchema)
 
 
 async def get_departments(session: AsyncSession, filters: FilterBase):
-    departments = (await session.scalars(select(Department).limit(filters.limit).offset(filters.offset))).all()
+    departments = (
+        await session.scalars(
+            select(Department).options(selectinload(Department.printers)).limit(filters.limit).offset(filters.offset)
+        )
+    ).all()
+    if not departments:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Department not found")
     return departments
 
 
 async def get_department_id(session: AsyncSession, id: int):
-    department = await session.scalar(select(Department).where(Department.id == id))
+    department = await session.scalar(
+        select(Department).options(selectinload(Department.printers)).where(Department.id == id)
+    )
     if not department:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Department not found")
     return department
 
 
 async def update_department(session: AsyncSession, id: int, department: DepartmentSchema):
-    existing_department = await session.scalar(select(Department).where(Department.id == id))
+    existing_department = await session.scalar(
+        select(Department).options(selectinload(Department.printers)).where(Department.id == id)
+    )
     if not existing_department:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Department not found")
 
@@ -51,14 +62,18 @@ async def update_department(session: AsyncSession, id: int, department: Departme
 
 
 async def delete_department(session: AsyncSession, id: int):
-    department = await session.scalar(select(Department).where(Department.id == id))
+    department = await session.scalar(
+        select(Department).options(selectinload(Department.printers)).where(Department.id == id)
+    )
     printers = await session.scalars(select(Printer).where(Printer.department_id == id))
 
     if not department:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Department not found")
 
     if printers:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Department has printers")
+        query = select(Printer).where(Printer.department_id == id)
+        total = await session.scalar(select(func.count()).select_from(query.subquery()))
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=f"Department has printers ({total})")
 
     await session.delete(department)
     await session.commit()
