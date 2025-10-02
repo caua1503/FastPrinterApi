@@ -1,7 +1,7 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base_model import table_registry
@@ -34,6 +34,16 @@ class MaintenanceHistory:
     date: Mapped[date]
     event_type: Mapped[str]  # preventive, cleaning, part replacement, repair, supply change
     description: Mapped[Optional[str]]
+
+
+@table_registry.mapped_as_dataclass
+class MaintenanceInfoHistory:
+    __tablename__ = "maintenance_info_history"
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    printer_id: Mapped[int] = mapped_column(ForeignKey("printer.id"))
+    refill_percentage: Mapped[float]
+    cleaning_percentage: Mapped[float]
+    created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
 
 
 @table_registry.mapped_as_dataclass
