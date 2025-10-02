@@ -1,6 +1,7 @@
 from datetime import date
 
 import pytest_asyncio
+import redis
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,7 +39,7 @@ async def admin_token(client: TestClient, admin_user: User):
 
 
 @pytest_asyncio.fixture
-async def guest_user(session: AsyncSession):
+async def guest_user(session: AsyncSession, session_redis: redis.Redis):
     password = "fake_password"
     user = User(
         login="guest_user",
@@ -64,7 +65,7 @@ async def guest_user(session: AsyncSession):
 
 
 @pytest_asyncio.fixture
-async def member_user(session: AsyncSession):
+async def member_user(session: AsyncSession, session_redis: redis.Redis):
     password = "fake_password"
     user = User(
         login="member_user",
@@ -90,7 +91,7 @@ async def member_user(session: AsyncSession):
 
 
 @pytest_asyncio.fixture
-async def admin_user(session: AsyncSession):
+async def admin_user(session: AsyncSession, session_redis: redis.Redis):
     password = "fake_password"
     user = User(
         login="admin_user",

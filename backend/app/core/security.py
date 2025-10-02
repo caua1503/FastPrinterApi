@@ -16,7 +16,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_config
 from app.core.celery.tasks.logs import task_create_log
-from app.helpers.database_helper import get_session
+from app.helpers.database_helper import get_redis_client, get_session  # noqa: F401
+from app.helpers.redis_helper import redis_get_value_pydantic, redis_set_value_pydantic  # noqa: F401
 from app.models.auth_model import RefreshToken
 from app.models.user_model import (
     PermissionApiKey,
@@ -26,7 +27,13 @@ from app.models.user_model import (
     UserPermission,
     UsersRoleSchema,
 )
-from app.schemas.logs_schema import ApiKeyActionSchema, ApiKeyLogSchema, LogLevelSchema, ServiceSchema, SystemLogSchema
+from app.schemas.logs_schema import (
+    ApiKeyActionSchema,
+    ApiKeyLogSchema,
+    LogLevelSchema,
+    ServiceSchema,
+    SystemLogSchema,
+)
 
 config = get_config()  # pyright: ignore
 
@@ -171,9 +178,16 @@ def has_access(  # noqa: PLR0915
         token: Optional[str] = Depends(oauth2_scheme),
         api_key: Optional[str] = Depends(api_key_scheme),
         session: AsyncSession = Depends(get_session),
-    ):
+    ) -> User:
+        try:
+            redis_client = await get_redis_client()
+        except Exception:
+            redis_client = None
+
         user: Optional[User] = None
         auth_type: Optional[str] = None
+        redis_usage: bool = False
+
         error_auth = HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Invalid or expired token",
@@ -200,8 +214,24 @@ def has_access(  # noqa: PLR0915
                 if not user_id:
                     raise error_auth
 
-                result = await session.execute(select(User).where(User.id == int(user_id)))
-                user = result.scalar_one_or_none()
+                if redis_client:
+                    try:
+                        user_redis = await redis_get_value_pydantic(
+                            key=f"user_id_{user_id}",
+                            model=User,
+                            redis_client=redis_client,
+                        )
+                    except Exception:
+                        user_redis = None
+                else:
+                    user_redis = None
+
+                if user_redis:
+                    user = user_redis
+                    redis_usage = True
+                else:
+                    result = await session.execute(select(User).where(User.id == int(user_id)))
+                    user = result.scalar_one_or_none()
 
             except jwt.DecodeError:
                 raise error_auth
@@ -225,9 +255,27 @@ def has_access(  # noqa: PLR0915
 
         elif api_key:
             auth_type = "apikey"
-            stmt = select(User).join(User.api_keys).where(UserApiKey.api_key == api_key)
-            result = await session.execute(stmt)
-            user = result.scalar_one_or_none()
+
+            if redis_client:
+                try:
+                    user_redis = await redis_get_value_pydantic(
+                        key=f"user_id_api_{api_key}",
+                        model=User,
+                        valid_json=False,
+                        redis_client=redis_client,
+                    )
+                except Exception:
+                    user_redis = None
+            else:
+                user_redis = None
+
+            if user_redis:
+                user = user_redis
+                redis_usage = True
+            else:
+                stmt = select(User).join(User.api_keys).where(UserApiKey.api_key == api_key)
+                result = await session.execute(stmt)
+                user = result.scalar_one_or_none()
 
             if user:
                 asyncio.create_task(log_api_key_usage(session, api_key, user.id, request))
@@ -237,6 +285,30 @@ def has_access(  # noqa: PLR0915
 
         if not user:
             raise error_auth
+
+        if not redis_usage:
+            # Cache para JWT token
+            if auth_type == "bearer" and redis_client:
+                asyncio.create_task(
+                    redis_set_value_pydantic(
+                        key=f"user_id_{user.id}",
+                        value=user,
+                        valid_json=False,
+                        redis_client=redis_client,
+                        ex=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,  # Converter para segundos
+                    )
+                )
+            # Cache para API Key
+            elif auth_type == "apikey" and redis_client:
+                asyncio.create_task(
+                    redis_set_value_pydantic(
+                        key=f"user_id_api_{api_key}",
+                        value=user,
+                        valid_json=False,
+                        redis_client=redis_client,
+                        ex=3600,  # 1 hora para API keys
+                    )
+                )
 
         # Authorization checks
         if user.role == UsersRoleSchema.admin:
@@ -250,6 +322,7 @@ def has_access(  # noqa: PLR0915
             stmt = select(PermissionUser.code).join(UserPermission).where(UserPermission.user_id == user.id)
             permissions_result = await session.execute(stmt)
             user_permissions = {code for (code,) in permissions_result}
+            
             if required_user_code not in user_permissions:
                 raise error_auth
 
