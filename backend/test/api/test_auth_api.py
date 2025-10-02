@@ -123,8 +123,7 @@ async def test_logout_success(member_user: User, client: TestClient):
     access_token = auth_response.json()["access_token"]
     refresh_token = auth_response.json()["refresh_token"]
 
-    response = client.request(
-        "GET",
+    response = client.post(
         "/api/v1/auth/logout",
         headers={"Authorization": f"Bearer {access_token}"},
         json={"refresh_token_str": refresh_token},
@@ -141,8 +140,7 @@ async def test_logout_invalid_refresh_token(member_user: User, client: TestClien
     )
     access_token = auth_response.json()["access_token"]
 
-    response = client.request(
-        "GET",
+    response = client.post(
         "/api/v1/auth/logout",
         headers={"Authorization": f"Bearer {access_token}"},
         json={"refresh_token_str": "invalid_refresh_token"},
@@ -155,7 +153,7 @@ async def test_logout_invalid_refresh_token(member_user: User, client: TestClien
 @pytest.mark.asyncio
 async def test_logout_missing_authorization(client: TestClient):
     """Testa logout sem token de autorização"""
-    response = client.request("GET", "/api/v1/auth/logout", json={"refresh_token_str": "any_refresh_token"})
+    response = client.post("/api/v1/auth/logout", json={"refresh_token_str": "any_refresh_token"})
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
@@ -168,7 +166,7 @@ async def test_logout_missing_refresh_token(member_user: User, client: TestClien
     )
     access_token = auth_response.json()["access_token"]
 
-    response = client.get("/api/v1/auth/logout", headers={"Authorization": f"Bearer {access_token}"})
+    response = client.post("/api/v1/auth/logout", headers={"Authorization": f"Bearer {access_token}"})
 
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
@@ -182,8 +180,7 @@ async def test_refresh_token_after_logout(member_user: User, client: TestClient)
     access_token = auth_response.json()["access_token"]
     refresh_token = auth_response.json()["refresh_token"]
 
-    logout_response = client.request(
-        "GET",
+    logout_response = client.post(
         "/api/v1/auth/logout",
         headers={"Authorization": f"Bearer {access_token}"},
         json={"refresh_token_str": refresh_token},
