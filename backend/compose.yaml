@@ -1,0 +1,83 @@
+services:
+  fastprinterapi_database:
+    image: postgres:17-alpine
+    volumes:
+      - pgdata_main:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: app_db
+    ports:
+      - "5432:5432"
+    mem_limit: 128m
+    cpus: 0.2
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d app_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
+  fastprinterapi_logs_database:
+    image: postgres:17-alpine
+    volumes:
+      - pgdata_logs:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: app_logs_db
+    ports:
+      - "5433:5432"
+    mem_limit: 128m
+    cpus: 0.2
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d app_logs_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  fastprinterapi_redis:
+    image: redis:8.0-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    mem_limit: 128m
+    cpus: 0.1
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  fastprinterapi_app:
+    image: fastprinterapi
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    mem_limit: 512m
+    cpus: 0.5
+    depends_on:
+      fastprinterapi_database:
+        condition: service_healthy
+      fastprinterapi_logs_database:
+        condition: service_healthy
+      fastprinterapi_redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres_user:postgres_password@fastprinterapi_database:5432/app_db
+      DATABASE_LOGS_URL: postgresql+psycopg://postgres_user:postgres_password@fastprinterapi_logs_database:5432/app_logs_db
+      REDIS_HOST: fastprinterapi_redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+    restart: unless-stopped
+
+volumes:
+  pgdata_main:
+    name: fastprinterapi_pgdata_main
+  pgdata_logs:
+    name: fastprinterapi_pgdata_logs
+  redis_data:
+    name: fastprinterapi_redis_data
+

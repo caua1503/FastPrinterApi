@@ -18,9 +18,7 @@
   </a>
 </p>
 
-Uma API assíncrona desenvolvida em FastAPI para o gerenciamento centralizado de múltiplas impressoras, com foco em estatísticas, previsões e histórico detalhado de manutenção.
-
-Embora o núcleo do projeto seja a API RESTful, ele também irá incluir uma interface gráfica intuitiva para facilitar a interação e o gerenciamento (em breve).
+O FastPrinterAPI é um sistema para gerenciamento centralizado de múltiplas impressoras, com foco em estatísticas, previsões e histórico detalhado de manutenção. O projeto utiliza uma arquitetura monorepo, contendo backend (API) e frontend (interface gráfica) em um único repositório, facilitando integração e manutenção.
 
 ## Objetivo
 
@@ -41,7 +39,7 @@ Facilitar o controle, monitoramento e manutenção de parques de impressoras, fo
 - **Sistema de APIs:** Sistema de API flexível, permitindo a criação de chaves para uma ou várias funções com diferentes níveis de acesso.
 - **Sistema de permissões:** Sistema de permissões flexível (RBAC e ABAC) tanto para usuários quanto para APIs.
 
-## Tecnologias Utilizadas (Produção)
+## Tecnologias Utilizadas
 
 - Python 3.12+
 - FastAPI (assíncrono)
@@ -53,38 +51,22 @@ Facilitar o controle, monitoramento e manutenção de parques de impressoras, fo
 - Alembic (migrações)
 - Docker (opcional)
 
-📖 Leia a documentação para executar no modo de [producao](docs/pt-br/producao.md)
-
-## Tecnologias Utilizadas (Desenvolvimento)
-
-- Testes automatizados (pytest)
-- Linter e padronizador de código (Ruff)
-- executor de tarefas complementar (Taskipy)
-
-📖 Leia a documentação para executar no modo de [desenvolvimento](docs/pt-br/desenvolvimento.md)
-
 ## Arquitetura da Aplicação
 
-A arquitetura do FastPrinterAPI foi projetada para ser modular, escalável e de fácil manutenção, seguindo as melhores práticas de desenvolvimento de APIs com FastAPI. A estrutura de diretórios reflete uma clara separação de responsabilidades:
+A arquitetura do FastPrinterAPI foi projetada para ser modular, escalável e de fácil manutenção, seguindo as melhores práticas de desenvolvimento de APIs com FastAPI. O projeto utiliza uma estrutura monorepo, onde backend e frontend estão organizados no mesmo repositório, garantindo uma separação clara de responsabilidades e facilitando o desenvolvimento integrado.
+
+A estrutura de diretórios é a seguinte:
 
 ```
-FastPrinterAPi/
-  app/
-    config/           # Configurações e variáveis de ambiente (via Pydantic)
-    core/             # Componentes centrais: segurança, tarefas em background (Celery)
-    helpers/          # Módulos de suporte (ex: conexão com Redis, utilitários)
-    models/           # Modelos de dados do ORM (SQLAlchemy)
-    routers/api/      # Endpoints da API, organizados por recurso
-    schemas/          # Schemas de validação de dados (Pydantic)
-    services/         # Lógica de negócio, desacoplada dos endpoints
-  migrations/         # Migrações do banco de dados principal (Alembic)
-  migrations_logs/    # Migrações do banco de dados de logs (Alembic)
-  test/               # Testes automatizados (Pytest)
-  celery_worker.py    # Definição do worker e agendamento de tarefas (Celery Beat)
-  compose.yaml        # Orquestração dos serviços com Docker
-  create_env.py       # Script para gerar o arquivo de ambiente .env
-  init_db.py          # Script para inicializar o banco de dados com dados padrão
-  ...
+impressoras/
+  backend/    # Backend da API (FastAPI, Celery, PostgreSQL, Redis, etc.)
+  frontend/   # Aplicação frontend (interface gráfica, em desenvolvimento)
 ```
 
-📖 Leia o [guia de desenvolvimento](docs/pt-br/guia_dev.md) para entender decisões de arquitetura
+Essa abordagem monorepo permite melhor integração entre backend e frontend, versionamento unificado e gerenciamento facilitado de recursos compartilhados. Cada módulo (backend e frontend) é autocontido, com suas próprias dependências e documentação, mas ambos fazem parte do mesmo projeto para um desenvolvimento e deploy mais ágeis.
+
+---
+
+- Para detalhes do backend, consulte: [backend/README.pt-BR.md](backend/README.pt-BR.md)
+- Para detalhes do frontend, consulte: [frontend/README.md](frontend/README.md)
+- Para guias completos de desenvolvimento e produção, acesse a pasta [docs/pt-br/](backend/docs/pt-br/)

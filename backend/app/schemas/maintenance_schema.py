@@ -1,0 +1,26 @@
+from datetime import date
+from typing import Optional
+
+from pydantic import BaseModel
+
+from app.schemas.printer_schema import DepartmentIdSchema
+
+
+class PrinterMaintenanceInfoSchema(BaseModel):
+    printer_id: int
+    department_id: DepartmentIdSchema
+    last_update: date
+    next_refill: Optional[date] = None
+    next_cleaning: Optional[date] = None
+    refill_percentage: float
+    cleaning_percentage: float
+
+
+class PrinterMaintenanceInfoSchemaDB(PrinterMaintenanceInfoSchema):
+    id: int
+
+
+class ListPrinterMaintenanceInfoSchema(BaseModel):
+    total: int
+    count: int
+    list: list[PrinterMaintenanceInfoSchemaDB]
