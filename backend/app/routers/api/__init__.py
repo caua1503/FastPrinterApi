@@ -1,15 +1,15 @@
 from fastapi import APIRouter
 
-from app.routers.api.auth_api import auth_router
-from app.routers.api.core_api import core_router
-from app.routers.api.department_api import department_router
-from app.routers.api.history_api import history_router
-from app.routers.api.logs_api import log_router
-from app.routers.api.permissions_api import permissions_router
-from app.routers.api.printers_api import printer_router
-from app.routers.api.status_api import status_router
-from app.routers.api.supply_api import supply_router
-from app.routers.api.user_api import user_router
+from .auth_api import auth_router
+from .core_api import core_router
+from .department_api import department_router
+from .history_api import history_router
+from .logs_api import log_router
+from .permissions_api import permissions_router
+from .printers_api import printer_router
+from .status_api import status_router
+from .supply_api import supply_router
+from .user_api import user_router
 
 api_router = APIRouter(prefix="/api/v1")
 

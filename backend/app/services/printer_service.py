@@ -130,6 +130,7 @@ async def get_printer_id(session: AsyncSession, id: int):
             status_code=HTTPStatus.NOT_FOUND,
             detail="printer not found",
         )
+
     result = FullPrinterPublicSchema(
         supply_id=SupplyIdSchema(id=printer.supply.id, name=printer.supply.name),  # type: ignore
         status_id=StatusIdSchema(id=printer.status.id, name=printer.status.status),  # type: ignore
@@ -145,6 +146,7 @@ async def get_printer_id(session: AsyncSession, id: int):
         last_maintenance=printer.last_maintenance,
         last_check=printer.last_check,
     )
+
     return result
 
 

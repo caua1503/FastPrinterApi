@@ -1,18 +1,18 @@
 # Import all models to make them available when importing from models package
-from app.models.base_model import table_registry, table_registry_logs
-from app.models.department_model import Department
-from app.models.history_model import (
+from .base_model import table_registry, table_registry_logs
+from .department_model import Department
+from .history_model import (
     AlertHistory,
     MaintenanceHistory,
     PrinterTrashHistory,
     RefillHistory,
     StatusHistory,
 )
-from app.models.logs_model import SystemLog, UserLog
-from app.models.maintenance_model import PrinterMaintenanceInfo
-from app.models.printer_model import Printer, Status
-from app.models.supply_model import Supply, SupplyType
-from app.models.user_model import (
+from .logs_model import SystemLog, UserLog
+from .maintenance_model import PrinterMaintenanceInfo
+from .printer_model import Printer, Status
+from .supply_model import Supply, SupplyType
+from .user_model import (
     ApiKeyPermission,
     PermissionApiKey,
     PermissionUser,

@@ -15,8 +15,7 @@ def task_get_all_printers_maintenance_info():
 
     async def __execute():
         async for session in get_session():
-            printers_maintenance_info = await get_all_printers_maintenance_info(session, filters=FilterBase())
-            return printers_maintenance_info
+            await get_all_printers_maintenance_info(session, filters=FilterBase())
 
     return asyncio.run(__execute())
 

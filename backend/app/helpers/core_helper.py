@@ -6,14 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.history_model import AlertHistory, PrinterTrashHistory, RefillHistory
-from app.models.printer_model import Printer
 from app.schemas.filter_schema import FilterBase
 from app.schemas.history_schema import AlertHistorySchema
-
-
-async def get_printers(session: AsyncSession):
-    printers_database = (await session.scalars(select(Printer))).all()
-    return printers_database
 
 
 async def create_history_alert_core(history: AlertHistorySchema, session: AsyncSession) -> AlertHistorySchema:

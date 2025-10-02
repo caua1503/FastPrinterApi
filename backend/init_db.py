@@ -211,12 +211,11 @@ async def create_super_user(session: AsyncSession):
         password_hash=get_password_hash("123456"),
     )
     session.add(super_user)
-    await session.flush()  # Flush to get the user ID
+    await session.flush()
 
-    # Create user configuration
     print("Creating Super Admin user configuration...")
     user_config = UserConfiguration(
-        user_id=super_user.id,  # Use the dynamic ID
+        user_id=super_user.id,
         username=super_user_login,
         webhook_enabled=False,
         webhook_url=None,
