@@ -17,7 +17,6 @@ async def test_get_history_recharge_guest(client, guest_token):
 @pytest.mark.asyncio
 async def test_get_history_recharge_empty(client, member_token):
     response = client.get("/api/v1/history/recharge", headers={"Authorization": f"Bearer {member_token}"})
-    print(response.json())
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {"historys": [], "total": 0, "count": 0}
 
@@ -25,7 +24,6 @@ async def test_get_history_recharge_empty(client, member_token):
 @pytest.mark.asyncio
 async def test_get_history_recharge(client, refill_history: RefillHistory, member_token):
     response = client.get("/api/v1/history/recharge", headers={"Authorization": f"Bearer {member_token}"})
-    print(response.json())
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["total"] == 1
@@ -43,7 +41,6 @@ async def test_get_history_recharge_by_id(client, refill_history: RefillHistory,
     response = client.get(
         f"/api/v1/history/recharge/{refill_history.id}", headers={"Authorization": f"Bearer {member_token}"}
     )
-    print(response.json())
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
     assert response_json["id"] == refill_history.id
