@@ -6,59 +6,6 @@ from app.models.printer_model import Printer
 
 
 @pytest.mark.asyncio
-async def test_get_all_printers_maintenance_info_guest(client, printer: Printer, member_token):
-    response = client.get(
-        "/api/v1/core/current/info/printer",
-        params={"limit": 10, "offset": 0},
-        headers={"Authorization": f"Bearer {member_token}"},
-    )
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-
-
-@pytest.mark.asyncio
-async def test_get_printer_maintenance_info_guest(client, printer: Printer, member_token):
-    response = client.get(
-        f"/api/v1/core/current/info/printer/{printer.id}",
-        params={"limit": 10, "offset": 0},
-        headers={"Authorization": f"Bearer {member_token}"},
-    )
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-
-
-@pytest.mark.asyncio
-async def test_get_all_printers_maintenance_info_member(client, printer: Printer, member_token):
-    response = client.get(
-        "/api/v1/core/current/info/printer",
-        params={"limit": 10, "offset": 0},
-        headers={"Authorization": f"Bearer {member_token}"},
-    )
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-
-
-@pytest.mark.asyncio
-async def test_get_printer_maintenance_info_member(client, printer: Printer, member_token):
-    response = client.get(
-        f"/api/v1/core/current/info/printer/{printer.id}",
-        params={"limit": 10, "offset": 0},
-        headers={"Authorization": f"Bearer {member_token}"},
-    )
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-
-
-@pytest.mark.asyncio
-async def test_get_all_printers_maintenance_info_admin(client, printer: Printer, admin_token):
-    response = client.get(
-        "/api/v1/core/current/info/printer",
-        params={"limit": 10, "offset": 0},
-        headers={"Authorization": f"Bearer {admin_token}"},
-    )
-    assert response.status_code == HTTPStatus.OK
-    data = response.json()
-    assert isinstance(data, list)
-    assert any(p["id"] == printer.id for p in data)
-
-
-@pytest.mark.asyncio
 async def test_get_printer_maintenance_info_admin(client, printer: Printer, admin_token):
     response = client.get(
         f"/api/v1/core/current/info/printer/{printer.id}",
