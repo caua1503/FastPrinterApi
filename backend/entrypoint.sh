@@ -38,5 +38,5 @@ uv run --no-dev celery -A celery_worker beat --loglevel=warning &
 
 # Start FastAPI server
 log "Starting FastAPI server..."
-uv run --no-dev granian --interface asgi --host 0.0.0.0 --workers 1 --port 8000 app.main:app
+uv run --no-dev uvicorn app.main:app --host 0.0.0.0 --port 8000
 # uv run --no-dev fastapi dev --port 8000 --host 0.0.0.0 --reload ./app
