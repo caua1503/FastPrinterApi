@@ -322,7 +322,7 @@ def has_access(  # noqa: PLR0915
             stmt = select(PermissionUser.code).join(UserPermission).where(UserPermission.user_id == user.id)
             permissions_result = await session.execute(stmt)
             user_permissions = {code for (code,) in permissions_result}
-            
+
             if required_user_code not in user_permissions:
                 raise error_auth
 
