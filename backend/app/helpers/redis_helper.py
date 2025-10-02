@@ -124,7 +124,7 @@ async def redis_set_value_pydantic(
     if valid_json:
         serialized_value = serialize_data(value)
     else:
-        serialized_value = json.dumps(serialize_from_json(value))
+        serialized_value = json.dumps(serialize_from_json(value), default=str)
 
     return await redis_set_value(key, serialized_value, redis_client, **kwargs)
 

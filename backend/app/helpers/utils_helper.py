@@ -1,3 +1,4 @@
+import dataclasses
 import json
 from datetime import date, datetime
 from typing import Any, List, Literal, Type, TypeVar, Union
@@ -31,10 +32,13 @@ def deserialize_data(data: str, model: Type[ModelType], is_list: bool = False) -
 
 def serialize_from_json(data: Any) -> Any:
     """
-    Serializes data with special handling for dates and Pydantic models
+    Serializes data with special handling for dates, Pydantic models and dataclasses
     """
     if isinstance(data, BaseModel):
         return {key: serialize_from_json(value) for key, value in data.model_dump().items()}
+    elif dataclasses.is_dataclass(data):
+        # Serializa apenas atributos já presentes em __dict__, evitando carregamento lazy
+        return {key: serialize_from_json(value) for key, value in vars(data).items() if not key.startswith("_")}
     elif isinstance(data, list):
         return [serialize_from_json(item) for item in data]
     elif isinstance(data, datetime):
