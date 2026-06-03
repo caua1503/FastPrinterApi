@@ -8,11 +8,11 @@ DB_USER="postgres"
 DB_PASSWORD="password"
 DB_NAME="postgres"
 DB_PORT="5432"
-DB_LOGS_PORT="5433"
+
 REDIS_PORT="6379"
 
 POSTGRES_CONTAINER_NAME="postgres-dev"
-POSTGRES_LOGS_CONTAINER_NAME="postgres-logs-dev"
+
 REDIS_CONTAINER_NAME="redis-dev"
 
 # --- Helper Functions ---
@@ -78,7 +78,7 @@ fi
 # 3. Start services with Docker
 echo "Starting Docker containers..."
 start_container "${POSTGRES_CONTAINER_NAME}" "postgres:17" "${DB_PORT}:5432" "-e POSTGRES_USER=${DB_USER} -e POSTGRES_PASSWORD=${DB_PASSWORD} -e POSTGRES_DB=${DB_NAME}"
-start_container "${POSTGRES_LOGS_CONTAINER_NAME}" "postgres:17" "${DB_LOGS_PORT}:5432" "-e POSTGRES_USER=${DB_USER} -e POSTGRES_PASSWORD=${DB_PASSWORD} -e POSTGRES_DB=${DB_NAME}"
+
 start_container "${REDIS_CONTAINER_NAME}" "redis:8.0" "${REDIS_PORT}:6379" ""
 
 echo "Waiting for services to be ready..."
@@ -87,7 +87,7 @@ sleep 5 # Simple wait, could be improved with health checks
 # 4. Run database migrations
 echo "Running database migrations..."
 uv run alembic -c alembic.ini upgrade head
-uv run alembic -c alembic_logs.ini upgrade head
+
 
 # 5. Initialize database with default data
 echo "Initializing database with $LANGUAGE_MESSAGE data..."

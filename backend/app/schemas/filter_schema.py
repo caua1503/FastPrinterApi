@@ -1,10 +1,8 @@
 from datetime import date, timedelta
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
-
-from app.schemas.logs_schema import ApiKeyActionSchema, LogLevelSchema, ServiceSchema
 
 
 class OrderBy(str, Enum):
@@ -22,11 +20,6 @@ class OrderByFieldPrinter(str, Enum):
     last_refill = "last_refill"
     last_maintenance = "last_maintenance"
     last_check = "last_check"
-
-
-class OrderByFieldLog(str, Enum):
-    timestamp = "timestamp"
-    created_at = "created_at"
 
 
 class FilterBase(BaseModel):
@@ -54,29 +47,3 @@ class FilterPrinter(FilterPrinterDefault):
 class FilterPrinterHistory(FilterBase2):
     printer_id: Optional[int] = Field(default=None)
     order_by: Optional[OrderBy] = Field(default=OrderBy.desc)
-
-
-class FilterLog(FilterBase2):
-    service: Optional[ServiceSchema] = Field(default=None)
-    level: Optional[LogLevelSchema] = Field(default=None)
-    order_by: Optional[OrderBy] = Field(default=OrderBy.desc)
-    order_by_field: Optional[OrderByFieldLog] = Field(default=OrderByFieldLog.timestamp)
-
-
-class FilterLogUser(FilterLog):
-    user_id: Optional[int] = Field(default=None)
-
-
-class FilterLogSystem(FilterLog):
-    pass
-
-
-class FilterLogApiKey(FilterBase2):
-    api_key_id: Optional[int] = Field(default=None)
-    action: Optional[ApiKeyActionSchema] = Field(default=None)
-    order_by: Optional[OrderBy] = Field(default=OrderBy.desc)
-    order_by_field: Optional[OrderByFieldLog] = Field(default=OrderByFieldLog.timestamp)
-
-
-class FilterLogApiKeyAdmin(FilterLogApiKey):
-    user_ids: Optional[List[int]] = Field(default=None)

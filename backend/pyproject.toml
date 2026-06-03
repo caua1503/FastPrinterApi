@@ -29,7 +29,7 @@ dev = [
 
 [tool.ruff]
 line-length = 120
-extend-exclude = ['static', 'migrations', 'migrations_logs']
+extend-exclude = ['static', 'migrations']
 
 [tool.ruff.lint]
 preview=true
@@ -50,7 +50,8 @@ pythonpath= "."
 run = "uv run fastapi dev ./app"
 dev = "bash development.sh"
 windev = "uv run python create_env.py --no_interative && docker build --no-cache -t fastprinterapi:latest . && docker compose up -d"
-test = "uv run ruff format && uv run ruff check && uv run pytest"
+# test = "uv run ruff format && uv run ruff check && uv run pytest"
+test = "uv run task lint && uv run pytest"
 lint = "uv run ruff format && uv run ruff check --fix"
 check = "uv run ruff check"
 
@@ -58,9 +59,6 @@ migrations = "uv run alembic -c alembic.ini init migrations"
 upgrade = "uv run alembic -c alembic.ini upgrade head"
 update = "uv run alembic -c alembic.ini revision --autogenerate -m"
 
-migrations_logs = "uv run alembic -c alembic_logs.ini init migrations_logs"
-upgradelogs = "uv run alembic -c alembic_logs.ini upgrade head"
-updatelogs = "uv run alembic -c alembic_logs.ini revision --autogenerate -m"
 
 build = "docker build --no-cache -t fastprinterapi:latest ."
 rundocker = "docker compose up -d"

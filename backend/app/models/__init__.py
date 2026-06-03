@@ -1,5 +1,5 @@
 # Import all models to make them available when importing from models package
-from .base_model import table_registry, table_registry_logs
+from .base_model import table_registry
 from .department_model import Department
 from .history_model import (
     AlertHistory,
@@ -8,7 +8,6 @@ from .history_model import (
     RefillHistory,
     StatusHistory,
 )
-from .logs_model import SystemLog, UserLog
 from .maintenance_model import PrinterMaintenanceInfo
 from .printer_model import Printer, Status
 from .supply_model import Supply, SupplyType
@@ -27,7 +26,6 @@ from .user_model import (
 __all__ = [
     # Base
     "table_registry",
-    "table_registry_logs",
     # Department models
     "Department",
     # Printer models
@@ -53,7 +51,4 @@ __all__ = [
     "ApiKeyPermission",
     # Maintenance models
     "PrinterMaintenanceInfo",
-    # Logs models
-    "SystemLog",
-    "UserLog",
 ]

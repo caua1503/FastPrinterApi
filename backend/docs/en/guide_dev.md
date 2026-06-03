@@ -33,10 +33,6 @@ To facilitate development, I have configured some shortcuts with `taskipy`. Belo
 - `task update`: Generates a new migration file based on changes to the `models`.
 - `task upgrade`: Applies pending migrations to the database.
 
-### Migrations (Logs Database)
-- `task migrations_logs`: Creates the initial migration structure for the logs.
-- `task updatelogs`: Generates a new migration for the logs database.
-- `task upgradelogs`: Applies pending log migrations.
 
 
 ## 3. Architectural Decisions and Patterns
