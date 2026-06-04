@@ -4,7 +4,6 @@ from .auth_api import auth_router
 from .core_api import core_router
 from .department_api import department_router
 from .history_api import history_router
-from .logs_api import log_router
 from .permissions_api import permissions_router
 from .printers_api import printer_router
 from .status_api import status_router
@@ -30,8 +29,6 @@ api_router.include_router(department_router, prefix="/department", tags=["api - 
 api_router.include_router(core_router, prefix="/core", tags=["api - core"])
 
 api_router.include_router(permissions_router, prefix="/permissions", tags=["api - permissions"])
-
-api_router.include_router(log_router, prefix="/log", tags=["api - log"])
 
 
 @api_router.get("/")

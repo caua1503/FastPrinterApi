@@ -33,10 +33,6 @@ Para facilitar o desenvolvimento, configurei alguns atalhos com `taskipy`. Abaix
 - `task update`: Gera um novo arquivo de migração baseado nas alterações dos `models`.
 - `task upgrade`: Aplica as migrações pendentes no banco de dados.
 
-### Migrations (Banco de Dados de Logs)
-- `task migrations_logs`: Cria a estrutura inicial de migrations para os logs.
-- `task updatelogs`: Gera uma nova migração para a base de logs.
-- `task upgradelogs`: Aplica as migrações de logs pendentes.
 
 
 ## 3. Decisões de Arquitetura e Padrões

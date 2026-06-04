@@ -1,4 +1,3 @@
-import asyncio
 import json
 from http import HTTPStatus
 from typing import Any, List, Optional, Type, Union
@@ -6,7 +5,6 @@ from typing import Any, List, Optional, Type, Union
 import redis.asyncio as redis
 from fastapi import HTTPException
 
-from app.core.celery.tasks.logs import create_redis_log
 from app.helpers.database_helper import get_redis_client
 from app.helpers.utils_helper import (
     ModelType,
@@ -41,7 +39,6 @@ async def redis_verify_value(key: str, redis_client: Optional[redis.Redis] = Non
         exists = await redis_client.exists(key)
         return True if exists == 1 else False
     except Exception as error:
-        asyncio.create_task(create_redis_log(error))
         raise error
 
 
@@ -61,8 +58,7 @@ async def redis_set_value(key: str, value: Any, redis_client: Optional[redis.Red
 
         await redis_client.set(key, json.dumps(value), **kwargs)
         return True
-    except Exception as erro:
-        asyncio.create_task(create_redis_log(erro))
+    except Exception:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to Redis")
 
 
@@ -74,8 +70,7 @@ async def redis_delete_value(key: str, redis_client: Optional[redis.Redis] = Non
         await redis_client.delete(key)
 
         return True
-    except Exception as erro:
-        asyncio.create_task(create_redis_log(erro))
+    except Exception:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Error connecting to Redis")
 
 
@@ -99,7 +94,6 @@ async def redis_get_value(key: str, redis_client: Optional[redis.Redis] = None):
 
         return None
     except Exception as erro:
-        asyncio.create_task(create_redis_log(erro))
         raise erro
 
 

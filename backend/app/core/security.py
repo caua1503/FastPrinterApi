@@ -15,7 +15,6 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_config
-from app.core.celery.tasks.logs import task_create_log
 from app.helpers.database_helper import get_redis_client, get_session  # noqa: F401
 from app.helpers.redis_helper import redis_get_value_pydantic, redis_set_value_pydantic  # noqa: F401
 from app.models.auth_model import RefreshToken
@@ -26,13 +25,6 @@ from app.models.user_model import (
     UserApiKey,
     UserPermission,
     UsersRoleSchema,
-)
-from app.schemas.logs_schema import (
-    ApiKeyActionSchema,
-    ApiKeyLogSchema,
-    LogLevelSchema,
-    ServiceSchema,
-    SystemLogSchema,
 )
 
 config = get_config()  # pyright: ignore
@@ -108,51 +100,6 @@ async def create_refresh_token(session: AsyncSession):
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         detail="Failed to generate unique refresh token after 20 attempts",
     )
-
-
-async def log_api_key_usage(
-    session: AsyncSession,
-    api_key: str,
-    user_id: int,
-    request: Request,
-) -> None:
-    """
-    Helper function to record API Key usage logs.
-
-    Args:
-        session: Database session (logs_database)
-        api_key: API Key used
-        user_id: User ID that used the API Key
-        request: FastAPI Request object to capture the route
-        action: Action performed (default: GET)
-    """
-    try:
-        stmt_api_key = select(UserApiKey).where(UserApiKey.api_key == api_key)
-        result_api_key = await session.execute(stmt_api_key)
-        api_key_obj = result_api_key.scalar_one()
-        http_method = request.method.upper()
-        user_action = (
-            ApiKeyActionSchema(http_method)
-            if http_method in [action.value for action in ApiKeyActionSchema]
-            else ApiKeyActionSchema.ANY
-        )
-
-        log_api_key = ApiKeyLogSchema(
-            user_id=user_id,
-            api_key_id=api_key_obj.id,
-            action=user_action,
-            route=str(request.url.path),
-            timestamp=datetime.now(),
-        )
-        task_create_log.delay("api_key", **log_api_key.model_dump())
-    except Exception as e:
-        system_log = SystemLogSchema(
-            message=f"Error logging API Key usage: {e}",
-            service=ServiceSchema.OTHER,
-            level=LogLevelSchema.ERROR,
-            timestamp=datetime.now(),
-        )
-        task_create_log.delay("system", **system_log.model_dump())
 
 
 def has_access(  # noqa: PLR0915
@@ -237,15 +184,7 @@ def has_access(  # noqa: PLR0915
                 raise error_auth
             except jwt.ExpiredSignatureError:
                 raise error_auth
-            except OperationalError as erro:
-                log = SystemLogSchema(
-                    message="Error connecting to database",
-                    description=str(erro),
-                    level=LogLevelSchema.CRITICAL,
-                    service=ServiceSchema.POSTGRES,
-                    timestamp=datetime.now(),
-                )
-                task_create_log.delay("system", **log.model_dump())
+            except OperationalError:
                 raise HTTPException(
                     status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                     detail="Error connecting to database",
@@ -278,7 +217,7 @@ def has_access(  # noqa: PLR0915
                 user = result.scalar_one_or_none()
 
             if user:
-                asyncio.create_task(log_api_key_usage(session, api_key, user.id, request))
+                pass
 
         if not auth_type:
             raise error_auth
@@ -335,7 +274,7 @@ def has_access(  # noqa: PLR0915
                 raise error_auth
 
             if api_key:
-                asyncio.create_task(log_api_key_usage(session, api_key, user.id, request))
+                pass
 
         return user
 

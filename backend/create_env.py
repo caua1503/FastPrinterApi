@@ -22,7 +22,6 @@ def main():
         "REDIS_PORT": "6379",
         "REDIS_DB": "0",
         "DATABASE_URL": "postgresql+psycopg://postgres:password@127.0.0.1:5432/postgres",
-        "DATABASE_LOGS_URL": "postgresql+psycopg://postgres:password@127.0.0.1:5433/postgres",
         "SECRET_KEY": generate_random_code(256),
         "JWT_ALGORITHM": "HS256",
         "ACCESS_TOKEN_EXPIRE_MINUTES": "30",

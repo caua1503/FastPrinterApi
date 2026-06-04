@@ -23,7 +23,7 @@ backend/
     schemas/          # Schemas de validação de dados (Pydantic)
     services/         # Lógica de negócio, desacoplada dos endpoints
   migrations/         # Migrações do banco de dados principal (Alembic)
-  migrations_logs/    # Migrações do banco de dados de logs (Alembic)
+
   test/               # Testes automatizados (Pytest)
   celery_worker.py    # Definição do worker e agendamento de tarefas (Celery Beat)
   compose.yaml        # Orquestração dos serviços com Docker

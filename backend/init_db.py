@@ -14,7 +14,6 @@ from app.models.user_model import PermissionApiKey, PermissionUser, User, UserCo
 from app.schemas.permission_schema import (
     DepartmentPermissionCatalog,
     HistoryPermissionCatalog,
-    LogPermissionCatalog,
     MaintenancePermissionCatalog,
     PrinterPermissionCatalog,
     SupplyPermissionCatalog,
@@ -111,7 +110,6 @@ initial_user_permissions = get_all_permissions([
     DepartmentPermissionCatalog,
     MaintenancePermissionCatalog,
     HistoryPermissionCatalog,
-    LogPermissionCatalog,
 ])
 
 # Permissões para API keys (excluindo roles de sistema admin/member)
@@ -122,7 +120,6 @@ initial_api_permissions = get_all_api_permissions([
     DepartmentPermissionCatalog,
     MaintenancePermissionCatalog,
     HistoryPermissionCatalog,
-    LogPermissionCatalog,
 ])
 
 # --- English Data ---

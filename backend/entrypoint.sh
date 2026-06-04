@@ -22,10 +22,6 @@ log "Executing migrations for the main database..."
 uv run --no-dev alembic -c alembic.ini upgrade head
 check_error "Main database migrations failed"
 
-# Execute migrations for the logs database
-log "Executing migrations for the logs database..."
-uv run --no-dev alembic -c alembic_logs.ini upgrade head
-check_error "Logs database migrations failed"
 
 # Initialize database
 log "Initializing database..."
