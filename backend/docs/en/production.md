@@ -30,3 +30,9 @@ Follow these instructions to set up and run the project in your production envir
     # In the project root
     docker compose up -d
     ```    
+
+Docker Compose will start the following services:
+- `fastprinterapi_database`: PostgreSQL database.
+- `fastprinterapi_redis`: Redis cache server.
+- `fastprinterapi_app`: FastAPI web application.
+- `fastprinterapi_scheduler`: Standalone scheduling service (APScheduler) running `app.scheduler_main`.    

@@ -44,9 +44,20 @@ I sought to organize the project following a **Layered Architecture**. The idea 
 - `app/services`: Contains the application's business logic. It orchestrates operations and interacts with the data access layer.
 - `app/models`: Defines the data models (tables) using SQLAlchemy ORM.
 - `app/schemas`: Defines the data "contracts" with Pydantic, ensuring the validation and format of input and output data.
-- `app/core`: Stores functionalities that are used in multiple places, such as security, background tasks (Celery), and logging.
+- `app/core`: Stores functionalities that are used in multiple places, such as security, scheduled tasks (APScheduler), and utilities.
 - `app/helpers`: Contains utility functions to assist with specific tasks, such as database sessions, Redis manipulation, and data formatting.
 - `app/config`: Centralizes the application's configurations, loaded from environment variables.
+
+### Standalone Scheduling Service (APScheduler)
+Task scheduling is decoupled from the FastAPI application and runs in a dedicated process using **APScheduler 3.x** (`AsyncIOScheduler`), eliminating Celery and simplifying infrastructure.
+
+- **Entrypoint:** `app/scheduler_main.py` (run via `uv run python -m app.scheduler_main`).
+- **Configuration:** Timezone configured via `TIMEZONE` in `Config` (default: `America/Sao_Paulo`).
+- **Registered Jobs:**
+  - `update_all_printers_maintenance`: Cron daily at 02:00.
+  - `clean_refresh_tokens`: Cron on the 1st of every month at 03:00.
+- **Job defaults:** `max_instances=1`, `coalesce=True`, `misfire_grace_time=3600`.
+- **Fault tolerance:** Each job isolates failures within a `try/except` block with error logging, ensuring failures do not crash the scheduler loop.
 
 ### Testing with Pytest
 To ensure quality and stability, the project has a test suite with `pytest`. Test coverage aims to cover a large part of the code, helping to prevent regressions and unexpected errors. The test structure was designed with a focus on separation of responsibilities, using fixtures to isolate and configure test scenarios.
