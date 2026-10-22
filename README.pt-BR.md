@@ -46,7 +46,7 @@ Facilitar o controle, monitoramento e manutenção de parques de impressoras, fo
 - Postgres 17 (Banco de dados)
 - Redis 8.0 (Banco de cache)
 - Pydantic (validação de dados)
-- Celery Python (Executor de tarefas e sistema de filas)
+- APScheduler (AsyncIOScheduler para tarefas agendadas)
 - SQLAlchemy (ORM)
 - Alembic (migrações)
 - Docker (opcional)
@@ -59,9 +59,14 @@ A estrutura de diretórios é a seguinte:
 
 ```
 impressoras/
-  backend/    # Backend da API (FastAPI, Celery, PostgreSQL, Redis, etc.)
+  backend/    # Backend da API (FastAPI, APScheduler, PostgreSQL, Redis, etc.)
   frontend/   # Aplicação frontend (interface gráfica, em desenvolvimento)
 ```
+
+O backend inclui um serviço de agendamento separado (`python -m app.scheduler_main`) com APScheduler 3.x. Jobs agendados:
+- `update_all_printers_maintenance`: Diariamente às 02:00.
+- `clean_refresh_tokens`: Dia 1 de cada mês às 03:00.
+- Fuso horário configurável via variável de ambiente `TIMEZONE` (padrão: `America/Sao_Paulo`).
 
 Essa abordagem monorepo permite melhor integração entre backend e frontend, versionamento unificado e gerenciamento facilitado de recursos compartilhados. Cada módulo (backend e frontend) é autocontido, com suas próprias dependências e documentação, mas ambos fazem parte do mesmo projeto para um desenvolvimento e deploy mais ágeis.
 

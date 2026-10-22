@@ -16,6 +16,7 @@ class Config(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
     PRINTER_MAINTENANCE_BATCH_SIZE: int
+    TIMEZONE: str = "America/Sao_Paulo"
 
 
 @lru_cache

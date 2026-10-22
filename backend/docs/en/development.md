@@ -54,9 +54,7 @@ This command will format the code, check for linting errors, and then run the te
 
 You can run the application in two ways: with Docker or locally.
 
-### 1. With Docker (Recommended for Windows)
-
-This approach is recommended for development on Windows, as Celery (the background task manager) has dependencies that are not natively compatible with this system.
+### 1. With Docker
 
 **Step 1: Adjust the execution mode for development**
 
@@ -68,8 +66,8 @@ Open the `entrypoint.sh` file and make the following changes:
 # Start FastAPI server
 log "Starting FastAPI server..."
 
-# Comment out the production line (granian)
-# uv run --no-dev granian --interface asgi --host 0.0.0.0 --workers 1 --port 8000 app.main:app
+# Comment out the production line (granian or uvicorn)
+# uv run --no-dev uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 # And uncomment the development line (fastapi dev)
 uv run --no-dev fastapi dev --port 8000 --host 0.0.0.0 --reload ./app
@@ -82,22 +80,38 @@ After saving the changes to `entrypoint.sh`, run the following command to create
 ```bash
 task windev
 ```
-The services (application, database, Redis, and Celery) will be running in the background. The server will be available at `http://localhost:8000/docs`.
+The services (application, scheduler, database, and Redis) will be running in the background. The server will be available at `http://localhost:8000/docs`.
 
-### 2. Locally (Linux/macOS only)
+### 2. Locally
 
-If you are on a Linux or macOS environment, you can run the application directly. With a single command, you can start the FastAPI server and Celery processes in the background.
+If you are running the application locally, you can use the development script that automates the whole process.
 
 **How to run:**
 
-In a terminal, with the virtual environment activated, run:
+In a terminal, with Docker running and the virtual environment activated, run:
 ```bash
 task dev
 ```
 
 This command will do the following:
-1.  Start the **Celery Worker** in the background.
-2.  Start the **Celery Beat** (scheduler) in the background.
-3.  Start the **FastAPI** server in development mode, which will remain active in your terminal.
+1.  Verify that Docker is running.
+2.  Create the `.env` file with defaults if it does not exist.
+3.  Start Docker containers for PostgreSQL and Redis.
+4.  Run database migrations.
+5.  Initialize database with default data.
+6.  Start the FastAPI server and the scheduling service (`uv run python -m app.scheduler_main`) in the background.
 
-The server will be available at `http://127.0.0.1:8000/docs`. To stop all processes, simply press `Ctrl+C` in the terminal. 
+The server will be available at `http://127.0.0.1:8000/docs`. To stop all processes, simply press `Ctrl+C` in the terminal.
+
+### Standalone Scheduler Service (APScheduler)
+
+Task scheduling is decoupled from the API process and powered by **APScheduler 3.x** (`AsyncIOScheduler`), running in a separate process:
+
+```bash
+uv run python -m app.scheduler_main
+```
+
+- **Environment Variable `TIMEZONE`**: Sets the timezone for cron triggers (default: `America/Sao_Paulo`).
+- **Registered Jobs**:
+  - `update_all_printers_maintenance`: Runs daily at 02:00 to update maintenance forecasts for all printers.
+  - `clean_refresh_tokens`: Runs on the 1st of every month at 03:00 to purge refresh tokens expired for more than 20 days. 

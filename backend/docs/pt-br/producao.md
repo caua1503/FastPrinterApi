@@ -48,3 +48,9 @@ Salve as alterações do `entrypoint.sh`.
     # Na raiz do projeto
     docker compose up -d
     ```    
+
+O Docker Compose subirá os serviços:
+- `fastprinterapi_database`: Banco de dados PostgreSQL.
+- `fastprinterapi_redis`: Servidor de cache Redis.
+- `fastprinterapi_app`: Servidor FastAPI da API.
+- `fastprinterapi_scheduler`: Serviço de agendamento em segundo plano (APScheduler) executando `app.scheduler_main`.    
