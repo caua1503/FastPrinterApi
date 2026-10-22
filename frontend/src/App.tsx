@@ -1,37 +1,74 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { APITester } from "./APITester";
+import React, { useState } from "react";
+import type { PageKey } from "./types";
+import {
+  initialPrinters,
+  initialRecargas,
+  initialManutencoes,
+  initialAlertas,
+} from "./data/mockData";
+import { Sidebar } from "./components/layout/Sidebar";
+import { Topbar } from "./components/layout/Topbar";
+import { DashboardPage } from "./pages/DashboardPage";
+import { ImpressorasPage } from "./pages/ImpressorasPage";
+import { ManutencoesPage } from "./pages/ManutencoesPage";
+import { RecargasPage } from "./pages/RecargasPage";
+import { AlertasPage } from "./pages/AlertasPage";
+import { RelatoriosPage } from "./pages/RelatoriosPage";
+import { ConfiguracoesPage } from "./pages/ConfiguracoesPage";
 import "./index.css";
 
-import logo from "./logo.svg";
-import reactLogo from "./react.svg";
-
 export function App() {
+  const [activePage, setActivePage] = useState<PageKey>("dashboard");
+  const [printers, setPrinters] = useState(initialPrinters);
+  const [recargas, setRecargas] = useState(initialRecargas);
+  const [manutencoes, setManutencoes] = useState(initialManutencoes);
+  const [alertas, setAlertas] = useState(initialAlertas);
+
   return (
-    <div className="container mx-auto p-8 text-center relative z-10">
-      <div className="flex justify-center items-center gap-8 mb-8">
-        <img
-          src={logo}
-          alt="Bun Logo"
-          className="h-36 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#646cffaa] scale-120"
-        />
-        <img
-          src={reactLogo}
-          alt="React Logo"
-          className="h-36 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#61dafbaa] [animation:spin_20s_linear_infinite]"
-        />
+    <div className="flex min-h-screen bg-[#f4f6fb] text-[#1d2333] font-sans antialiased">
+      {/* Barra Lateral */}
+      <Sidebar activePage={activePage} onSelectPage={setActivePage} />
+
+      {/* Conteúdo Principal */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <Topbar activePage={activePage} />
+
+        <main className="flex-1 p-7 overflow-y-auto">
+          {activePage === "dashboard" && (
+            <DashboardPage
+              printers={printers}
+              recargas={recargas}
+              alertas={alertas}
+            />
+          )}
+
+          {activePage === "impressoras" && (
+            <ImpressorasPage printers={printers} />
+          )}
+
+          {activePage === "manutencoes" && (
+            <ManutencoesPage manutencoes={manutencoes} />
+          )}
+
+          {activePage === "recargas" && (
+            <RecargasPage recargas={recargas} />
+          )}
+
+          {activePage === "alertas" && (
+            <AlertasPage alertas={alertas} />
+          )}
+
+          {activePage === "relatorios" && (
+            <RelatoriosPage
+              printers={printers}
+              recargas={recargas}
+              manutencoes={manutencoes}
+            />
+          )}
+
+          {activePage === "configuracoes" && <ConfiguracoesPage />}
+        </main>
       </div>
-      <Card>
-        <CardHeader className="gap-4">
-          <CardTitle className="text-3xl font-bold">Bun + React</CardTitle>
-          <CardDescription>
-            Edit <code className="rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono">src/App.tsx</code> and save to
-            test HMR
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <APITester />
-        </CardContent>
-      </Card>
     </div>
   );
 }
