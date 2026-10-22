@@ -8,7 +8,8 @@ import asyncio
 
 import pytest
 
-from app.core.log_events import _background_tasks, log_event, log_redis_error
+from app.core import log_events
+from app.core.log_events import log_event, log_redis_error
 
 
 @pytest.mark.asyncio
@@ -22,11 +23,11 @@ async def test_log_event_runs_without_exception():
 @pytest.mark.asyncio
 async def test_log_event_task_removed_from_set_after_completion():
     """A task deve ser removida do _background_tasks após completar."""
-    initial_count = len(_background_tasks)
+    initial_count = len(log_events._background_tasks)  # noqa: SLF001
     log_event("system", message="teste_set")
     # Aguarda a task terminar e ser removida do set
     await asyncio.sleep(0.2)
-    assert len(_background_tasks) <= initial_count, "Tasks devem ser removidas do set ao completar"
+    assert len(log_events._background_tasks) <= initial_count, "Tasks devem ser removidas do set ao completar"  # noqa: SLF001
 
 
 @pytest.mark.asyncio

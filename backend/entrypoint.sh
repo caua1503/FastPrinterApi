@@ -27,11 +27,6 @@ check_error "Main database migrations failed"
 log "Initializing database..."
 uv run --no-dev init_db.py  #use -p para inicializar em portugues
 
-# Start Celery worker in background
-log "Starting Celery worker..."
-uv run --no-dev celery -A celery_worker worker --loglevel=warning &
-uv run --no-dev celery -A celery_worker beat --loglevel=warning &
-
 # Start FastAPI server
 log "Starting FastAPI server..."
 uv run --no-dev uvicorn app.main:app --host 0.0.0.0 --port 8000

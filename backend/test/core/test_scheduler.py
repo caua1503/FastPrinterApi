@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 import pytest_asyncio
@@ -7,11 +7,16 @@ from apscheduler.triggers.cron import CronTrigger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core import scheduler as scheduler_module
 from app.core.scheduler import create_scheduler, job_clean_refresh_tokens, job_update_all_printers_maintenance
 from app.models.auth_model import RefreshToken
 from app.models.maintenance_model import PrinterMaintenanceInfo
 from app.models.user_model import User
 from app.schemas.user_schema import UsersRoleSchema
+
+# ── constantes ────────────────────────────────────────────────────────────────
+EXPECTED_JOB_COUNT = 2
+EXPECTED_MISFIRE_GRACE_TIME = 3600
 
 
 # ── fixtures ──────────────────────────────────────────────────────────────────
@@ -68,7 +73,7 @@ def test_create_scheduler_registers_two_jobs():
     scheduler = create_scheduler()
     jobs = {job.id: job for job in scheduler.get_jobs()}
 
-    assert len(jobs) == 2, f"Esperado 2 jobs, encontrado: {list(jobs.keys())}"
+    assert len(jobs) == EXPECTED_JOB_COUNT, f"Esperado {EXPECTED_JOB_COUNT} jobs, encontrado: {list(jobs.keys())}"
     assert "update_all_printers_maintenance" in jobs
     assert "clean_refresh_tokens" in jobs
 
@@ -83,7 +88,9 @@ async def test_scheduler_job_defaults():
         for job_id, job in jobs.items():
             assert job.max_instances == 1, f"{job_id}: max_instances deve ser 1"
             assert job.coalesce is True, f"{job_id}: coalesce deve ser True"
-            assert job.misfire_grace_time == 3600, f"{job_id}: misfire_grace_time deve ser 3600"
+            assert job.misfire_grace_time == EXPECTED_MISFIRE_GRACE_TIME, (
+                f"{job_id}: misfire_grace_time deve ser {EXPECTED_MISFIRE_GRACE_TIME}"
+            )
     finally:
         scheduler.shutdown(wait=False)
 
@@ -116,9 +123,6 @@ def test_scheduler_clean_tokens_job_trigger():
 @pytest.mark.asyncio
 async def test_job_clean_refresh_tokens_removes_old(session: AsyncSession, old_token, recent_token):
     """job_clean_refresh_tokens() deve remover tokens com expires_at < 20 dias atrás."""
-    # Sobrescreve o engine do scheduler para usar a sessão de teste
-    from app.core import scheduler as scheduler_module
-
     original_engine = scheduler_module.engine
 
     # Usa o engine da sessão de teste
@@ -139,9 +143,6 @@ async def test_job_clean_refresh_tokens_removes_old(session: AsyncSession, old_t
 @pytest.mark.asyncio
 async def test_job_update_all_printers_maintenance_runs_without_exception(session: AsyncSession, printer):
     """job_update_all_printers_maintenance() deve rodar sem exceção com uma impressora existente."""
-    from app.helpers import database_helper
-
-    original_engine = database_helper.engine
 
     async def _patched_get_session():
         yield session
@@ -153,8 +154,6 @@ async def test_job_update_all_printers_maintenance_runs_without_exception(sessio
     # Verifica que PrinterMaintenanceInfo foi criado/atualizado
     result = await session.scalar(select(PrinterMaintenanceInfo).where(PrinterMaintenanceInfo.printer_id == printer.id))
     assert result is not None, "PrinterMaintenanceInfo deve ter sido criado para a impressora"
-
-    _ = original_engine  # suprime aviso de variável não usada
 
 
 @pytest.mark.asyncio
