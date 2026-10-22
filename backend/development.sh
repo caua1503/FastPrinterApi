@@ -98,7 +98,6 @@ echo "Starting the application..."
 trap 'kill $(jobs -p)' EXIT
 
 uv run fastapi dev ./app &
-uv run celery -A celery_worker worker --loglevel=info &
-uv run celery -A celery_worker beat --loglevel=info &
+uv run python -m app.scheduler_main &
 
 wait

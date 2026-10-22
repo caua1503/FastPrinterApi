@@ -44,9 +44,20 @@ Busquei organizar o projeto seguindo uma **Arquitetura em Camadas (Layered Archi
 - `app/services`: Contém a lógica de negócio da aplicação. Orquestra as operações e interage com a camada de acesso a dados.
 - `app/models`: Define os modelos de dados (tabelas) utilizando SQLAlchemy ORM.
 - `app/schemas`: Define os "contratos" de dados com Pydantic, garantindo a validação e o formato dos dados de entrada e saída.
-- `app/core`: Armazena funcionalidades que são usadas em vários lugares, como segurança, tarefas em background (Celery) e logging.
+- `app/core`: Armazena funcionalidades que são usadas em vários lugares, como segurança, agendamento de tarefas (APScheduler) e utilitários.
 - `app/helpers`: Contém funções utilitárias para auxiliar em tarefas específicas, como sessões de banco de dados, manipulação de Redis, e formatação de dados.
 - `app/config`: Centraliza as configurações da aplicação, carregadas a partir de variáveis de ambiente.
+
+### Serviço de Agendamento Standalone (APScheduler)
+O agendamento de tarefas foi desacoplado da API FastAPI e roda em um processo dedicado usando **APScheduler 3.x** (`AsyncIOScheduler`), evitando o uso do Celery e simplificando a infraestrutura.
+
+- **Ponto de entrada:** `app/scheduler_main.py` (executado via `uv run python -m app.scheduler_main`).
+- **Configuração:** O fuso horário é definido pela variável `TIMEZONE` no `Config` (default: `America/Sao_Paulo`).
+- **Jobs registrados:**
+  - `update_all_printers_maintenance`: Cron diariamente às 02:00.
+  - `clean_refresh_tokens`: Cron dia 1 de cada mês às 03:00.
+- **Configurações dos jobs:** `max_instances=1`, `coalesce=True`, `misfire_grace_time=3600`.
+- **Tratamento de exceções:** Cada job isola falhas em bloco `try/except` com log de exceção, impedindo que erros derrubem o loop do scheduler.
 
 ### Testes com Pytest
 Para garantir a qualidade e estabilidade, o projeto conta com uma suíte de testes com `pytest`. A cobertura de testes busca abranger grande parte do código, ajudando a prevenir regressões e erros inesperados. A estrutura dos testes foi pensada com foco na separação de responsabilidades, utilizando fixtures para isolar e configurar os cenários de teste.

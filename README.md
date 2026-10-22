@@ -48,7 +48,7 @@ To facilitate the control, monitoring, and maintenance of printer fleets by prov
 - Postgres 17 (Database)
 - Redis 8.0 (Cache database)
 - Pydantic (data validation)
-- Celery Python (Task executor and queue system)
+- APScheduler (AsyncIOScheduler for scheduled tasks)
 - SQLAlchemy (ORM)
 - Alembic (migrations)
 - Docker (optional)
@@ -61,9 +61,14 @@ Directory structure:
 
 ```
 impressoras/
-  backend/    # Backend API (FastAPI, Celery, PostgreSQL, Redis, etc.)
+  backend/    # Backend API (FastAPI, APScheduler, PostgreSQL, Redis, etc.)
   frontend/   # Frontend application (graphical interface, in development)
 ```
+
+The backend includes a standalone scheduling service (`python -m app.scheduler_main`) powered by APScheduler 3.x. Scheduled jobs:
+- `update_all_printers_maintenance`: Daily at 02:00.
+- `clean_refresh_tokens`: Day 1 of each month at 03:00.
+- Configurable timezone via `TIMEZONE` environment variable (default: `America/Sao_Paulo`).
 
 This approach allows better integration, unified versioning, and easier management of shared resources. Each module (backend and frontend) is self-contained, with its own dependencies and documentation, but both are part of the same project for streamlined development and deployment.
 

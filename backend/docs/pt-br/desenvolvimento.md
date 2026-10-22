@@ -54,9 +54,7 @@ Este comando irá formatar o código, verificar por erros de lint e, em seguida,
 
 Você pode executar a aplicação de duas formas: com Docker ou localmente.
 
-### 1. Com Docker (Recomendado para Windows)
-
-Esta abordagem é recomendada para desenvolvimento em Windows, pois o Celery (gerenciador de tarefas em segundo plano) possui dependências que não são nativamente compatíveis com este sistema.
+### 1. Com Docker
 
 **Passo 1: Ajustar o modo de execução para desenvolvimento**
 
@@ -78,8 +76,8 @@ uv run --no-dev init_db.py -p
 # Start FastAPI server
 log "Starting FastAPI server..."
 
-# Comente a linha de produção (granian)
-# uv run --no-dev granian --interface asgi --host 0.0.0.0 --workers 1 --port 8000 app.main:app
+# Comente a linha de produção (granian ou uvicorn)
+# uv run --no-dev uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 # E descomente a linha de desenvolvimento (fastapi dev)
 uv run --no-dev fastapi dev --port 8000 --host 0.0.0.0 --reload ./app
@@ -92,11 +90,11 @@ Após salvar as alterações no `entrypoint.sh`, execute o seguinte comando para
 ```bash
 task windev
 ```
-Os serviços (aplicação, banco de dados, Redis e Celery) estarão rodando em segundo plano. O servidor estará disponível em `http://localhost:8000/docs`.
+Os serviços (aplicação, agendador, banco de dados e Redis) estarão rodando em segundo plano. O servidor estará disponível em `http://localhost:8000/docs`.
 
-### 2. Localmente (Apenas Linux/macOS)
+### 2. Localmente
 
-Se você estiver em um ambiente Linux ou macOS, pode usar o script de desenvolvimento que automatiza todo o processo.
+Se você estiver rodando localmente, pode usar o script de desenvolvimento que automatiza todo o processo.
 
 **Como executar:**
 
@@ -111,10 +109,23 @@ Com o Docker em execução e o ambiente virtual ativado, execute um dos seguinte
 
 1.  Verifica se o Docker está em execução.
 2.  Cria o arquivo `.env` com valores padrão, caso ele não exista.
-3.  Inicia os contêineres Docker para os bancos de dados PostgreSQL e para o Redis.
+3.  Inicia os contêineres Docker para o banco de dados PostgreSQL e para o Redis.
 4.  Executa as migrações do banco de dados (schema).
 5.  Popula o banco de dados com dados iniciais.
-6.  Inicia o servidor FastAPI, o Celery Worker e o Celery Beat.
+6.  Inicia o servidor FastAPI e o serviço de agendamento (`uv run python -m app.scheduler_main`) em segundo plano.
 
 O servidor estará disponível em `http://127.0.0.1:8000/docs`. Para encerrar todos os processos, basta pressionar `Ctrl+C` no terminal.
+
+### Serviço de Agendamento Separado (APScheduler)
+
+O agendamento de tarefas do sistema foi desacoplado da API e utiliza o **APScheduler 3.x** (`AsyncIOScheduler`), executando em um processo dedicado:
+
+```bash
+uv run python -m app.scheduler_main
+```
+
+- **Variável de Ambiente `TIMEZONE`**: Define o fuso horário para os agendamentos (padrão: `America/Sao_Paulo`).
+- **Jobs Registrados**:
+  - `update_all_printers_maintenance`: Executado todos os dias às 02:00 para recalcular métricas e datas de manutenção preventiva das impressoras.
+  - `clean_refresh_tokens`: Executado no dia 1 de cada mês às 03:00 para expurgar tokens de autenticação expirados há mais de 20 dias.
 
