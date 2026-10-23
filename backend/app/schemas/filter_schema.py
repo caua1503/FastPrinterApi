@@ -28,8 +28,8 @@ class FilterBase(BaseModel):
 
 
 class FilterBase2(FilterBase):
-    time_start: Optional[date] = Field(default=date.today() - timedelta(days=7))
-    time_end: Optional[date] = Field(default=date.today())
+    time_start: Optional[date] = Field(default_factory=lambda: date.today() - timedelta(days=7))
+    time_end: Optional[date] = Field(default_factory=date.today)
 
 
 class FilterPrinterDefault(FilterBase):
