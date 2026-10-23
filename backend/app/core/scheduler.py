@@ -22,7 +22,7 @@ async def job_update_all_printers_maintenance() -> None:
     # TODO(etapa 3): revisar logica de manutencao
     """
     try:
-        from app.core import get_all_printers_maintenance_info  # noqa: PLC0415
+        from app.services.maintenance_service import get_all_printers_maintenance_info  # noqa: PLC0415
 
         async for session in get_session():
             await get_all_printers_maintenance_info(session, filters=FilterBase())
@@ -35,9 +35,7 @@ async def job_clean_refresh_tokens() -> None:
     try:
         expiration_date = datetime.now() - timedelta(days=20)
         async with AsyncSession(engine) as session:
-            result = await session.execute(
-                delete(RefreshToken).where(RefreshToken.expires_at < expiration_date)
-            )
+            result = await session.execute(delete(RefreshToken).where(RefreshToken.expires_at < expiration_date))
             await session.commit()
             logger.info("Refresh tokens removidos: %d", result.rowcount)
     except Exception:

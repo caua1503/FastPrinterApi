@@ -6,9 +6,7 @@ def _positive_intervals(dates: list[date]) -> tuple[list[date], list[int]]:
     """Remove duplicates, sort ascending, return (sorted_dates, positive_intervals_in_days)."""
     unique = sorted(set(dates))
     intervals = [
-        (unique[i + 1] - unique[i]).days
-        for i in range(len(unique) - 1)
-        if (unique[i + 1] - unique[i]).days > 0
+        (unique[i + 1] - unique[i]).days for i in range(len(unique) - 1) if (unique[i + 1] - unique[i]).days > 0
     ]
     return unique, intervals
 

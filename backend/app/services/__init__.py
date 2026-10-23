@@ -1,4 +1,3 @@
-from .core_service import get_printer_maintenance_info_service
 from .department_service import (
     create_department,
     delete_department,
@@ -24,6 +23,7 @@ from .history_service import (
     update_history_recharge,
     update_history_trash,
 )
+from .maintenance_service import get_printer_maintenance_info_service
 from .printer_service import (
     create_printer,
     delete_printer,
