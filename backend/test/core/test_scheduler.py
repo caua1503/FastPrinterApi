@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 import pytest
@@ -43,7 +43,7 @@ async def old_token(session: AsyncSession, user):
     token = RefreshToken(
         token="old_token_value",
         user_id=user.id,
-        expires_at=datetime.now() - timedelta(days=25),
+        expires_at=(datetime.now(timezone.utc) - timedelta(days=25)).replace(tzinfo=None),
     )
     session.add(token)
     await session.commit()
@@ -57,7 +57,7 @@ async def recent_token(session: AsyncSession, user):
     token = RefreshToken(
         token="recent_token_value",
         user_id=user.id,
-        expires_at=datetime.now() + timedelta(days=7),
+        expires_at=(datetime.now(timezone.utc) + timedelta(days=7)).replace(tzinfo=None),
     )
     session.add(token)
     await session.commit()
