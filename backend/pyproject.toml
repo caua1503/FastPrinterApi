@@ -1,7 +1,7 @@
 [project]
-name = "impressoras"
+name = "fastprinterapi"
 version = "0.1.0"
-description = "Add your description here"
+description = "Backend API for printer supply and maintenance management"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
