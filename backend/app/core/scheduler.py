@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -33,7 +33,8 @@ async def job_update_all_printers_maintenance() -> None:
 async def job_clean_refresh_tokens() -> None:
     """Remove refresh tokens expirados (mais de 20 dias) do banco de dados."""
     try:
-        expiration_date = datetime.now() - timedelta(days=20)
+        # Coluna naive (timestamp without time zone); usa UTC sem tzinfo para comparação consistente
+        expiration_date = (datetime.now(timezone.utc) - timedelta(days=20)).replace(tzinfo=None)
         async with AsyncSession(engine) as session:
             result = await session.execute(
                 delete(RefreshToken).where(RefreshToken.expires_at < expiration_date)
