@@ -13,10 +13,6 @@ check_error() {
     fi
 }
 
-# Wait for the database to be ready
-log "Waiting for database..."
-sleep 5
-
 # Execute migrations for the main database
 log "Executing migrations for the main database..."
 uv run --no-dev alembic -c alembic.ini upgrade head
