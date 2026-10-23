@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from app.helpers.core_helper import (
+from app.helpers.maintenance_helper import (
     calculate_next_recharge,
     calculate_recharge_percentage,
     calculate_trash_cleaning_next_time,
