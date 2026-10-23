@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from statistics import mean, median
 from typing import List
 
@@ -60,69 +60,61 @@ async def extract_trash_dates(printer_id: int, session: AsyncSession, filters: F
         return []
 
 
-def calculate_next_recharge(datas_recarga: list, type: str = "media") -> date:
+def _positive_intervals(dates: list[date]) -> tuple[list[date], list[int]]:
+    """Remove duplicates, sort ascending, return (sorted_dates, positive_intervals_in_days)."""
+    unique = sorted(set(dates))
+    intervals = [
+        (unique[i + 1] - unique[i]).days
+        for i in range(len(unique) - 1)
+        if (unique[i + 1] - unique[i]).days > 0
+    ]
+    return unique, intervals
+
+
+def calculate_next_recharge(datas_recarga: list[date], type: str = "media") -> date | None:
     """
     Calcula a próxima data de recarga com base nas datas de recarga anteriores.
     Args:
         datas_recarga (list): Lista de datas de recarga.
         type (str): Tipo de cálculo a ser realizado. Pode ser "media" ou "mediana".
     Returns:
-        date: A próxima data de recarga como objeto date.
+        date | None: A próxima data de recarga como objeto date, ou None se dados insuficientes.
     """
-    datas = []
-    for data in datas_recarga:
-        if isinstance(data, (datetime, date)):
-            if isinstance(data, date) and not isinstance(data, datetime):
-                datas.append(datetime.combine(data, datetime.min.time()))
-            else:
-                datas.append(data)
-        else:
-            datas.append(datetime.strptime(data, "%d/%m/%Y"))
-
-    data_ultima_recarga = datas[-1]
-    intervalos = [(datas[i + 1] - datas[i]).days for i in range(len(datas) - 1)]
+    datas, intervalos = _positive_intervals(datas_recarga)
+    if not intervalos:
+        return None
     if type == "media":
         dias = mean(intervalos)
     elif type == "mediana":
         dias = median(intervalos)
-    resultado = data_ultima_recarga + timedelta(days=int(dias))
-    return resultado.date()
+    else:
+        raise ValueError(f"type deve ser 'media' ou 'mediana', recebido: {type!r}")
+    return datas[-1] + timedelta(days=int(dias))
 
 
-def calculate_recharge_percentage(datas_recarga: list) -> float:
+def calculate_recharge_percentage(datas_recarga: list[date], today: date | None = None) -> float:
     """
     Calcula o percentual de carga atual da impressora baseado no tempo decorrido
     desde a última recarga em relação à média de duração entre recargas.
 
     Args:
         datas_recarga (list): Lista de datas de recarga.
+        today (date | None): Data de referência (default: date.today()).
     Returns:
         float: Percentual de carga atual (0-100).
                100% = recém recarregada (dia 0)
                50% = metade da vida útil
                0% = precisa recarga urgente
     """
-    datas_minima = 2
-    if len(datas_recarga) < datas_minima:
+    datas, intervalos = _positive_intervals(datas_recarga)
+    if not intervalos:
         return 0.0
 
-    datas = []
-    for data in datas_recarga:
-        if isinstance(data, (datetime, date)):
-            if isinstance(data, date) and not isinstance(data, datetime):
-                datas.append(datetime.combine(data, datetime.min.time()))
-            else:
-                datas.append(data)
-        else:
-            datas.append(datetime.strptime(data, "%d/%m/%Y"))
+    if today is None:
+        today = date.today()
 
-    datas.sort()
-
-    intervalos = [(datas[i + 1] - datas[i]).days for i in range(len(datas) - 1)]
     intervalo_medio_dias = mean(intervalos)
-    data_ultima_recarga = datas[-1]
-    hoje = datetime.now()
-    dias_desde_ultima = (hoje - data_ultima_recarga).days
+    dias_desde_ultima = (today - datas[-1]).days
     # Calcula o percentual de carga restante:
     # 100% = acabou de recarregar (0 dias)
     # 0% = tempo médio completo ou mais (precisa recarga)
@@ -134,7 +126,7 @@ def calculate_recharge_percentage(datas_recarga: list) -> float:
     return 0.0
 
 
-def calculate_trash_cleaning_next_time(trash_datas: list) -> date | None:
+def calculate_trash_cleaning_next_time(trash_datas: list[date]) -> date | None:
     """
     Calcula a próxima data de limpeza da lixeira com base no histórico de limpezas.
     Args:
@@ -142,67 +134,32 @@ def calculate_trash_cleaning_next_time(trash_datas: list) -> date | None:
     Returns:
         date | None: A próxima data de limpeza como objeto date ou None se não houver dados suficientes.
     """
-    datas_minima = 2
-    if len(trash_datas) < datas_minima:
-        return None
-
-    datas = []
-    for data in trash_datas:
-        if isinstance(data, (datetime, date)):
-            if isinstance(data, date) and not isinstance(data, datetime):
-                datas.append(datetime.combine(data, datetime.min.time()))
-            else:
-                datas.append(data)
-        else:
-            datas.append(datetime.strptime(data, "%d/%m/%Y"))
-
-    datas.sort(reverse=True)
-
-    intervals = [(datas[i] - datas[i + 1]).days for i in range(len(datas) - 1) if (datas[i] - datas[i + 1]).days > 0]
-
+    datas, intervals = _positive_intervals(trash_datas)
     if not intervals:
         return None
 
     tempo_medio = sum(intervals) / len(intervals)
-    ultima_limpeza = datas[0]
-    proxima_prevista = ultima_limpeza + timedelta(days=int(tempo_medio))
-
-    return proxima_prevista.date()
+    return datas[-1] + timedelta(days=int(tempo_medio))
 
 
-def calculate_trash_cleaning_percentage(trash_datas: list) -> float:
+def calculate_trash_cleaning_percentage(trash_datas: list[date], today: date | None = None) -> float:
     """
     Calcula o percentual de limpeza da lixeira com base no histórico de limpezas.
     Args:
         trash_datas (list): Lista de datas de limpeza da lixeira.
+        today (date | None): Data de referência (default: date.today()).
     Returns:
         float: O percentual de limpeza da lixeira (0.0-100.0).
     """
-    datas_minima = 2
-    if len(trash_datas) < datas_minima:
-        return 0.0
-
-    datas = []
-    for data in trash_datas:
-        if isinstance(data, (datetime, date)):
-            if isinstance(data, date) and not isinstance(data, datetime):
-                datas.append(datetime.combine(data, datetime.min.time()))
-            else:
-                datas.append(data)
-        else:
-            datas.append(datetime.strptime(data, "%d/%m/%Y"))
-
-    datas.sort(reverse=True)
-
-    intervals = [(datas[i] - datas[i + 1]).days for i in range(len(datas) - 1) if (datas[i] - datas[i + 1]).days > 0]
-
+    datas, intervals = _positive_intervals(trash_datas)
     if not intervals:
         return 0.0
 
+    if today is None:
+        today = date.today()
+
     intervalo_medio_dias = mean(intervals)
-    ultima_limpeza = datas[0]
-    hoje = datetime.now()
-    dias_desde_ultima = (hoje - ultima_limpeza).days
+    dias_desde_ultima = (today - datas[-1]).days
 
     # Calcula o percentual de limpeza necessária:
     # 0% = acabou de limpar (dia 0)

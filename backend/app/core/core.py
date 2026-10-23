@@ -37,7 +37,7 @@ async def get_all_printers_maintenance_info(session: AsyncSession, filters: Filt
     try:
         batch_size = config.PRINTER_MAINTENANCE_BATCH_SIZE
         objects_to_add = []
-        alert_cleaning_percentage = 10
+        TRASH_ALERT_THRESHOLD = 90
         query = select(Printer)
 
         async for printer in await session.stream_scalars(query):
@@ -54,7 +54,7 @@ async def get_all_printers_maintenance_info(session: AsyncSession, filters: Filt
             trash_cleaning_next_time_date = calculate_trash_cleaning_next_time(trash_datas)
             trash_cleaning_percentage_value = calculate_trash_cleaning_percentage(trash_datas)
 
-            if trash_cleaning_percentage_value <= alert_cleaning_percentage:
+            if trash_cleaning_percentage_value >= TRASH_ALERT_THRESHOLD:
                 alert_description = f"A limpeza da lixeira é urgente, percentual: {trash_cleaning_percentage_value}%"
                 alert_history = AlertHistorySchema(
                     printer_id=printer.id,
