@@ -4,7 +4,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import has_access
+from app.core.auth import has_access
 from app.helpers.database_helper import get_session
 from app.schemas.user_schema import (
     UserApiKeySchema,
