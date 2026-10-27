@@ -10,11 +10,6 @@ from app.core.security import (
     get_password_hash,
     verify_password,
 )
-from app.helpers.database_helper import get_redis_client
-from app.helpers.redis_helper import (
-    redis_get_value_pydantic,
-    redis_set_value_pydantic,
-)
 from app.models.user_model import User, UserApiKey, UserConfiguration
 from app.schemas.user_schema import (
     UserApiKeySchema,
@@ -130,20 +125,8 @@ async def get_api_key_from_user_id(session: AsyncSession, id: int):
 
     if not user_api_key:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="API key não encontrada")
-    redis_client = await get_redis_client()
-    list_api_key = await redis_get_value_pydantic(
-        f"list_api_key_{id}", UserApiKeySchema, is_list=True, redis_client=redis_client
-    )
 
-    if list_api_key:
-        return list_api_key
-
-    list_api_key = [UserApiKeySchema(api_key=api_key.api_key) for api_key in user_api_key]
-
-    if list_api_key:
-        await redis_set_value_pydantic(f"list_api_key_{id}", list_api_key)
-
-    return list_api_key if list_api_key else []
+    return [UserApiKeySchema(api_key=api_key.api_key) for api_key in user_api_key]
 
 
 async def delete_user(session: AsyncSession, id: int):

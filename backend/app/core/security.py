@@ -2,10 +2,8 @@ import secrets
 import string
 import time
 from datetime import datetime, timedelta, timezone
-from http import HTTPStatus
 
 import jwt
-from fastapi import HTTPException
 from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -80,7 +78,4 @@ async def create_refresh_token(session: AsyncSession):
         if not refresh_token_obj:
             return refresh_token
 
-    raise HTTPException(
-        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-        detail="Failed to generate unique refresh token after 20 attempts",
-    )
+    raise RuntimeError("Failed to generate unique refresh token after 20 attempts")
