@@ -8,7 +8,7 @@ from app.models import Printer
 @pytest.mark.asyncio
 async def test_get_printers_guest(client, guest_token):
     response = client.get("/api/v1/printer/", headers={"Authorization": f"Bearer {guest_token}"})
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.status_code == HTTPStatus.FORBIDDEN
 
 
 @pytest.mark.asyncio

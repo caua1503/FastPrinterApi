@@ -9,7 +9,7 @@ from app.models.history_model import StatusHistory
 @pytest.mark.asyncio
 async def test_get_history_status_guest(client, guest_token):
     response = client.get("/api/v1/history/status", headers={"Authorization": f"Bearer {guest_token}"})
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.status_code == HTTPStatus.FORBIDDEN
 
 
 @pytest.mark.asyncio
