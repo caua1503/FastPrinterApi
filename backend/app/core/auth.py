@@ -115,25 +115,30 @@ def has_access(
         if not user:
             raise error_auth
 
+        error_forbidden = HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail="Not enough permissions",
+        )
+
         if user.role == UsersRoleSchema.admin:
             return user
 
         if user.role != role:
-            raise error_auth
+            raise error_forbidden
 
         if auth_type == "bearer" and required_user_code:
             stmt = select(PermissionUser.code).join(UserPermission).where(UserPermission.user_id == user.id)
             permissions_result = await session.execute(stmt)
             user_permissions = {code for (code,) in permissions_result}
             if required_user_code not in user_permissions:
-                raise error_auth
+                raise error_forbidden
 
         if auth_type == "apikey" and required_api_scope:
             stmt = select(PermissionApiKey.code).join(UserApiKey).where(UserApiKey.user_id == user.id)
             permissions_result = await session.execute(stmt)
             api_permissions = {code for (code,) in permissions_result}
             if required_api_scope not in api_permissions:
-                raise error_auth
+                raise error_forbidden
 
         return user
 

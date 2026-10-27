@@ -10,7 +10,7 @@ from app.models.printer_model import Printer
 @pytest.mark.asyncio
 async def test_get_history_alert_guest(client, guest_token):
     response = client.get("/api/v1/history/alert", headers={"Authorization": f"Bearer {guest_token}"})
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.status_code == HTTPStatus.FORBIDDEN
 
 
 @pytest.mark.asyncio

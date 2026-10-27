@@ -34,7 +34,7 @@ async def test_role_downgrade_immediate(client, admin_user, admin_token, session
     await session.commit()
 
     resp = client.get("/api/v1/core/current/info/printer", headers=headers)
-    assert resp.status_code == HTTPStatus.UNAUTHORIZED
+    assert resp.status_code == HTTPStatus.FORBIDDEN
 
 
 @pytest.mark.asyncio

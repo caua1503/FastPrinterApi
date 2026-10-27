@@ -12,7 +12,7 @@ async def test_create_status_guest(client, guest_token):
         json={"status": "Test Status", "description": "Test Description"},
         headers={"Authorization": f"Bearer {guest_token}"},
     )
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.status_code == HTTPStatus.FORBIDDEN
 
 
 @pytest.mark.asyncio
