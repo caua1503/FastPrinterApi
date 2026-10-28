@@ -199,7 +199,9 @@ async def get_printer_maintenance_info(printer_id: int, session: AsyncSession, f
     }
 
 
-async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSession, filters: FilterBase) -> dict:
+async def get_printer_maintenance_info_service(
+    printer_id: int, session: AsyncSession, filters: FilterBase
+) -> PrinterMaintenanceInfoSchemaDB:
     printer = await session.scalar(select(Printer).where(Printer.id == printer_id))
     if not printer:
         raise HTTPException(status_code=404, detail="Impressora não encontrada")
@@ -218,15 +220,8 @@ async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSe
             info_manutencao.next_cleaning = info_dict["trash_cleaning_next_time"]
             info_manutencao.cleaning_percentage = info_dict["trash_cleaning_percentage"]
             await session.commit()
-        return {
-            "id": printer_id,
-            "next_recharge": info_manutencao.next_refill.strftime("%d/%m/%Y") if info_manutencao.next_refill else "N/A",
-            "percentage": info_manutencao.refill_percentage,
-            "trash_cleaning_next_time": info_manutencao.next_cleaning.strftime("%d/%m/%Y")
-            if info_manutencao.next_cleaning
-            else "N/A",
-            "trash_cleaning_percentage": f"{info_manutencao.cleaning_percentage:.2f}%",
-        }
+            await session.refresh(info_manutencao)
+        target_info = info_manutencao
     else:
         info_dict = await get_printer_maintenance_info(printer_id, session, filters)
         novo_info = PrinterMaintenanceInfo(
@@ -239,15 +234,19 @@ async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSe
         )
         session.add(novo_info)
         await session.commit()
-        return {
-            "id": printer_id,
-            "next_recharge": novo_info.next_refill.strftime("%d/%m/%Y") if novo_info.next_refill else "N/A",
-            "percentage": novo_info.refill_percentage,
-            "trash_cleaning_next_time": novo_info.next_cleaning.strftime("%d/%m/%Y")
-            if novo_info.next_cleaning
-            else "N/A",
-            "trash_cleaning_percentage": f"{novo_info.cleaning_percentage:.2f}%",
-        }
+        await session.refresh(novo_info)
+        target_info = novo_info
+
+    return PrinterMaintenanceInfoSchemaDB(
+        id=target_info.id,
+        printer_id=printer_id,
+        department_id=DepartmentIdSchema(id=printer.department.id, name=printer.department.name),  # type: ignore
+        last_update=target_info.last_update,
+        next_refill=target_info.next_refill,
+        next_cleaning=target_info.next_cleaning,
+        refill_percentage=target_info.refill_percentage,
+        cleaning_percentage=target_info.cleaning_percentage,
+    )
 
 
 async def list_printers_maintenance_info(

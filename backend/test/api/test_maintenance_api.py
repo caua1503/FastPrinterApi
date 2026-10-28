@@ -33,10 +33,15 @@ async def test_get_printer_maintenance_info_service(client, printer: Printer, me
     assert response.status_code == HTTPStatus.OK
     data = response.json()
     assert data["id"] == printer.id
-    assert "percentage" in data
-    assert "next_recharge" in data
-    assert "trash_cleaning_next_time" in data
-    assert "trash_cleaning_percentage" in data
+    assert "printer_id" in data
+    assert "department_id" in data
+    assert "last_update" in data
+    assert "refill_percentage" in data
+    assert "next_refill" in data
+    assert "next_cleaning" in data
+    assert "cleaning_percentage" in data
+    assert isinstance(data["refill_percentage"], float)
+    assert isinstance(data["cleaning_percentage"], float)
 
 
 @pytest.mark.asyncio
