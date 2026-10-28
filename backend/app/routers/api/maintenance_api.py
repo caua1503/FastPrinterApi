@@ -12,6 +12,7 @@ from app.services.maintenance_service import (
     get_all_printers_maintenance_info,
     get_printer_maintenance_info,
     get_printer_maintenance_info_service,
+    list_printers_maintenance_info,
 )
 
 maintenance_router = APIRouter()
@@ -45,7 +46,8 @@ async def api_get_all_printer_maintenance_info(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterBase, Query()],
     current_user=has_access(),
-): ...
+):
+    return await list_printers_maintenance_info(session, filters)
 
 
 @maintenance_router.get("/info/printer/{printer_id}", summary="Get a printer maintenance info")

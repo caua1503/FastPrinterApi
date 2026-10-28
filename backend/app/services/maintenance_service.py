@@ -2,7 +2,7 @@ from datetime import date
 from typing import List
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.config import get_config
@@ -12,11 +12,17 @@ from app.helpers.maintenance_helper import (
     calculate_trash_cleaning_next_time,
     calculate_trash_cleaning_percentage,
 )
+from app.models.department_model import Department
 from app.models.history_model import AlertHistory, MaintenanceInfoHistory, PrinterTrashHistory, RefillHistory
 from app.models.maintenance_model import PrinterMaintenanceInfo
 from app.models.printer_model import Printer
 from app.schemas.filter_schema import FilterBase
 from app.schemas.history_schema import AlertHistorySchema
+from app.schemas.maintenance_schema import (
+    ListPrinterMaintenanceInfoSchema,
+    PrinterMaintenanceInfoSchemaDB,
+)
+from app.schemas.printer_schema import DepartmentIdSchema
 
 config = get_config()
 
@@ -242,3 +248,49 @@ async def get_printer_maintenance_info_service(printer_id: int, session: AsyncSe
             else "N/A",
             "trash_cleaning_percentage": f"{novo_info.cleaning_percentage:.2f}%",
         }
+
+
+async def list_printers_maintenance_info(
+    session: AsyncSession, filters: FilterBase
+) -> ListPrinterMaintenanceInfoSchema:
+    count_query = (
+        select(func.count())
+        .select_from(PrinterMaintenanceInfo)
+        .join(Printer, PrinterMaintenanceInfo.printer_id == Printer.id)
+        .join(Department, Printer.department_id == Department.id)
+    )
+    total = await session.scalar(count_query) or 0
+
+    if not total:
+        return ListPrinterMaintenanceInfoSchema(total=0, count=0, list=[])
+
+    query = (
+        select(
+            PrinterMaintenanceInfo,
+            Department.id.label("dept_id"),
+            Department.name.label("dept_name"),
+        )
+        .join(Printer, PrinterMaintenanceInfo.printer_id == Printer.id)
+        .join(Department, Printer.department_id == Department.id)
+        .order_by(PrinterMaintenanceInfo.id.asc())
+        .limit(filters.limit)
+        .offset(filters.offset)
+    )
+
+    rows = (await session.execute(query)).all()
+
+    items = [
+        PrinterMaintenanceInfoSchemaDB(
+            id=info.id,
+            printer_id=info.printer_id,
+            department_id=DepartmentIdSchema(id=dept_id, name=dept_name),
+            last_update=info.last_update,
+            next_refill=info.next_refill,
+            next_cleaning=info.next_cleaning,
+            refill_percentage=info.refill_percentage,
+            cleaning_percentage=info.cleaning_percentage,
+        )
+        for info, dept_id, dept_name in rows
+    ]
+
+    return ListPrinterMaintenanceInfoSchema(total=total, count=len(items), list=items)
