@@ -21,7 +21,7 @@ check_error "Main database migrations failed"
 
 # Initialize database
 log "Initializing database..."
-uv run --no-dev init_db.py  #use -p para inicializar em portugues
+uv run --no-dev init_db.py -p  #use -p para inicializar em portugues
 
 # Start FastAPI server
 log "Starting FastAPI server..."

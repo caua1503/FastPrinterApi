@@ -18,8 +18,6 @@ logger = logging.getLogger(__name__)
 
 async def job_update_all_printers_maintenance() -> None:
     """Atualiza as informações de manutenção de todas as impressoras.
-
-    # TODO(etapa 3): revisar logica de manutencao
     """
     try:
         from app.services.maintenance_service import get_all_printers_maintenance_info  # noqa: PLC0415
