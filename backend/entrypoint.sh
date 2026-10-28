@@ -25,5 +25,6 @@ uv run --no-dev init_db.py  #use -p para inicializar em portugues
 
 # Start FastAPI server
 log "Starting FastAPI server..."
-uv run --no-dev uvicorn app.main:app --host 0.0.0.0 --port 8000
+# restringir ao IP/rede do nginx em produção
+uv run --no-dev uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips='*'
 # uv run --no-dev fastapi dev --port 8000 --host 0.0.0.0 --reload ./app
