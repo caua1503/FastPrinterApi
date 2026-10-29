@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import has_access
 from app.helpers.database_helper import get_session
-from app.schemas.department_schema import DepartmentSchema
+from app.schemas.department_schema import DepartmentListResponse, DepartmentSchema, DepartmentSchemaDB
 from app.schemas.filter_schema import FilterBase
 from app.services.department_service import (
     create_department,
@@ -18,7 +18,7 @@ from app.services.department_service import (
 department_router = APIRouter()
 
 
-@department_router.get("/", summary="Get all departments")
+@department_router.get("/", summary="Get all departments", response_model=DepartmentListResponse)
 async def api_get_departments(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterBase, Query()],
@@ -28,7 +28,7 @@ async def api_get_departments(
     return {"departments": departments}
 
 
-@department_router.post("/", summary="Create a department")
+@department_router.post("/", summary="Create a department", response_model=DepartmentSchemaDB)
 async def api_create_department(
     department: DepartmentSchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -36,7 +36,7 @@ async def api_create_department(
     return department_db
 
 
-@department_router.get("/{id}", summary="Get a department by id")
+@department_router.get("/{id}", summary="Get a department by id", response_model=DepartmentSchemaDB)
 async def api_get_department_id(
     id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -44,7 +44,7 @@ async def api_get_department_id(
     return department
 
 
-@department_router.put("/{id}", summary="Update a department by id")
+@department_router.put("/{id}", summary="Update a department by id", response_model=DepartmentSchemaDB)
 async def api_update_department(
     id: int,
     department: DepartmentSchema,

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class DepartmentSchema(BaseModel):
@@ -9,4 +9,10 @@ class DepartmentSchema(BaseModel):
 
 
 class DepartmentSchemaDB(DepartmentSchema):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
+
+
+class DepartmentListResponse(BaseModel):
+    departments: list[DepartmentSchemaDB]
