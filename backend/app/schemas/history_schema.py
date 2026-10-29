@@ -36,6 +36,12 @@ class AlertHistorySchema(BaseModel):
     description: Optional[str]
 
 
+class PrinterRefSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: str
+
+
 class StatusHistorySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     printer_id: int
@@ -64,18 +70,30 @@ class StatusHistorySchemaDB(StatusHistorySchema):
     id: int
 
 
+class RefillHistoryListItemSchema(RefillHistorySchemaDB):
+    printer: PrinterRefSchema
+
+
+class MaintenanceHistoryListItemSchema(MaintenanceHistorySchemaDB):
+    printer: PrinterRefSchema
+
+
+class AlertHistoryListItemSchema(AlertHistorySchemaDB):
+    printer: PrinterRefSchema
+
+
 class ListRefillHistorySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     total: int
     count: int
-    historys: List[RefillHistorySchemaDB]
+    historys: List[RefillHistoryListItemSchema]
 
 
 class ListMaintenanceHistorySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     total: int
     count: int
-    historys: List[MaintenanceHistorySchemaDB]
+    historys: List[MaintenanceHistoryListItemSchema]
 
 
 class ListStatusHistorySchema(BaseModel):
@@ -89,7 +107,7 @@ class ListAlertHistorySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     total: int
     count: int
-    historys: List[AlertHistorySchemaDB]
+    historys: List[AlertHistoryListItemSchema]
 
 
 class ListPrinterTrashHistorySchema(BaseModel):

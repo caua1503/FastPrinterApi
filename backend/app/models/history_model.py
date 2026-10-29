@@ -1,10 +1,13 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import ForeignKey, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base_model import table_registry
+
+if TYPE_CHECKING:
+    from app.models.printer_model import Printer
 
 
 @table_registry.mapped_as_dataclass
@@ -34,6 +37,7 @@ class MaintenanceHistory:
     date: Mapped[date]
     event_type: Mapped[str]  # preventive, cleaning, part replacement, repair, supply change
     description: Mapped[Optional[str]]
+    printer: Mapped["Printer"] = relationship(init=False)
 
 
 @table_registry.mapped_as_dataclass
@@ -55,6 +59,7 @@ class RefillHistory:
     event_type: Mapped[str]  # Refill, Supply Change
     supply_id: Mapped[int]
     description: Mapped[Optional[str]]
+    printer: Mapped["Printer"] = relationship(init=False)
 
 
 @table_registry.mapped_as_dataclass
@@ -65,3 +70,4 @@ class AlertHistory:
     date: Mapped[date]
     alert_type: Mapped[str]
     description: Mapped[Optional[str]]
+    printer: Mapped["Printer"] = relationship(init=False)

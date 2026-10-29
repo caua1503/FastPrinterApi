@@ -25,6 +25,7 @@ from app.schemas.history_schema import (
     StatusHistorySchemaDB,
 )
 from app.services.history_service import (
+    create_history_alert,
     create_history_maintenance,
     create_history_recharge,
     create_history_trash,
@@ -289,6 +290,21 @@ async def api_create_history_trash(
     Create a new history of trash
     """
     return await create_history_trash(history, session)
+
+
+@history_router.post(
+    "/alert",
+    summary="Create a new history of alert",
+    status_code=HTTPStatus.CREATED,
+    response_model=AlertHistorySchemaDB,
+)
+async def api_create_history_alert(
+    history: AlertHistorySchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
+):
+    """
+    Create a new history of alert
+    """
+    return await create_history_alert(history, session)
 
 
 @history_router.get(
