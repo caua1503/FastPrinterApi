@@ -1,15 +1,17 @@
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class PermissionBaseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     name: str
     code: str
     description: Optional[str] = None
 
 
 class PermissionBaseUpdateSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     name: Optional[str] = None
     description: Optional[str] = None
 
@@ -39,11 +41,13 @@ class PermissionApiKeySchemaDB(PermissionApiKeySchema):
 
 
 class ListPermissionUserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     total: int
     permissions: List[PermissionUserSchemaDB]
 
 
 class ListPermissionApiKeySchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     total: int
     permissions: List[PermissionApiKeySchemaDB]
 

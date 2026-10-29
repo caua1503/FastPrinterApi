@@ -3,6 +3,7 @@ from http import HTTPStatus
 from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.history_model import (
     AlertHistory,
@@ -80,7 +81,11 @@ async def get_history_recharge(session: AsyncSession, filters: FilterPrinterHist
             RefillHistory.date.desc() if filters.order_by == OrderBy.desc else RefillHistory.date.asc()
         )
 
-    historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
+    historys = (
+        await session.scalars(
+            query.options(selectinload(RefillHistory.printer)).limit(filters.limit).offset(filters.offset)
+        )
+    ).all()
 
     return ListRefillHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
@@ -157,7 +162,11 @@ async def get_history_maintenance(session: AsyncSession, filters: FilterPrinterH
             MaintenanceHistory.date.desc() if filters.order_by == OrderBy.desc else MaintenanceHistory.date.asc()
         )
 
-    historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
+    historys = (
+        await session.scalars(
+            query.options(selectinload(MaintenanceHistory.printer)).limit(filters.limit).offset(filters.offset)
+        )
+    ).all()
 
     return ListMaintenanceHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
@@ -271,7 +280,7 @@ ROTA DE HISTORICO DE ALERTA
 """
 
 
-async def create_history_alert(history: AlertHistorySchema, session: AsyncSession) -> AlertHistorySchema:
+async def create_history_alert(history: AlertHistorySchema, session: AsyncSession) -> AlertHistory:
     history_db = AlertHistory(
         printer_id=history.printer_id,
         date=history.date,
@@ -283,12 +292,7 @@ async def create_history_alert(history: AlertHistorySchema, session: AsyncSessio
     await session.commit()
     await session.refresh(history_db)
 
-    return AlertHistorySchema(
-        printer_id=history_db.printer_id,
-        date=history_db.date,
-        alert_type=history_db.alert_type,
-        description=history_db.description,
-    )
+    return history_db
 
 
 async def get_history_alerts(session: AsyncSession, filters: FilterPrinterHistory):
@@ -312,7 +316,11 @@ async def get_history_alerts(session: AsyncSession, filters: FilterPrinterHistor
             AlertHistory.date.desc() if filters.order_by == OrderBy.desc else AlertHistory.date.asc()
         )
 
-    historys = (await session.scalars(query.limit(filters.limit).offset(filters.offset))).all()
+    historys = (
+        await session.scalars(
+            query.options(selectinload(AlertHistory.printer)).limit(filters.limit).offset(filters.offset)
+        )
+    ).all()
     return ListAlertHistorySchema(total=total, count=len(historys), historys=historys)  # type: ignore
 
 

@@ -22,7 +22,7 @@ async def test_get_history_recharge_empty(client, member_token):
 
 
 @pytest.mark.asyncio
-async def test_get_history_recharge(client, refill_history: RefillHistory, member_token):
+async def test_get_history_recharge(client, refill_history: RefillHistory, printer: Printer, member_token):
     response = client.get("/api/v1/history/recharge", headers={"Authorization": f"Bearer {member_token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
@@ -30,6 +30,8 @@ async def test_get_history_recharge(client, refill_history: RefillHistory, membe
     assert response_json["count"] == 1
     assert response_json["historys"][0]["id"] == refill_history.id
     assert response_json["historys"][0]["printer_id"] == refill_history.printer_id
+    assert response_json["historys"][0]["printer"]["id"] == printer.id
+    assert response_json["historys"][0]["printer"]["name"] == printer.name
     assert response_json["historys"][0]["date"] == refill_history.date.strftime("%Y-%m-%d")
     assert response_json["historys"][0]["event_type"] == refill_history.event_type
     assert response_json["historys"][0]["supply_id"] == refill_history.supply_id

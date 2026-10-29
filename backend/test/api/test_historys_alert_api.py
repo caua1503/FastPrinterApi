@@ -21,7 +21,7 @@ async def test_get_history_alert_empty(client, member_token):
 
 
 @pytest.mark.asyncio
-async def test_get_history_alert(client, alert_history: AlertHistory, member_token):
+async def test_get_history_alert(client, alert_history: AlertHistory, printer: Printer, member_token):
     response = client.get("/api/v1/history/alert", headers={"Authorization": f"Bearer {member_token}"})
     response_json = response.json()
     assert response.status_code == HTTPStatus.OK
@@ -29,9 +29,30 @@ async def test_get_history_alert(client, alert_history: AlertHistory, member_tok
     assert response_json["count"] == 1
     assert response_json["historys"][0]["id"] == alert_history.id
     assert response_json["historys"][0]["printer_id"] == alert_history.printer_id
+    assert response_json["historys"][0]["printer"]["id"] == printer.id
+    assert response_json["historys"][0]["printer"]["name"] == printer.name
     assert response_json["historys"][0]["date"] == alert_history.date.strftime("%Y-%m-%d")
     assert response_json["historys"][0]["alert_type"] == alert_history.alert_type
     assert response_json["historys"][0]["description"] == alert_history.description
+
+
+@pytest.mark.asyncio
+async def test_create_history_alert(client, printer: Printer, member_token):
+    response = client.post(
+        "/api/v1/history/alert",
+        json={
+            "printer_id": printer.id,
+            "date": date.today().strftime("%Y-%m-%d"),
+            "alert_type": "Toner Low",
+            "description": "Alert description",
+        },
+        headers={"Authorization": f"Bearer {member_token}"},
+    )
+    assert response.status_code == HTTPStatus.CREATED
+    response_json = response.json()
+    assert response_json["printer_id"] == printer.id
+    assert response_json["alert_type"] == "Toner Low"
+    assert response_json["description"] == "Alert description"
 
 
 @pytest.mark.asyncio
