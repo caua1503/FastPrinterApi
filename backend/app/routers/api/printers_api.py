@@ -7,7 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.auth import has_access
 from app.helpers.database_helper import get_session
 from app.schemas.filter_schema import FilterPrinterDefault
-from app.schemas.printer_schema import FullPrinterSchema, FullPrinterUpdateSchema, ListFullPrinterPublicSchema
+from app.schemas.printer_schema import (
+    FullPrinterPublicSchema,
+    FullPrinterSchema,
+    FullPrinterSchemaDB,
+    FullPrinterUpdateSchema,
+    ListFullPrinterPublicSchema,
+)
 from app.services.printer_service import (
     create_printer,
     delete_printer,
@@ -39,13 +45,17 @@ async def api_create_printer(
     return printer_db
 
 
-@printer_router.get("/{id}", summary="Get a printer by id", status_code=HTTPStatus.OK)
+@printer_router.get(
+    "/{id}", summary="Get a printer by id", status_code=HTTPStatus.OK, response_model=FullPrinterPublicSchema
+)
 async def api_get_printer(id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
     printer = await get_printer_id(session, id)
     return printer
 
 
-@printer_router.put("/{id}", summary="Update a printer by id", status_code=HTTPStatus.OK)
+@printer_router.put(
+    "/{id}", summary="Update a printer by id", status_code=HTTPStatus.OK, response_model=FullPrinterSchemaDB
+)
 async def api_update_printer(
     id: int,
     printer: FullPrinterUpdateSchema,

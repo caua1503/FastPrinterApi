@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class StatusSchema(BaseModel):
@@ -7,4 +7,10 @@ class StatusSchema(BaseModel):
 
 
 class StatusSchemaDB(StatusSchema):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
+
+
+class StatusListResponse(BaseModel):
+    status: list[StatusSchemaDB]

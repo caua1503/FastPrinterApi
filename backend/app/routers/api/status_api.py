@@ -7,20 +7,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.auth import has_access
 from app.helpers.database_helper import get_session
 from app.schemas.filter_schema import FilterBase
-from app.schemas.status_schema import StatusSchema
+from app.schemas.status_schema import StatusListResponse, StatusSchema, StatusSchemaDB
 from app.services.status_service import create_status, delete_status, get_status, get_status_id, update_status
 
 status_router = APIRouter()
 
 
-@status_router.post("/", summary="Create a new status", status_code=HTTPStatus.CREATED)
+@status_router.post("/", summary="Create a new status", status_code=HTTPStatus.CREATED, response_model=StatusSchemaDB)
 async def api_create_status(
     status: StatusSchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
     return await create_status(status, session)
 
 
-@status_router.get("/", summary="Get all status", status_code=HTTPStatus.OK)
+@status_router.get("/", summary="Get all status", status_code=HTTPStatus.OK, response_model=StatusListResponse)
 async def api_get_status(
     session: Annotated[AsyncSession, Depends(get_session)],
     filters: Annotated[FilterBase, Query()],
@@ -30,7 +30,7 @@ async def api_get_status(
     return {"status": result}
 
 
-@status_router.put("/{id}", summary="Update a status by id", status_code=HTTPStatus.OK)
+@status_router.put("/{id}", summary="Update a status by id", status_code=HTTPStatus.OK, response_model=StatusSchemaDB)
 async def api_update_status(
     id: int, status: StatusSchema, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()
 ):
@@ -42,6 +42,6 @@ async def api_delete_status(id: int, session: Annotated[AsyncSession, Depends(ge
     return await delete_status(id, session)
 
 
-@status_router.get("/{id}", summary="Get a status by id", status_code=HTTPStatus.OK)
+@status_router.get("/{id}", summary="Get a status by id", status_code=HTTPStatus.OK, response_model=StatusSchemaDB)
 async def api_get_status_id(id: int, session: Annotated[AsyncSession, Depends(get_session)], current_user=has_access()):
     return await get_status_id(id, session)
